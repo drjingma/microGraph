@@ -1,6 +1,8 @@
 # microGraph
 Graphical models for microbiome data
 
+ * Note display below is not optimized for LaTeX code. You may find it easier to view it in RStudio viewer panel. 
+ 
  * Set the number of variables $p=200$ and vary the sample size $n=100,200,500$.
  
  * Run both null model (a. shuffle an available dataset, e.g. amgut1.filt from *SpiecEasi* package; b. generate from Dirichlet Multinomial) and parametric/alternative model (a. a log-normal distribution; b. generative copula model used in SPIEC-EASI). 
@@ -23,6 +25,6 @@ Graphical models for microbiome data
 
  * Software tools
  
-      - The package *Huge* is really useful. It has several built in functions for building ROC and calculating AUC. As long as we use the same sequence of tuning parameters, comparison across methods should be fair. 
+      - The R package *Huge* is really useful. It has several built in functions for building ROC and calculating AUC. As long as we use the same sequence of tuning parameters, comparison across methods should be fair. 
       
       - I have included several code examples on running gCoda, Spiec-Easi, and SPRING.
