@@ -1,0 +1,2442 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<graphDataLinker>
+  <graph id="">
+    <nodes>
+      <node id="taxa9"/>
+      <node id="taxa8"/>
+      <node id="taxa15"/>
+      <node id="taxa6"/>
+      <node id="taxa5"/>
+      <node id="taxa13"/>
+      <node id="taxa12"/>
+      <node id="taxa4"/>
+      <node id="taxa3"/>
+      <node id="taxa11"/>
+      <node id="taxa2"/>
+      <node id="taxa10"/>
+      <node id="taxa1"/>
+    </nodes>
+    <arcs>
+      <arc head="taxa8" id="taxa2->taxa8=correl_spearman" tail="taxa2"/>
+      <arc head="taxa8" id="taxa15->taxa8=correl_pearson" tail="taxa15"/>
+      <arc head="taxa3" id="taxa1->taxa3=dist_kullbackleibler" tail="taxa1"/>
+      <arc head="taxa9" id="taxa8->taxa9=dist_kullbackleibler" tail="taxa8"/>
+      <arc head="taxa3" id="taxa1->taxa3=dist_bray" tail="taxa1"/>
+      <arc head="taxa12" id="taxa9->taxa12=dist_bray" tail="taxa9"/>
+      <arc head="taxa12" id="taxa4->taxa12=correl_pearson" tail="taxa4"/>
+      <arc head="taxa2" id="taxa11->taxa2=correl_pearson" tail="taxa11"/>
+      <arc head="taxa2" id="taxa13->taxa2=correl_pearson" tail="taxa13"/>
+      <arc head="taxa2" id="taxa10->taxa2=correl_pearson" tail="taxa10"/>
+      <arc head="taxa9" id="taxa4->taxa9=correl_spearman" tail="taxa4"/>
+      <arc head="taxa11" id="taxa4->taxa11=correl_pearson" tail="taxa4"/>
+      <arc head="taxa8" id="taxa15->taxa8=dist_bray" tail="taxa15"/>
+      <arc head="taxa10" id="taxa4->taxa10=correl_pearson" tail="taxa4"/>
+      <arc head="taxa6" id="taxa3->taxa6=dist_bray" tail="taxa3"/>
+      <arc head="taxa8" id="taxa15->taxa8=correl_spearman" tail="taxa15"/>
+      <arc head="taxa2" id="taxa10->taxa2=correl_spearman" tail="taxa10"/>
+      <arc head="taxa10" id="taxa1->taxa10=correl_spearman" tail="taxa1"/>
+      <arc head="taxa12" id="taxa4->taxa12=correl_spearman" tail="taxa4"/>
+      <arc head="taxa6" id="taxa2->taxa6=correl_spearman" tail="taxa2"/>
+      <arc head="taxa12" id="taxa9->taxa12=correl_pearson" tail="taxa9"/>
+      <arc head="taxa10" id="taxa1->taxa10=dist_kullbackleibler" tail="taxa1"/>
+      <arc head="taxa8" id="taxa4->taxa8=correl_spearman" tail="taxa4"/>
+      <arc head="taxa10" id="taxa1->taxa10=correl_pearson" tail="taxa1"/>
+      <arc head="taxa6" id="taxa3->taxa6=dist_kullbackleibler" tail="taxa3"/>
+      <arc head="taxa12" id="taxa11->taxa12=dist_bray" tail="taxa11"/>
+      <arc head="taxa11" id="taxa4->taxa11=correl_spearman" tail="taxa4"/>
+      <arc head="taxa2" id="taxa11->taxa2=correl_spearman" tail="taxa11"/>
+      <arc head="taxa5" id="taxa2->taxa5=correl_spearman" tail="taxa2"/>
+      <arc head="taxa9" id="taxa2->taxa9=correl_pearson" tail="taxa2"/>
+      <arc head="taxa9" id="taxa4->taxa9=correl_pearson" tail="taxa4"/>
+      <arc head="taxa8" id="taxa2->taxa8=correl_pearson" tail="taxa2"/>
+      <arc head="taxa8" id="taxa15->taxa8=dist_kullbackleibler" tail="taxa15"/>
+      <arc head="taxa10" id="taxa1->taxa10=dist_bray" tail="taxa1"/>
+      <arc head="taxa8" id="taxa4->taxa8=correl_pearson" tail="taxa4"/>
+      <arc head="taxa10" id="taxa11->taxa10=dist_bray" tail="taxa11"/>
+      <arc head="taxa4" id="taxa2->taxa4=dist_kullbackleibler" tail="taxa2"/>
+      <arc head="taxa9" id="taxa2->taxa9=correl_spearman" tail="taxa2"/>
+      <arc head="taxa6" id="taxa2->taxa6=correl_pearson" tail="taxa2"/>
+      <arc head="taxa10" id="taxa6->taxa10=correl_spearman" tail="taxa6"/>
+      <arc head="taxa6" id="taxa4->taxa6=correl_pearson" tail="taxa4"/>
+      <arc head="taxa3" id="taxa1->taxa3=correl_spearman" tail="taxa1"/>
+      <arc head="taxa5" id="taxa2->taxa5=correl_pearson" tail="taxa2"/>
+      <arc head="taxa10" id="taxa4->taxa10=correl_spearman" tail="taxa4"/>
+      <arc head="taxa3" id="taxa1->taxa3=correl_pearson" tail="taxa1"/>
+      <arc head="taxa6" id="taxa4->taxa6=correl_spearman" tail="taxa4"/>
+      <arc head="taxa10" id="taxa3->taxa10=dist_bray" tail="taxa3"/>
+      <arc head="taxa15" id="taxa11->taxa15=dist_bray" tail="taxa11"/>
+      <arc head="taxa15" id="taxa11->taxa15=correl_pearson" tail="taxa11"/>
+      <arc head="taxa4" id="taxa2->taxa4=dist_bray" tail="taxa2"/>
+    </arcs>
+  </graph>
+  <datas>
+    <data id="cooccurrence network">
+      <element id="taxa2->taxa8=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.18566512</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.0956888048602916</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.21531953</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.18566512</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.20914275389999998</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa2-&gt;taxa8=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa1">
+        <annotation id="oriID">
+          <string>taxa1</string>
+        </annotation>
+        <annotation id="unknowndegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="posdegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="abundance">
+          <double>23.354949422283507</double>
+        </annotation>
+        <annotation id="degree">
+          <integer>8</integer>
+        </annotation>
+        <annotation id="samplecount">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa1</string>
+        </annotation>
+        <annotation id="negdegree">
+          <integer>8</integer>
+        </annotation>
+      </element>
+      <element id="taxa15->taxa8=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.26609614</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09415448043723494</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.023850685</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.26609614</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.03087552819999999</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa15-&gt;taxa8=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa1->taxa3=dist_kullbackleibler">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>1.04057349</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.0514876641264523</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.523161365</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_kullbackleibler</string>
+        </annotation>
+        <annotation id="weight">
+          <double>1.04057349</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.5265288546999999</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa1-&gt;taxa3=dist_kullbackleibler</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa8->taxa9=dist_kullbackleibler">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.81786863</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.06050832639443637</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.72224088</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_kullbackleibler</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.81786863</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.7205386947000001</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa8-&gt;taxa9=dist_kullbackleibler</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.030000000000000027</double>
+        </annotation>
+      </element>
+      <element id="taxa1->taxa3=dist_bray">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.40544416</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.01634972055115202</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.273380805</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_bray</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.40544416</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.27258875350000006</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa1-&gt;taxa3=dist_bray</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa9->taxa12=dist_bray">
+        <annotation id="interactionType">
+          <string>copresence</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.24175774</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.026303312856265137</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.28282666</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_bray</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.24175774</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.2850168804999999</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa9-&gt;taxa12=dist_bray</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.04</double>
+        </annotation>
+      </element>
+      <element id="taxa11->taxa2=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.24511494</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09176437181194673</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.22321153500000002</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.24511494</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.21939914680000006</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa11-&gt;taxa2=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa4->taxa12=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.22014563</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09105533889252646</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.197986375</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.22014563</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.19800743060000006</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa4-&gt;taxa12=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa10->taxa2=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.22733611</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09190716004630577</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.203820135</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.22733611</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.19969996789999997</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa10-&gt;taxa2=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa13->taxa2=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.22637527</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09991704333727205</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.230196975</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.22637527</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.2306958633999999</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa13-&gt;taxa2=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa4->taxa11=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.39717612</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09920909856200673</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.229066455</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.39717612</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.23009258430000012</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa4-&gt;taxa11=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa4->taxa9=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.22808281</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09300956202961698</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.20544254499999998</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.22808281</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.19839015879999994</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa4-&gt;taxa9=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa15->taxa8=dist_bray">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.37840663</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.02382434702599389</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.30853216</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_bray</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.37840663</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.3068860466999999</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa15-&gt;taxa8=dist_bray</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa4->taxa10=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.28420777</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.08615757646449812</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.20992621</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.28420777</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.20412846719999997</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa4-&gt;taxa10=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa3->taxa6=dist_bray">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.34831354</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.01967754473566642</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.30382045</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_bray</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.34831354</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.30577897639999996</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa3-&gt;taxa6=dist_bray</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.020000000000000018</double>
+        </annotation>
+      </element>
+      <element id="taxa15->taxa8=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.21317732</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.10901990087723605</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.0490069</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.21317732</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.053111791100000014</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa15-&gt;taxa8=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa1->taxa10=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.20879688</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09706202691171353</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.19812781499999998</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.20879688</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.1923403539000001</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa1-&gt;taxa10=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa10->taxa2=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.17151567</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.08495461834521582</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.2149955</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.17151567</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.21091905199999997</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa10-&gt;taxa2=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa4->taxa12=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.19607561</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.0964916757850991</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.213423345</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.19607561</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.20105334569999994</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa4-&gt;taxa12=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa2->taxa6=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.21773843</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09015195647489471</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.214269425</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.21773843</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.22043456330000008</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa2-&gt;taxa6=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa9->taxa12=correl_pearson">
+        <annotation id="interactionType">
+          <string>copresence</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.20568764</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.10257319896493738</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.00826151</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.20568764</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.013846281399999995</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa9-&gt;taxa12=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.05</double>
+        </annotation>
+      </element>
+      <element id="taxa1->taxa10=dist_kullbackleibler">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.74047612</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.06350843415661764</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.604682165</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_kullbackleibler</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.74047612</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.6014197768999999</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa1-&gt;taxa10=dist_kullbackleibler</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.010000000000000009</double>
+        </annotation>
+      </element>
+      <element id="taxa4->taxa8=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.22405041</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.08533783841209451</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.20984698499999999</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.22405041</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.20871767150000006</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa4-&gt;taxa8=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa1->taxa10=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.23716474</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09865838517266277</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.161608435</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.23716474</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.15113005060000004</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa1-&gt;taxa10=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa3->taxa6=dist_kullbackleibler">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.77490858</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.07010147978714941</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.642474355</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_kullbackleibler</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.77490858</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.6440572233999999</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa3-&gt;taxa6=dist_kullbackleibler</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.040000000000000036</double>
+        </annotation>
+      </element>
+      <element id="taxa11->taxa12=dist_bray">
+        <annotation id="interactionType">
+          <string>copresence</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.24564306</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.022087964646102</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.288092535</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_bray</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.24564306</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.2890928003999999</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa11-&gt;taxa12=dist_bray</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.05</double>
+        </annotation>
+      </element>
+      <element id="taxa4->taxa11=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.32564056</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.08033129444340566</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.203354335</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.32564056</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.20013057290000005</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa4-&gt;taxa11=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa11->taxa2=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.22408708</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09911725643430301</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.17078907999999998</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.22408708</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.1779827183</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa11-&gt;taxa2=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa2->taxa5=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.2359023</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.08469162475480686</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.2169817</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.2359023</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.20630003009999995</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa2-&gt;taxa5=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa2->taxa9=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.28513187</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09954977070725216</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.22208114</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.28513187</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.21159416019999994</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa2-&gt;taxa9=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa4->taxa9=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.27404181</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09371142951100363</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.20904467</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.27404181</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.20836926890000007</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa4-&gt;taxa9=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa2->taxa8=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.25213308</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09454969997920135</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.22239523</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.25213308</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.21588049939999984</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa2-&gt;taxa8=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa15->taxa8=dist_kullbackleibler">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.91575865</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.06765975143947267</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.733866555</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_kullbackleibler</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.91575865</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.7352081818999998</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa15-&gt;taxa8=dist_kullbackleibler</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa1->taxa10=dist_bray">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.33405635</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.01920046303253116</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.291082495</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_bray</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.33405635</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.29081686379999994</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa1-&gt;taxa10=dist_bray</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.010000000000000009</double>
+        </annotation>
+      </element>
+      <element id="taxa4->taxa8=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.26778983</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09640099287052732</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.21557613</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.26778983</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.2132063381000001</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa4-&gt;taxa8=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa11->taxa10=dist_bray">
+        <annotation id="interactionType">
+          <string>copresence</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.23589362</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.023565612477295897</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.29206733500000004</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_bray</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.23589362</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.2900016986000001</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa11-&gt;taxa10=dist_bray</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.03</double>
+        </annotation>
+      </element>
+      <element id="taxa2->taxa6=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.24214558</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09393719068825147</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.22669688500000001</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.24214558</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.22343966369999996</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa2-&gt;taxa6=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa2->taxa9=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.25818259</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09280364709321483</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.200270025</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.25818259</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.19879291949999994</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa2-&gt;taxa9=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa2->taxa4=dist_kullbackleibler">
+        <annotation id="interactionType">
+          <string>copresence</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.00143283</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>2.0690599019542672E-4</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.002046235</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_kullbackleibler</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.00143283</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.0020360215000000004</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa2-&gt;taxa4=dist_kullbackleibler</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.01</double>
+        </annotation>
+      </element>
+      <element id="taxa6->taxa10=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.16854485</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.08726455795065742</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.052079205</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.16854485</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.05655673599999998</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa6-&gt;taxa10=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa4->taxa6=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.25211982</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09485087041525805</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.229266495</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.25211982</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.22589897690000005</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa4-&gt;taxa6=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa1->taxa3=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.99284728</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.07901888712222305</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.50076208</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.99284728</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.4991918390999999</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa1-&gt;taxa3=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa15">
+        <annotation id="oriID">
+          <string>taxa15</string>
+        </annotation>
+        <annotation id="unknowndegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="posdegree">
+          <integer>2</integer>
+        </annotation>
+        <annotation id="abundance">
+          <double>1.0016465290236933</double>
+        </annotation>
+        <annotation id="degree">
+          <integer>6</integer>
+        </annotation>
+        <annotation id="samplecount">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa15</string>
+        </annotation>
+        <annotation id="negdegree">
+          <integer>4</integer>
+        </annotation>
+      </element>
+      <element id="taxa2->taxa5=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.29508638</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.08706028320940358</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.212366585</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.29508638</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.2133653582</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa2-&gt;taxa5=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa13">
+        <annotation id="oriID">
+          <string>taxa13</string>
+        </annotation>
+        <annotation id="unknowndegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="posdegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="abundance">
+          <double>0.9912746198024753</double>
+        </annotation>
+        <annotation id="degree">
+          <integer>1</integer>
+        </annotation>
+        <annotation id="samplecount">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa13</string>
+        </annotation>
+        <annotation id="negdegree">
+          <integer>1</integer>
+        </annotation>
+      </element>
+      <element id="taxa12">
+        <annotation id="oriID">
+          <string>taxa12</string>
+        </annotation>
+        <annotation id="unknowndegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="posdegree">
+          <integer>3</integer>
+        </annotation>
+        <annotation id="abundance">
+          <double>1.0443107059840389</double>
+        </annotation>
+        <annotation id="degree">
+          <integer>5</integer>
+        </annotation>
+        <annotation id="samplecount">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa12</string>
+        </annotation>
+        <annotation id="negdegree">
+          <integer>2</integer>
+        </annotation>
+      </element>
+      <element id="taxa11">
+        <annotation id="oriID">
+          <string>taxa11</string>
+        </annotation>
+        <annotation id="unknowndegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="posdegree">
+          <integer>4</integer>
+        </annotation>
+        <annotation id="abundance">
+          <double>1.0763343209779754</double>
+        </annotation>
+        <annotation id="degree">
+          <integer>8</integer>
+        </annotation>
+        <annotation id="samplecount">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa11</string>
+        </annotation>
+        <annotation id="negdegree">
+          <integer>4</integer>
+        </annotation>
+      </element>
+      <element id="taxa4->taxa10=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.20292829</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09164145534049185</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.225148515</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.20292829</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.21491485150000006</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa4-&gt;taxa10=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa10">
+        <annotation id="oriID">
+          <string>taxa10</string>
+        </annotation>
+        <annotation id="unknowndegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="posdegree">
+          <integer>2</integer>
+        </annotation>
+        <annotation id="abundance">
+          <double>1.0385384977560506</double>
+        </annotation>
+        <annotation id="degree">
+          <integer>11</integer>
+        </annotation>
+        <annotation id="samplecount">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa10</string>
+        </annotation>
+        <annotation id="negdegree">
+          <integer>9</integer>
+        </annotation>
+      </element>
+      <element id="taxa1->taxa3=correl_pearson">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.9933574</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.07454210005804013</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.5247134950000001</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.9933574</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.5093286862999999</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa1-&gt;taxa3=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa4->taxa6=correl_spearman">
+        <annotation id="interactionType">
+          <string>mutualExclusion</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>-0.18871887</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09126423076675777</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.195457545</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_spearman</string>
+        </annotation>
+        <annotation id="weight">
+          <double>-0.18871887</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.20143930409999997</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa4-&gt;taxa6=correl_spearman</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.0</double>
+        </annotation>
+      </element>
+      <element id="taxa3->taxa10=dist_bray">
+        <annotation id="interactionType">
+          <string>copresence</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.25416187</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.01871045701593933</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.28952293</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_bray</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.25416187</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.29012010130000004</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa3-&gt;taxa10=dist_bray</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.04</double>
+        </annotation>
+      </element>
+      <element id="taxa9">
+        <annotation id="oriID">
+          <string>taxa9</string>
+        </annotation>
+        <annotation id="unknowndegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="posdegree">
+          <integer>2</integer>
+        </annotation>
+        <annotation id="abundance">
+          <double>1.0491473662527329</double>
+        </annotation>
+        <annotation id="degree">
+          <integer>7</integer>
+        </annotation>
+        <annotation id="samplecount">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa9</string>
+        </annotation>
+        <annotation id="negdegree">
+          <integer>5</integer>
+        </annotation>
+      </element>
+      <element id="taxa11->taxa15=dist_bray">
+        <annotation id="interactionType">
+          <string>copresence</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.23560091</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.025524375532692795</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.299940785</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_bray</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.23560091</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.3002829444999999</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa11-&gt;taxa15=dist_bray</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.02</double>
+        </annotation>
+      </element>
+      <element id="taxa8">
+        <annotation id="oriID">
+          <string>taxa8</string>
+        </annotation>
+        <annotation id="unknowndegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="posdegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="abundance">
+          <double>0.9794668190029515</double>
+        </annotation>
+        <annotation id="degree">
+          <integer>9</integer>
+        </annotation>
+        <annotation id="samplecount">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa8</string>
+        </annotation>
+        <annotation id="negdegree">
+          <integer>9</integer>
+        </annotation>
+      </element>
+      <element id="taxa6">
+        <annotation id="oriID">
+          <string>taxa6</string>
+        </annotation>
+        <annotation id="unknowndegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="posdegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="abundance">
+          <double>0.9888714204055258</double>
+        </annotation>
+        <annotation id="degree">
+          <integer>7</integer>
+        </annotation>
+        <annotation id="samplecount">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa6</string>
+        </annotation>
+        <annotation id="negdegree">
+          <integer>7</integer>
+        </annotation>
+      </element>
+      <element id="taxa5">
+        <annotation id="oriID">
+          <string>taxa5</string>
+        </annotation>
+        <annotation id="unknowndegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="posdegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="abundance">
+          <double>0.952886448558725</double>
+        </annotation>
+        <annotation id="degree">
+          <integer>2</integer>
+        </annotation>
+        <annotation id="samplecount">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa5</string>
+        </annotation>
+        <annotation id="negdegree">
+          <integer>2</integer>
+        </annotation>
+      </element>
+      <element id="taxa4">
+        <annotation id="oriID">
+          <string>taxa4</string>
+        </annotation>
+        <annotation id="unknowndegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="posdegree">
+          <integer>2</integer>
+        </annotation>
+        <annotation id="abundance">
+          <double>20.943054315216557</double>
+        </annotation>
+        <annotation id="degree">
+          <integer>14</integer>
+        </annotation>
+        <annotation id="samplecount">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa4</string>
+        </annotation>
+        <annotation id="negdegree">
+          <integer>12</integer>
+        </annotation>
+      </element>
+      <element id="taxa11->taxa15=correl_pearson">
+        <annotation id="interactionType">
+          <string>copresence</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.25896237</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.09797813173580094</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>-0.013692695000000001</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>correl_pearson</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.25896237</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>-0.01950773739999999</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa11-&gt;taxa15=correl_pearson</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.02</double>
+        </annotation>
+      </element>
+      <element id="taxa3">
+        <annotation id="oriID">
+          <string>taxa3</string>
+        </annotation>
+        <annotation id="unknowndegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="posdegree">
+          <integer>1</integer>
+        </annotation>
+        <annotation id="abundance">
+          <double>23.4092501828308</double>
+        </annotation>
+        <annotation id="degree">
+          <integer>7</integer>
+        </annotation>
+        <annotation id="samplecount">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa3</string>
+        </annotation>
+        <annotation id="negdegree">
+          <integer>6</integer>
+        </annotation>
+      </element>
+      <element id="">
+        <annotation id="Comment">
+          <string># ===&gt;# NaN treatment
+# Date=Mon Apr 06 22:24:50 PDT 2020
+# PARAMETER
+# NaN treatment strategy=none
+# NaN treatment parameter (minimum number of NaN-free value pairs)=1
+# ===&gt;# Matrix preprocessor
+# Date=Mon Apr 06 22:24:50 PDT 2020
+# INPUT
+# Rows in input matrix=15
+# Columns in input matrix=100
+# RESULT
+# Rows in processed matrix=15
+# Columns in processed matrix=100
+# PARAMETER
+# Input matrix is an incidence matrix=false
+# Matrix processed=true
+# Binary feature matrix location=
+# Given features are incidence features=false
+# Preprocessing steps=[smoother, filter, normalizer, higherleveltaxa, shifter, logtransformer, binconverter]
+# Matrix filtering settings=# Matrix filter
+# Date=Mon Apr 06 22:24:50 PDT 2020
+# INPUT
+# Rows in input matrix=15
+# Columns in input matrix=100
+# RESULT
+# Rows in filtered matrix=15
+# Columns in filtered matrix=100
+# Number of removed rows=0
+# Number of removed columns=0
+# Removed columns=[]
+# PARAMETER
+# Incidence matrix=false
+# Filter method=row_minocc
+# Parameter of filter method=5.0
+# Features are omitted from column minimum sum=true
+# Features are omitted from row top percent=true
+# Column-wise sums of filtered non-feature rows were added as additional row (named summed-nonfeat-rows)=true
+# User-provided names of rows to discard=[]
+# User-provided names of columns to discard=[]
+# row_minocc=Discard rows below given minimum occurrence of values equal to or above 1.0
+# row_toppercent=Discard rows whose row sum is below the given percentage of all row sums
+# row_minsum=Discard rows whose sum is below the given value
+# row_withzero=Discard rows whose number of zeros is below the given value
+# col_minocc=Discard columns below given minimum occurrence of values equal to or above 1.0
+# col_minsum=Discard columns whose sum is below the given value
+# Matrix normalization settings=# Abundance matrix normalization
+# Date=Mon Apr 06 22:24:50 PDT 2020
+# INPUT
+# Rows in input matrix=15
+# Columns in input matrix=100
+# PARAMETER
+# Group attribute=
+# Standardization methods applied=col_norm
+# Features excluded from standardization=true
+# Problematic rows/columns removed=true
+# higherleveltaxa was not carried out
+# smoother was not carried out
+# logtransformer was not carried out
+# binconverter was not carried out
+# ===&gt;# Cooccurrence network construction
+# Date=Mon Apr 06 22:24:50 PDT 2020
+# INPUT
+# Rows in input matrix=15
+# Columns in input matrix=100
+# RESULT
+# Nodes in cooccurrence network=15
+# Arcs in cooccurrence network=124
+# PARAMETER
+# Copresence only computed=false
+# Mutual exclusion only computed=false
+# Upper threshold=NaN
+# Lower threshold=NaN
+# Cooccurrence method=ensemble
+# Cooccurrence network directed=true
+# Network builder methods applied=[correl_pearson, dist_kullbackleibler, correl_spearman, dist_bray]
+# Merge strategy=union
+# Parameter values of network builder methods=# Data: thresholds 
+# identifier: correctionfactorbrown  annotation: correctionfactorbrown  value: 1.4083014975066401 
+# identifier: correl_pearson  annotation: upperThreshold  value: 0.08996837370736493  annotation: lowerThreshold  value: -0.22014562593643228 
+# identifier: correl_spearman  annotation: upperThreshold  value: 0.08298829882988307  annotation: lowerThreshold  value: -0.1685448544854487 
+# identifier: degreesoffreedombrown  annotation: degreesoffreedombrown  value: 5.680601784606339 
+# identifier: dist_bray  annotation: upperThreshold  value: 0.3120901052920899  annotation: lowerThreshold  value: 0.2576472510815614 
+# identifier: dist_kullbackleibler  annotation: upperThreshold  value: 0.7285041533307338  annotation: lowerThreshold  value: 0.34859800855458223 
+# Minimal support required for an edge (in context of strategy minsupport)=2
+# Methods excluded from edge filtering (in strategies minsupport, intersection and majority)=[]
+# Network built with multi-edges=true
+# Preprocessing=# Matrix preprocessor
+# Date=Mon Apr 06 22:24:50 PDT 2020
+# INPUT
+# Rows in input matrix=15
+# Columns in input matrix=100
+# RESULT
+# Rows in processed matrix=15
+# Columns in processed matrix=100
+# PARAMETER
+# Input matrix is an incidence matrix=false
+# Matrix processed=true
+# Binary feature matrix location=
+# Given features are incidence features=false
+# Preprocessing steps=[smoother, filter, normalizer, higherleveltaxa, shifter, logtransformer, binconverter]
+# Matrix filtering settings=# Matrix filter
+# Date=Mon Apr 06 22:24:50 PDT 2020
+# INPUT
+# Rows in input matrix=15
+# Columns in input matrix=100
+# RESULT
+# Rows in filtered matrix=15
+# Columns in filtered matrix=100
+# Number of removed rows=0
+# Number of removed columns=0
+# Removed columns=[]
+# PARAMETER
+# Incidence matrix=false
+# Filter method=row_minocc
+# Parameter of filter method=5.0
+# Features are omitted from column minimum sum=true
+# Features are omitted from row top percent=true
+# Column-wise sums of filtered non-feature rows were added as additional row (named summed-nonfeat-rows)=true
+# User-provided names of rows to discard=[]
+# User-provided names of columns to discard=[]
+# row_minocc=Discard rows below given minimum occurrence of values equal to or above 1.0
+# row_toppercent=Discard rows whose row sum is below the given percentage of all row sums
+# row_minsum=Discard rows whose sum is below the given value
+# row_withzero=Discard rows whose number of zeros is below the given value
+# col_minocc=Discard columns below given minimum occurrence of values equal to or above 1.0
+# col_minsum=Discard columns whose sum is below the given value
+# Matrix normalization settings=# Abundance matrix normalization
+# Date=Mon Apr 06 22:24:50 PDT 2020
+# INPUT
+# Rows in input matrix=15
+# Columns in input matrix=100
+# PARAMETER
+# Group attribute=
+# Standardization methods applied=col_norm
+# Features excluded from standardization=true
+# Problematic rows/columns removed=true
+# higherleveltaxa was not carried out
+# smoother was not carried out
+# logtransformer was not carried out
+# binconverter was not carried out
+# STATISTICS
+# Maximal number of possible interactions (total arc number)=420
+# Number of exclusive row pairs (subtracted from total arc number in Bonferroni and E-value correction)=0
+# Removed arcs=296
+# Node number in ensemble cooccurrence network=15
+# Edge number in ensemble cooccurrence network=124
+# Number of node pairs in ensemble cooccurrence network=61
+# Edge number contributed by method correl_pearson=31 
+# Edge percentage contributed by method correl_pearson=25.0 
+# Edge number contributed by method dist_kullbackleibler=31 
+# Edge percentage contributed by method dist_kullbackleibler=25.0 
+# Edge number contributed by method correl_spearman=31 
+# Edge percentage contributed by method correl_spearman=25.0 
+# Edge number contributed by method dist_bray=31 
+# Edge percentage contributed by method dist_bray=25.0 
+# Number of node pairs supported by 1 methods=19
+# Number of node pairs supported by 2 methods=26
+# Number of node pairs supported by 3 methods=11
+# Number of node pairs supported by 4 methods=5
+# Minimal number of methods (support) for a node pair=1.0
+# Maximal number of methods (support) for a node pair=4.0
+# Mean number of methods (support) for a node pair=2.0327868852459017
+# Median number of methods (support) for a node pair=2.0
+# NETWORK SCORE: 2.0327868852459017
+# ===&gt;# Cooccurrence network construction score computation using random matrices
+# Date=Mon Apr 06 22:24:54 PDT 2020
+# INPUT
+# Rows in input matrix=15
+# Columns in input matrix=100
+# MATRIX NORMALIZATION
+# Standardization methods=col_norm
+# COOCCURRENCE CALCULATION
+# Co-occurrence method=ensemble
+# Lower threshold of co-occurrence method=NaN
+# Upper threshold of co-occurrence method=NaN
+# PARAMETER
+# Permutation implementation=shuffle
+# Permutation repetitions at each iteration=2
+# Permutation row/column shuffling=rows
+# Randomization routine=edgeScores
+# Allowed number of false discoveries (for randomization routine lallich only)=0
+# Iteration number=100
+# Scoring method=avg-edgenum-by-nodepair
+# Matrix randomized from previous randomized matrix=false
+# Re-normalization enabled=true
+# ===&gt;# P-value from score vector computation
+# Date=Mon Apr 06 22:24:54 PDT 2020
+# INPUT
+# Number of random scores (without original score)=100
+# Mean of random scores (without original score)=4.0
+# Median of random scores (without original score)=4.0
+# Maximum of random scores (without original score)=4.0
+# Minimum of random scores (without original score)=4.0
+# Standard deviation of random scores (without original score)=0.0
+# Original score=2.0327868852459017
+# PARAMETER
+# NaN omitted=false
+# P-value computation method=distribFree
+# Tail of score distribution used for p-value computation=right
+# Null value (for two-sided test only)=0.0
+# RESULT
+# P-value=1.0
+# Error margin (can only be computed for one-sided test)=0.0
+# NETWORK P-VALUE: 1.0
+# RANDOMIZATION EDGE FILTER 
+# ===&gt;# Cooccurrence network construction
+# Date=Mon Apr 06 22:24:54 PDT 2020
+# INPUT
+# Rows in input matrix=15
+# Columns in input matrix=100
+# RESULT
+# Nodes in cooccurrence network=48
+# Arcs in cooccurrence network=50
+# Number of arcs removed by randomization filter=66
+# PARAMETER
+# Copresence only computed=false
+# Mutual exclusion only computed=false
+# Upper threshold=0.95
+# Lower threshold=0.05
+# Cooccurrence method=edgescores
+# Cooccurrence network directed=true
+# Multiple test correction (for return types E-value and significance)=none
+# Return type=pval
+# Lower threshold 0.05 interpreted as threshold on p-value, E-value or significance.
+# Upper threshold 0.95 interpreted as threshold on p-value, E-value or significance.
+# Score vectors contain original score=true
+# Bottom scores also tested for signficance (and smallest p-value kept)=false
+# Edge weights represent merged scores=false
+# Distribution rinsed (i.e. multiple occurrences of the same value removed, does not apply to Lallich)=false
+# P-value merge strategy (method-specific cut-offs are not computed if a merge strategy was set)=
+# Ensemble method: Scores merged (no multi- or separate graph, has impact on distribution tail selected for p-value computation)=false
+# Number of tests carried out (relevant for Bonferroni and E-value correction):=420
+# Number of excluded row pairs (relevant for Bonferroni and E-value correction):=0
+# Minimal number of NaN-free scores required per edge=10
+# Arcs not present in enough random networks are added to the output network=false
+# Number of arcs that do not appear in enough random networks=0
+# NaNs in distribution taken into account in (distribution-free) p-value computation (applied only if edge is not filtered out because of too few non-NaN values)=false
+# Metric used to compute original network (if applicable)=
+# Original threshold set=NaN
+# Unknown random network edge scores treated as zero=false
+# Number of re-samplings=100
+# Cooccurrence method used to generate edge scores=ensemble
+# Randomization routine used to compute scores=edgeScores
+# Number of arcs in the original network=124
+# Number of edges removed because of conflicting interaction types: 8
+# SCORE OF FILTERED NETWORK 
+# 2.0
+# ===&gt;# Implementation of measures
+# Date=Mon Apr 06 22:24:54 PDT 2020
+# Spearman correlation=Jean-Sebastien Lerat's library
+# Pearson correlation=Jean-Sebastien Lerat's library
+# Kullback Leibler dissimilarity=Jean-Sebastien Lerat's library
+# Bray Curtis distance=Jean-Sebastien Lerat's library
+# ===&gt;# Pair-wise vector resampling manager
+# Date=Mon Apr 06 22:24:54 PDT 2020
+# INPUT
+# Matrix row number=15
+# Matrix column number=100
+# PARAMETER
+# Resampling method=shuffle_rows
+# Group attribute=
+# Lineage attribute=
+# Renormalize=true
+# Normalization procedure=col_norm
+# Divisors for external sum division loaded=true
+# Re-sample on the fly=true
+# Manager is ON=true
+# Measures excluded from renormalization=jaccard, kullbackleibler, bray, steinhaus, binomial, chisquare, aitchison, varlogratio, hellinger, assoc, sorensen, hypergeometric, incidence
+# Vector resampler config=
+# RUNTIME: 3582 ms 
+# VERSION: 1.1.1.beta
+# CALL: # Note that you need to point to the CoNet jar file using -cp and that a number of options have to be set via a configuration file. You can open the command line help page to learn more about CoNet on command line. The following options have to be set via a configuration file (check the help or command line option -Z for configuration file parameter names): LineageSeparator, MiImplementation, Poolvar, DisableSpeedup, NoRserveDependency, PseudoCounts, RserveHost, RservePort. If you export a random score file, please make sure no previous random score file exists at the same location.
+java be.ac.vub.bsb.cooccurrence.cmd.CooccurrenceAnalyser --method ensemble --input E:\Dropbox\Microbial_Networks\codes\data\data.txt --output E:\Dropbox\Microbial_Networks\codes\data\Conet_output1.txt --correlnonrandp none --multicorr none --thresholdguessing edgeNumber --randroutine edgeScores --randscorefile E:\Dropbox\Microbial_Networks\codes\data\Conet_step1_output.txt --ensemblemethods correl_pearson/correl_spearman/dist_bray/dist_kullbackleibler --max 3 --kernelwidth 0.25 --minetdisc equalfreq --minetmiestimator mi.shrink --networkmergestrategy union --nantreatment none --nantreatmentparam 1 --multigraph --renorm --scoremergestrategy mean --minsupport 2 --min 1 --measure1 conf --measure2 supp --scoreexport --topbottom --keepfilteredrows --matrixtype count --stand col_norm --format gdl --guessingparam 15.0 --resamplemethod shuffle_rows --verbosity FATAL --iterations 100 --edgethreshold 0.05 --inference mrnet --filter row_minocc/rand --filterparameter 5.0 --output E:\Dropbox\Microbial_Networks\codes\data\Conet_output1.txt
+</string>
+        </annotation>
+      </element>
+      <element id="taxa2">
+        <annotation id="oriID">
+          <string>taxa2</string>
+        </annotation>
+        <annotation id="unknowndegree">
+          <integer>0</integer>
+        </annotation>
+        <annotation id="posdegree">
+          <integer>2</integer>
+        </annotation>
+        <annotation id="abundance">
+          <double>20.991658932532964</double>
+        </annotation>
+        <annotation id="degree">
+          <integer>15</integer>
+        </annotation>
+        <annotation id="samplecount">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa2</string>
+        </annotation>
+        <annotation id="negdegree">
+          <integer>13</integer>
+        </annotation>
+      </element>
+      <element id="taxa2->taxa4=dist_bray">
+        <annotation id="interactionType">
+          <string>copresence</string>
+        </annotation>
+        <annotation id="oriScore">
+          <double>0.01453679</double>
+        </annotation>
+        <annotation id="directed">
+          <boolean>true</boolean>
+        </annotation>
+        <annotation id="randdistribSD">
+          <double>0.0011217746082292823</double>
+        </annotation>
+        <annotation id="randdistribNumNonNaNScores">
+          <integer>100</integer>
+        </annotation>
+        <annotation id="randdistribMedian">
+          <double>0.018272089999999998</double>
+        </annotation>
+        <annotation id="cooc_method">
+          <string>dist_bray</string>
+        </annotation>
+        <annotation id="weight">
+          <double>0.01453679</double>
+        </annotation>
+        <annotation id="randdistribMean">
+          <double>0.0181551802</double>
+        </annotation>
+        <annotation id="Label">
+          <string>taxa2-&gt;taxa4=dist_bray</string>
+        </annotation>
+        <annotation id="pval">
+          <double>0.01</double>
+        </annotation>
+      </element>
+    </data>
+  </datas>
+</graphDataLinker>

@@ -1,0 +1,2 @@
+Use the script coat.R for implementing the COAT algorithm
+Use the script simulation.R for data generation models. 
