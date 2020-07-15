@@ -22,8 +22,8 @@ p = 200
 reference_data = amgut1.filt
 library_scale
 alpha # for Dirichlet
-mu = runif()
-; Sigma # for pamametric
+mu = runif(p, 0, 4)
+Sigma # for pamametric
 
 
 
