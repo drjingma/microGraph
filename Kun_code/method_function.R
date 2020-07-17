@@ -3,6 +3,7 @@
 ### Implementation of available methods for computing microbiome network
 ###
 ###-----------------------------------------------------------
+filepath = 'E:\\Dropbox\\Microbial_Networks\\microGraph\\Kun_code'
 
 #--------------
 # CoNet 
@@ -64,23 +65,35 @@ read_tab = function(filepath){
 # install_github("hallucigenia-sparsa/seqgroup") 
 library(seqgroup)
 # reference: https://hallucigenia-sparsa.github.io/seqgroup/reference/barebonesCoNet.html
-# input data needs p by n
-barebonesCoNet(abundances = t(data_list$data), methods = c("spearman",'pearson', 'bray',"kld"), 
+# input data needs p by n; need to name the taxa
+net_CoNet = barebonesCoNet(abundances = t(data), 
+                           methods = c("spearman",'pearson', 'bray',"kld"), 
                method.num.T = 4, pval.T = 0.05,
+               #init.edge.num is using default value (sqrt(p)); this is the number of top and bottom edges to initially keep for later testing
+               init.edge.num = 50,
                pval.cor = FALSE, # do not use usual correlation test
                permut = T, renorm = T,permutandboot = T, # their permutation/bootstrap and renormalization will remove spurious correlation
                iters = 100, bh = TRUE,
                pseudocount = 1e-11, # counts added to zeros when taking log
-               plot = T, verbose = T) 
+               plot = F, verbose = F) 
 
 
-barebonesCoNet(abundances = t(data_list$data), methods = c("spearman",'pearson', 'bray',"kld"), 
-               method.num.T = 4, pval.T = 0.05,
-               pval.cor = FALSE, # do not use usual correlation test
-               permut = F, renorm = F,permutandboot = F, # their permutation/bootstrap and renormalization will remove spurious correlation
+# the output is am igraph object with edge weights; 
+# here consider tuning parameter init.edge.num ( methods, method.num are just set fixed, though can also be changed)
+# init.
+edge_attr(net_CoNet)
+network_matrix_CoNet = as_adjacency_matrix(net_CoNet,type='both', attr = "weight", sparse=F)
+
+net_CoNet = barebonesCoNet(abundances = t(data), methods = c("spearman"), 
+               method.num.T = 2, pval.T = 0.05,
+               pval.cor = F, # do not use usual correlation test
+               init.edge.num = 200,
+               
+               permut = F, renorm = T,permutandboot = T, # their permutation/bootstrap and renormalization will remove spurious correlation
                iters = 100, bh = TRUE,
                pseudocount = 1e-11, # counts added to zeros when taking log
-               plot = T, verbose = T) 
+               plot = T, verbose = F) 
+plot(net_CoNet)
 
 #--------------
 # SparCC 
@@ -88,20 +101,28 @@ barebonesCoNet(abundances = t(data_list$data), methods = c("spearman",'pearson',
 #library(devtools)
 #install_github("zdk123/SpiecEasi")
 library(SpiecEasi)
-res = sparcc(data, iter = 20, inner_iter = 10, th = 0.1) # need input format n by p
+set.seed(1)
+res = sparcc(data, iter = 20, inner_iter = 10, th = 0.1) # need input format n by ; varying threshold (th) has minial impact on the result
 res$Cov # the estimated log counts covariance, the Sigma
-res$Cor # the estimated log counts correlation, the corr_mat
+res$Cor[1:5] # the estimated log counts correlation, the corr_mat
 
+sparcc_bottstrap_res = sparccboot(data = data, R=10, ncpus = 4, sparcc.params = list(iter = 20, inner_iter = 10, th = 0.1)) # this is very slow
+pval.sparccboot(sparcc_bottstrap_res)
+
+# will changing the threshold for the matrix by hand to construct ROC
 
 #--------------
 # CClasso
 #--------------
 ## (obtained from Github: https://github.com/huayingfang/CCLasso)
-source("E:\\Dropbox\\Microbial_Networks\\codes\\CCLasso-master\\R\\cclasso.R");
+source(paste0(filepath, "\\CCLasso-master\\R\\cclasso.R"));
 
-res_ccl_count <- cclasso(x = data, counts = T, pseudo = 0.5);  # input format n by p
+res_ccl_count <- cclasso(x = data, counts = T, pseudo = 1,
+                         k_cv =2 , # cv folds 
+                         lam_int = c(1,1), #tuning parameter value range; ned to vary this for ROC curve
+                         k_max=20, n_boot =20);  # input format n by p
 res_ccl_count$cor_w
-res_ccl_count$p_vals # not sure how this is computed
+res_ccl_count$p_vals # not sure how this is computed, seems to be from bootstrap
 
 # it also has an implementation of SparCC, but seems not giving the same results
 #source("E:\\Dropbox\\Microbial_Networks\\codes\\CCLasso-master\\R/SparCC.R");
@@ -114,11 +135,16 @@ res_ccl_count$p_vals # not sure how this is computed
 #--------------
 # COAT 
 #--------------
-source('E:\\Dropbox\\Microbial_Networks\\codes\\COAT-master\\COAT-master\\simulation.R') # this contains all different data generating models
-source('E:\\Dropbox\\Microbial_Networks\\codes\\COAT-master\\COAT-master\\coat.R')
-coat(x, nFolder=5, soft=1) # x is n by p data matrix
+source(paste0(filepath, "\\COAT-master\\COAT-master\\simulation.R")) # this contains all different data generating models
+source(paste0(filepath, "\\COAT-master\\COAT-master\\coat.R"))
+source(paste0(filepath, "\\COAT-master\\COAT-master\\coat_Kun.R"))
 
 
+x = sweep(data+1,1,STATS = rowSums(data+1), FUN='/')
+coat(x, nFolder=5, soft=1) # x is n by p data matrix, need to be compositional and zero adjusted
+
+# need to adjust this function to run on provided tuning parameter value
+calCoatROC # look at this function under simulation.R, it seems to be implemented for coat ROC
 
 #--------------
 # SPIEC-EASI

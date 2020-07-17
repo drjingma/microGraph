@@ -9,7 +9,7 @@
 #        corr ------ correlation estimation based on adaptive thresholding
 #        time ------ execution time
 #----------------------------------------------------------------------------------------
-coat <- function(x, nFoler = 5, soft = 1){
+coat <- function(x, nFolder = 5, soft = 1){
   startTime <- proc.time()
   p <- ncol(x)
   clrX <- log(x) - rowSums(log(x)) %*%matrix(1,1,p) / p

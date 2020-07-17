@@ -292,8 +292,7 @@ data_generation = function(n, p, option){
     other_data = list(Sigma = Sigma, A=A, Omega = Omega)
   }
   
-  colnames(model_data) = paste('taxa', 1:p)
-  
+
   # check proportion of zeros
   W_zeros <- range(apply(model_data,1,function(a) sum(a==0)/p))
   cat('range of zero proportions across cells: ', W_zeros, '\n')

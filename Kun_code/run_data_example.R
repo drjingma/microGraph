@@ -25,13 +25,14 @@ p = 200
 reference_data = amgut1.filt
 library_scale = rnegbin(n,mu=3e4, theta=9e8/(3e6-3e4)) # use library_scale to directly specify the total counts per sample
 
-
+set.seed(102)
 
 ## Null 1
 option = list(hypothesis = 'null', model='shuffle', reference_data = reference_data)
 
 ## Null 2
 mu = runif(p, 0, 4) # the mu is for underlying log-normal of Dirichlet parameters
+alpha=100
 option = list(hypothesis = 'null', model='Dirichlet', library_scale = library_scale, alpha = alpha, mu=mu)
 
 ## Alternative 1
@@ -46,8 +47,9 @@ option = list(hypothesis = 'alternative', model = 'copula', reference_data = ref
 
 
 data_list = data_generation(n, p, option)
+dim(data_list$data)
 
-
-
-
+data = data_list$data
+colnames(data) <- paste('taxa', 1:ncol(data))
+rownames(data) <- paste('cell', 1:nrow(data))
 
