@@ -3,7 +3,15 @@
 ### Implementation of available methods for computing microbiome network
 ###
 ###-----------------------------------------------------------
+filepath = 'C:\\Users\\yuek\\Dropbox\\Microbial_Networks\\microGraph\\Kun_code' #BOX
+
+filepath = '/Users/Kun/Desktop/Dropbox/Microbial_Networks/microGraph/Kun_code'
 filepath = 'E:\\Dropbox\\Microbial_Networks\\microGraph\\Kun_code'
+
+count_to_comp = function(W){
+  X = sweep(W,1,STATS = rowSums(W), FUN='/') # the compositions from log-normal; different Xi for different cells
+  return(X)
+}
 
 #--------------
 # CoNet 
@@ -56,13 +64,13 @@ read_tab = function(filepath){
 # file.path(R.home("gsl"), "Makeconf")
 # 
 # 
-# if (!requireNamespace("BiocManager", quietly = TRUE))
-#   install.packages("BiocManager")
-# 
-# BiocManager::install("DirichletMultinomial")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
 
-# library(devtools)
-# install_github("hallucigenia-sparsa/seqgroup") 
+BiocManager::install("DirichletMultinomial")
+
+library(devtools)
+install_github("hallucigenia-sparsa/seqgroup")
 library(seqgroup)
 # reference: https://hallucigenia-sparsa.github.io/seqgroup/reference/barebonesCoNet.html
 # input data needs p by n; need to name the taxa
@@ -119,9 +127,10 @@ source(paste0(filepath, "\\CCLasso-master\\R\\cclasso.R"));
 
 res_ccl_count <- cclasso(x = data, counts = T, pseudo = 1,
                          k_cv =2 , # cv folds 
-                         lam_int = c(1,1), #tuning parameter value range; ned to vary this for ROC curve
+                         lam_int = c(1,1), #tuning parameter value range; need to vary this for ROC curve
                          k_max=20, n_boot =20);  # input format n by p
 res_ccl_count$cor_w
+mean(res_ccl_count$cor_w==0)
 res_ccl_count$p_vals # not sure how this is computed, seems to be from bootstrap
 
 # it also has an implementation of SparCC, but seems not giving the same results
@@ -137,57 +146,75 @@ res_ccl_count$p_vals # not sure how this is computed, seems to be from bootstrap
 #--------------
 source(paste0(filepath, "\\COAT-master\\COAT-master\\simulation.R")) # this contains all different data generating models
 source(paste0(filepath, "\\COAT-master\\COAT-master\\coat.R"))
-source(paste0(filepath, "\\COAT-master\\COAT-master\\coat_Kun.R"))
 
+x = data_rep[[1,1]]
+# if(any(x==0)) x = x+1
+# x = sweep(data+1,1,STATS = rowSums(data+1), FUN='/')
+# coat(x, nFolder=5, soft=1) # x is n by p data matrix, need to be compositional and zero adjusted
 
-x = sweep(data+1,1,STATS = rowSums(data+1), FUN='/')
-coat(x, nFolder=5, soft=1) # x is n by p data matrix, need to be compositional and zero adjusted
+# this function runs to provide the ROC; it seems peudocounts need to be added in advance for zero counts, and composition matrix adjusted accordingly
+for( k in 1:ncol(data_rep)){
+  if (any(data_rep[[2,k]]==0)){
+    data_rep[[2,k]] = data_rep[[2,k]]+1
+    data_rep[[1,k]] = sweep(data_rep[[2,k]],1,STATS = rowSums(data_rep[[2,k]]), FUN='/')
+  }
+}
 
-# need to adjust this function to run on provided tuning parameter value
-calCoatROC # look at this function under simulation.R, it seems to be implemented for coat ROC
+# look at this function under simulation.R, it seems to be implemented for coat ROC
+Coat_ROC_res = calCoatROC(dataCell = data_rep, sigmaTrue = option$Sigma_list$Sigma,
+                          nPlotPoint = 21, nGrid = 20, soft = 1) 
+
+plot(y=Coat_ROC_res[[1]],x=Coat_ROC_res[[2]] )
 
 #--------------
 # SPIEC-EASI
 #--------------
-se <- spiec.easi(X, method='glasso', # choose from 'mb' for neighbourhood selection, or 'glasso'
+# for inv-covariance graph recovery
+library(pulsar)
+Spiec_network <- spiec.easi(data, method='glasso', # choose from 'mb' for neighbourhood selection, or 'glasso'
+                 # if to perform model selection
+                 pulsar.select = F,
                  pulsar.params = list(
                    thresh=0.05,# Threshold for StARS criterion.
                    subsample.ratio=0.8, # Subsample size for StARS.
                    rep.num = 20), # Number of subsamples for StARS.
-                 lambda.min.ratio=1e-2, nlambda=5) # lambda is for penalty parameter, is tuning parameter
-# the result should be a solution path over lambda. Select based on STARS functions
-se$select
-plot(huge::huge.roc(se$est$path, graph, verbose=FALSE))
-stars.pr(getOptMerge(se), graph, verbose=FALSE)
+                 lambda.min.ratio=1e-2, nlambda=10) # lambda is for penalty parameter, is tuning parameter
 
-getOptMerge(se) # symmetric matrix with edge-wise stability; used for getting 0/1 network
-getOptInd(se) # index of the selected lambda from provided lambda path
-getOptiCov(se) # the optimal inverse covariance matrix (glasso only)
-getOptCov(se) # the optimal covariance matrix associated with the selected network (glasso only)
-getOptBeta(se) # the optimal coefficient matrix (mb only) (should be corresponding to inv-cov level, but may not the same)
-getOptNet(se) # the optimal (StARS-refit) network, 0/1 adjacency matrix
+# the result should be a solution path over lambda; the path is adjacency matrix with diagonal being zero
+Spiec_ROC_res = huge::huge.roc(Spiec_network$est$path, option$graph_Sigma$A, verbose=FALSE)
+Spiec_network_ROC$tp
+Spiec_network_ROC$fp
+
+getOptMerge(Spiec_network) # symmetric matrix with edge-wise stability; used for getting 0/1 network
+getOptInd(Spiec_network) # index of the selected lambda from provided lambda path
+getOptiCov(Spiec_network) # the optimal inverse covariance matrix (glasso only)
+getOptCov(Spiec_network) # the optimal covariance matrix associated with the selected network (glasso only)
+getOptBeta(Spiec_network) # the optimal coefficient matrix (mb only) (should be corresponding to inv-cov level, but may not the same)
+getOptNet(Spiec_network) # the optimal (StARS-refit) network, 0/1 adjacency matrix
 
 
 #--------------
 # gCoda
 #--------------
-source('E:\\Dropbox\\Microbial_Networks\\codes\\gCoda-master\\R\\gcoda.R')
-res_gcoda_count <- gcoda(x, counts = T, lambda.min.ratio=1e-3, nlambda=20);
-res_gcoda_count$lambda
-res_gcoda_count$opt.index  # if at the boundary may need to change lambda.min.ratio; however maximum cannot be changed... any reason how they choose the lambda.max?
-res_gcoda_count$opt.icov
+source(paste0(filepath, '\\gCoda-master\\R\\gcoda.R'))
+gcoda_network <- gcoda(data, counts = T, pseudo = 1, lambda.min.ratio=1e-3, nlambda=20);
+
+gcoda_network$lambda
+gcoda_network$opt.index  # if at the boundary may need to change lambda.min.ratio; however maximum cannot be changed... any reason how they choose the lambda.max?
+gcoda_network$opt.icov
+
+gcode_ROC_res = huge::huge.roc(path=gcoda_network$path, theta = option$graph_Sigma$A, verbose=F)
 
 #---------------
 # SPRING
 #---------------
-devtools::install_github("irinagain/mixedCCA")
-devtools::install_github("GraceYoon/SPRING")
+# devtools::install_github("irinagain/mixedCCA")
+# devtools::install_github("GraceYoon/SPRING")
 library(SPRING)
-data("QMP") # load the data available from this package, containing 106 samples and 91 OTUs.
 
-# Apply SPRING on QMP data.
+# supply abundance data with n by p data metrix. need to look at what data to pass, use mclr??
 fit.spring <- SPRING(QMP, quantitative = TRUE, lambdaseq = "data-specific", nlambda = 50, rep.num = 50)
-fit.spring <- SPRING(QMP, quantitative = TRUE, lambdaseq = "data-specific", nlambda = 5, rep.num = 5)
+fit.spring <- SPRING(data, quantitative = TRUE, lambdaseq = "data-specific", nlambda = 5, rep.num = 5)
 # This takes around 23 minutes. We are working on reducing the computation time (10/25/2019).
 
 # StARS-selected lambda index based on the threshold (default = 0.01)

@@ -1,10 +1,12 @@
 ## simulation study for compositional network learning
 library(entropy)
 library(gtools)
-library(SpiecEasi)
+# library(SpiecEasi)
 library(seqgroup)
 
-filepath = 'E:\\Dropbox\\Microbial_Networks\\microGraph\\Kun_code'
+# filepath = 'C:\\Users\\yuek\\Dropbox\\Microbial_Networks\\microGraph\\Kun_code' #BOX
+ filepath = 'E:\\Dropbox\\Microbial_Networks\\microGraph\\Kun_code'
+# filepath = '/Users/Kun/Desktop/Dropbox/Microbial_Networks/microGraph/Kun_code'
 
 ###------------------------
 ### Data generating model
@@ -72,13 +74,13 @@ para_data_generate_1 = function(n, p, library_scale){
   return(data)
 }
 ##-----------------
-## option two: log normal distribution for generating abudance data; takes in mu and Sigma
+## option two: log normal distribution for generating abudance data; takes in mu and Sigma, output n by p
 ##-----------------
 para_data_generate_2 = function(n, p, mu, Sigma){
   Sigma_mat_decomp = t(chol(Sigma))
   # Sigma_mat = Sigma_mat_decomp%*%t(Sigma_mat_decomp)
   x = Sigma_mat_decomp %*% t(matrix(rnorm(n=n*p, mean = 0), n, p, byrow=T)) + mu
-  y = exp(x)
+  y = t(exp(x))
   data=y  
   return(data)
 }
@@ -206,7 +208,11 @@ source(paste0(filepath,'\\COAT-master\\COAT-master\\simulation.R')) # this conta
 #----------------------
 # library(devtools)
 # install_github("zdk123/SpiecEasi")
-library(SpiecEasi)
+# library(SpiecEasi)
+setwd(paste0(filepath, '/SpiecEasi-master/SpiecEasi-master/R'))
+import_files = list.files()
+sapply(import_files, source)
+setwd(filepath)
 
 SpiecEasi_graph_Sigma = function(data, type='erdos_renyi'){
   depths <- rowSums(data) # raw counts data, rows are obs, n by p

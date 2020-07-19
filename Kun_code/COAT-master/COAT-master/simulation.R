@@ -156,13 +156,15 @@ generateCompGamma <- function(n, mu, corr, shape = 10, scale = 1 ){
 #     fpr        ------- false positive rate
 #-----------------------------------------------------------------------------------------------------------
 calTprFpr <- function(sigmaTrue, sigmaHat, eps = 1e-10){
+  # modify to only account for off-diagonal entries (restrict to lower triangular matrix)
+  index = lower.tri(sigmaTrue, diag=F)
   indTrueZero <- abs(sigmaTrue) < eps
   indTrueNonzero <- abs(sigmaTrue) >= eps
   indTestNonzero <- abs(sigmaHat) >= eps
-  nTrueSparse <- sum(indTrueNonzero & indTestNonzero)
-  tpr <- nTrueSparse/sum(indTrueNonzero)
-  nFalseSparse <- sum(indTrueZero & indTestNonzero)
-  fpr <- nFalseSparse/sum(indTrueZero)
+  nTrueSparse <- sum((indTrueNonzero & indTestNonzero)[index])
+  tpr <- nTrueSparse/sum(indTrueNonzero[index])
+  nFalseSparse <- sum(indTrueZero[index] & indTestNonzero[index])
+  fpr <- nFalseSparse/sum(indTrueZero[index])
   return(list(tpr = tpr, fpr = fpr))
 }
 
@@ -191,8 +193,8 @@ calCoatROC <- function(dataCell, sigmaTrue, nPlotPoint = 21, nGrid = 20, soft = 
     gridInfo <- adaptThresholdRange(clrX)
 #    grid <- gridInfo$lower + (gridInfo$upper - gridInfo$lower)*rep(1:nGrid)/nGrid
     grid <- gridInfo$lower * (gridInfo$upper / gridInfo$lower)^(rep(1:nGrid)/nGrid)
-    TPR <- matrix(0, nRep, 1)
-    FPR <- matrix(0, nRep, 1)
+    TPR <- matrix(0, nGrid, 1)
+    FPR <- matrix(0, nGrid, 1)
     for (j in 1:nGrid){
       sigmaHat <- adaptThreshold(gridInfo$cov,gridInfo$theta,grid[j],soft)
       corrHat <- diag(diag(sigmaHat)^(-0.5))%*%sigmaHat%*%diag(diag(sigmaHat)^(-0.5)) 

@@ -5,6 +5,11 @@
 ##
 ##
 ########################
+filepath = 'C:\\Users\\yuek\\Dropbox\\Microbial_Networks\\microGraph' #BOX
+
+
+filepath = '/Users/Kun/Desktop/Dropbox/Microbial_Networks/microGraph' # MAC
+
 filepath = 'E:\\Dropbox\\Microbial_Networks\\microGraph'
 setwd(filepath)
 source('lib/func_libs.R')
@@ -52,4 +57,23 @@ dim(data_list$data)
 data = data_list$data
 colnames(data) <- paste('taxa', 1:ncol(data))
 rownames(data) <- paste('cell', 1:nrow(data))
+
+# wrap for COAT method
+nreps=2
+data_rep = matrix(list(), 2, nreps)
+for(k in 1:nreps){
+  set.seed(k)
+  data_list = data_generation(n, p, option)
+  dim(data_list$data)
+  
+  data = data_list$data
+  colnames(data) <- paste('taxa', 1:ncol(data))
+  rownames(data) <- paste('cell', 1:nrow(data))
+  
+  data_rep[[1, k]] = count_to_comp(data) # compositions
+  data_rep[[2, k]] = data # counts
+}
+
+
+
 
