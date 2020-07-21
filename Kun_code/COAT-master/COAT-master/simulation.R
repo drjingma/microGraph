@@ -211,6 +211,8 @@ calCoatROC <- function(dataCell, sigmaTrue, nPlotPoint = 21, nGrid = 20, soft = 
   return(list(tprGrid = tprGrid, fprGrid = fprGrid))
 }
 
+
+
 #-----------------------------------------------------------------------------------------------------------
 #  Calculate the true positive rate and false positive rate along ROC curve for Oracle method
 #  Input:

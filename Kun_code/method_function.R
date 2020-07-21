@@ -103,124 +103,239 @@ net_CoNet = barebonesCoNet(abundances = t(data), methods = c("spearman"),
                plot = T, verbose = F) 
 plot(net_CoNet)
 
-#--------------
-# SparCC 
-#--------------
-#library(devtools)
-#install_github("zdk123/SpiecEasi")
-library(SpiecEasi)
-set.seed(1)
-res = sparcc(data, iter = 20, inner_iter = 10, th = 0.1) # need input format n by ; varying threshold (th) has minial impact on the result
-res$Cov # the estimated log counts covariance, the Sigma
-res$Cor[1:5] # the estimated log counts correlation, the corr_mat
-
-sparcc_bottstrap_res = sparccboot(data = data, R=10, ncpus = 4, sparcc.params = list(iter = 20, inner_iter = 10, th = 0.1)) # this is very slow
-pval.sparccboot(sparcc_bottstrap_res)
-
-# will changing the threshold for the matrix by hand to construct ROC
-
-#--------------
-# CClasso
-#--------------
-## (obtained from Github: https://github.com/huayingfang/CCLasso)
-source(paste0(filepath, "\\CCLasso-master\\R\\cclasso.R"));
-
-res_ccl_count <- cclasso(x = data, counts = T, pseudo = 1,
-                         k_cv =2 , # cv folds 
-                         lam_int = c(1,1), #tuning parameter value range; need to vary this for ROC curve
-                         k_max=20, n_boot =20);  # input format n by p
-res_ccl_count$cor_w
-mean(res_ccl_count$cor_w==0)
-res_ccl_count$p_vals # not sure how this is computed, seems to be from bootstrap
-
-# it also has an implementation of SparCC, but seems not giving the same results
-#source("E:\\Dropbox\\Microbial_Networks\\codes\\CCLasso-master\\R/SparCC.R");
-#res_spa_count <- SparCC.count(x = data);
-#res$Cov[1:5, 1:5]
-#res_spa_count$cov.w[1:5, 1:5]
 
 
 
-#--------------
-# COAT 
-#--------------
-source(paste0(filepath, "\\COAT-master\\COAT-master\\simulation.R")) # this contains all different data generating models
-source(paste0(filepath, "\\COAT-master\\COAT-master\\coat.R"))
 
-x = data_rep[[1,1]]
-# if(any(x==0)) x = x+1
-# x = sweep(data+1,1,STATS = rowSums(data+1), FUN='/')
-# coat(x, nFolder=5, soft=1) # x is n by p data matrix, need to be compositional and zero adjusted
 
-# this function runs to provide the ROC; it seems peudocounts need to be added in advance for zero counts, and composition matrix adjusted accordingly
-for( k in 1:ncol(data_rep)){
-  if (any(data_rep[[2,k]]==0)){
-    data_rep[[2,k]] = data_rep[[2,k]]+1
-    data_rep[[1,k]] = sweep(data_rep[[2,k]],1,STATS = rowSums(data_rep[[2,k]]), FUN='/')
+
+
+
+compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k]] is composition, data[[2,k]] is count matrix, run for one repetition at a time
+                           target = c('covariance', 'precision'),
+                           method = c('CoNet', 'SparCC','CCLasso', 'COAT',
+                                      'SpiecEasi', 'gCoDa','Spring'),
+                           target_graph_cov, target_graph_inv # input the targeted graph; if provide var/inverse cov, must set the diagonal to zero first
+         
+){
+  
+  diag(target_graph) <-0
+  
+  if (grepl(target,'covariance',ignore.case=TRUE)){
+    if ( sum(grepl(method,c('CoNet', 'SparCC', 'CCLasso', 'COAT'),ignore.case=TRUE))==0) stop('target is Covariance graph, specified method not targeting the correct graph')
+    
+    if(grepl(method,'CoNet',ignore.case=TRUE)){
+      ...
+      
+      
+      
+      
+      
+      
+      
+    }else if(grepl(method,'SparCC',ignore.case=TRUE)){
+      #--------------
+      # SparCC 
+      #--------------
+      # library(devtools)
+      # install_github("zdk123/SpiecEasi")
+      library(SpiecEasi)
+      ## take in count data matrix, n by p
+      # sparcc_res = sparcc(data_rep[[2,1]], iter = 20, inner_iter = 10, th = 0.1) # need input format n by p; varying threshold (th) has minial impact on the result
+      # sparcc_res$Cov # the estimated log counts covariance, the Sigma
+      # sparcc_res = res$Cor # the estimated log counts correlation, the corr_mat
+      
+      sparcc_bootstrap_res = sparccboot(data = data_rep[[2,1]], 
+                                        R=200,  # number of bootstraps
+                                        ncpus = 4, 
+                                        sparcc.params = list(iter = 20, inner_iter = 10, th = 0.1)) # this is very slow
+      
+      pval_cov =  pval.sparccboot(sparcc_bootstrap_res)
+      sparcc_bootstrap_pval <- sparcc_bootstrap_cor <- matrix(0, p, p)
+      sparcc_bootstrap_pval[upper.tri(sparcc_bootstrap_pval)] = pval_cov$pvals
+      sparcc_bootstrap_pval = sparcc_bootstrap_pval+t(sparcc_bootstrap_pval) 
+      diag(sparcc_bootstrap_pval) = 2 # the diagonal set to 2, so never detect an edge on the diagonal
+      
+      sparcc_bootstrap_cor[upper.tri(sparcc_bootstrap_pval)] = pval_cov$cors
+      sparcc_bootstrap_cor = sparcc_bootstrap_cor+t(sparcc_bootstrap_cor)
+      diag(sparcc_bootstrap_cor) = 1
+      
+      sparcc_bootstrap_pval_FDR = matrix(p.adjust(p = as.vector(sparcc_bootstrap_pval), method = 'fdr'), p, p, byrow=F)
+      
+      # will changing the threshold for the matrix by hand to construct ROC
+      nlam = 20
+      get_path_raw <- get_path_FDR <-  list()
+      ind = 0
+      for (alpha in seq(0, 1, length = nlam)){
+        ind = ind+1
+        get_path_raw[[ind]] = (sparcc_bootstrap_pval<=alpha)*1
+        get_path_FDR[[ind]] = (sparcc_bootstrap_pval_FDR<=alpha)*1
+        
+      }
+      
+      ROC_raw = huge::huge.roc(path = get_path_raw, theta = option$Sigma_list$A_cov)
+      ROC_FDR = huge::huge.roc(path = get_path_FDR, theta = option$Sigma_list$A_cov)
+      
+      ROC = list(ROC_raw = ROC_raw, ROC_FDR = ROC_FDR)
+
+    }else if(grepl(method,'CCLasso',ignore.case=TRUE)){
+      #--------------
+      # CClasso
+      #--------------
+      ## (obtained from Github: https://github.com/huayingfang/CCLasso)
+      source(paste0(filepath, "\\CCLasso-master\\R\\cclasso.R"));
+      
+      lambda_vec = c(seq(0.01,0.1,0.01),seq(0.1,3,0.1)) * sqrt(log(p)/n) # Jing's setting for specifying the lambda list
+      
+      # for CCLasso, the input need to be zero-corrected. so add peudocount 1 if there are zero counts
+      for( k in 1:ncol(data_rep)){
+        if (any(data_rep[[2,k]]==0)){
+          data_rep[[2,k]] = data_rep[[2,k]]+1
+          data_rep[[1,k]] = sweep(data_rep[[2,k]],1,STATS = rowSums(data_rep[[2,k]]), FUN='/')
+        }
+      }
+      
+      lambda_vec = sort(lambda_vec)
+      ccl_cor_path = list()
+      ind = 0
+      for(lambda in lambda_vec){
+        ind=ind+1
+        res_ccl_count <- cclasso(x = data_rep[[1,1]], 
+                                 counts = F, pseudo = 1, # for correction of count matrix; ignored if we direclty supply composition matrix
+                                 k_cv = 2, # cv folds, min=2
+                                 lam_int = rep(lambda), #tuning parameter value range; need to vary this for ROC curve
+                                 k_max=200, n_boot =1);  # input format n by p
+        
+        # res_ccl_count$info_cv$lams # the lambda path 
+        ccl_cor_path[[ind]] = res_ccl_count$cor_w
+        # res_ccl_count$p_vals # from bootstrap, ignored in our simulation
+      }
+      
+      ROC = huge::huge.roc(path = ccl_cor_path, theta = option$Sigma_list$A_cov)
+
+      
+
+      
+      # it also has an implementation of SparCC, but seems not giving the same results
+      #source("E:\\Dropbox\\Microbial_Networks\\codes\\CCLasso-master\\R/SparCC.R");
+      #res_spa_count <- SparCC.count(x = data);
+      #res$Cov[1:5, 1:5]
+      #res_spa_count$cov.w[1:5, 1:5]
+      
+      
+    }else if (grepl(method,'COAT',ignore.case=TRUE)){
+      #--------------
+      # COAT 
+      #--------------
+      source(paste0(filepath, "\\COAT-master\\COAT-master\\simulation.R")) # this contains all different data generating models
+      source(paste0(filepath, "\\COAT-master\\COAT-master\\coat.R"))
+      
+      # x = data_rep[[2,1]] # counts
+      # if(any(x==0)) x = x+1
+      # x = sweep(data+1,1,STATS = rowSums(data+1), FUN='/')
+      # coat(x, nFolder=5, soft=1) # x is n by p data matrix, need to be compositional and zero adjusted
+      
+      # this function runs to provide the ROC; it seems peudocounts need to be added in advance for zero counts, and composition matrix adjusted accordingly
+      for( k in 1:ncol(data_rep)){
+        if (any(data_rep[[2,k]]==0)){
+          data_rep[[2,k]] = data_rep[[2,k]]+1
+          data_rep[[1,k]] = sweep(data_rep[[2,k]],1,STATS = rowSums(data_rep[[2,k]]), FUN='/')
+        }
+      }
+      
+      # look at this function under simulation.R, it seems to be implemented for coat ROC
+      Coat_ROC_res = calCoatROC(dataCell = data_rep, sigmaTrue = option$Sigma_list$Sigma,
+                                nPlotPoint = 31, nGrid = 30, soft = 1) 
+      
+      # plot(y=Coat_ROC_res$tp,x=Coat_ROC_res$fp, type='o' ) # the output is averaged over different repetitions. Here to distribute the workload just input one repetition
+      
+      library(DescTools)
+      ROC = list(tp = Coat_ROC_res$tprGrid, fp = Coat_ROC_res$fprGrid)
+      ROC$AUC = AUC(x=ROC$fp , y=ROC$tp)
+
+      
+    }else{
+      stop('no method matched')
+    }
+    
+    
+    
+    
+    
+  }else if(grepl(target,'precision',ignore.case=TRUE)){
+    if(grepl(method,'SpiecEasi',ignore.case=TRUE)){
+      #--------------
+      # SPIEC-EASI
+      #--------------
+      # for inv-covariance graph recovery
+      library(pulsar)
+      # input count data
+      Spiec_network <- spiec.easi(data_rep[[2, 1]], method='glasso', # choose from 'mb' for neighbourhood selection, or 'glasso'
+                                  # if to perform model selection
+                                  pulsar.select = F,
+                                  pulsar.params = list(
+                                    thresh=0.05,# Threshold for StARS criterion.
+                                    subsample.ratio=0.8, # Subsample size for StARS.
+                                    rep.num = 20), # Number of subsamples for StARS.
+                                  lambda.min.ratio=1e-2, nlambda=20) # lambda is for penalty parameter, is tuning parameter
+      
+      # the result should be a solution path over lambda; the path is adjacency matrix with diagonal being zero
+      Spiec_ROC_res = huge::huge.roc(Spiec_network$est$path, option$Sigma_list$A_inv, verbose=FALSE)
+
+      ROC = Spiec_ROC_res
+      
+      # getOptMerge(Spiec_network) # symmetric matrix with edge-wise stability; used for getting 0/1 network
+      # getOptInd(Spiec_network) # index of the selected lambda from provided lambda path
+      # getOptiCov(Spiec_network) # the optimal inverse covariance matrix (glasso only)
+      # getOptCov(Spiec_network) # the optimal covariance matrix associated with the selected network (glasso only)
+      # getOptBeta(Spiec_network) # the optimal coefficient matrix (mb only) (should be corresponding to inv-cov level, but may not the same)
+      # getOptNet(Spiec_network) # the optimal (StARS-refit) network, 0/1 adjacency matrix
+      
+    }else if(grepl(method,'SpiecEasi',ignore.case=TRUE)){
+      #--------------
+      # gCoda
+      #--------------
+      source(paste0(filepath, '\\gCoda-master\\R\\gcoda.R'))
+      gcoda_network <- gcoda(data, counts = T, pseudo = 1, lambda.min.ratio=1e-3, nlambda=20);
+      
+      gcoda_network$lambda
+      gcoda_network$opt.index  # if at the boundary may need to change lambda.min.ratio; however maximum cannot be changed... any reason how they choose the lambda.max?
+      gcoda_network$opt.icov
+      
+      gcode_ROC_res = huge::huge.roc(path=gcoda_network$path, theta = option$graph_Sigma$A, verbose=F)
+      
+    }else if(grepl(method,'Spring',ignore.case=TRUE)){
+      #---------------
+      # SPRING
+      #---------------
+      # devtools::install_github("irinagain/mixedCCA")
+      # devtools::install_github("GraceYoon/SPRING")
+      library(SPRING)
+      source(paste0(filepath, '\\Jing_lib\\func_libs.R'))
+      # supply directly the compositional data with n by p data matrix. It will be mclr transformed inside their function
+      fit.spring <- SPRING(data_rep[[1,1]], quantitative = F, 
+                           lambdaseq = "data-specific", 
+                           nlambda = 20, 
+                           subsample.ratio = 0.1, rep.num = 1 # these are for tuning parameter selection, for faster result we can set these small
+      )
+      
+      
+      spring_ROC_res = huge::huge.roc(fit.spring$fit$est$path, theta = option$Sigma_list$A, verbose = F)
+      
+      # # StARS-selected lambda index based on the threshold (default = 0.01)
+      # opt.K <- fit.spring$output$stars$opt.index
+      # # Estimated adjacency matrix from sparse graphical modeling technique ("mb" method) (1 = edge, 0 = no edge)
+      # adj.K <- as.matrix(fit.spring$fit$est$path[[opt.K]])
+      # # Estimated partial correlation coefficient, same as negative precision matrix.
+      # pcor.K <- as.matrix(SpiecEasi::symBeta(fit.spring$output$est$beta[[opt.K]], mode = 'maxabs'))
+      
+      
+    }else{
+      stop('no method matched')
+    }
+    
   }
+  
+  
+  return(ROC)
 }
-
-# look at this function under simulation.R, it seems to be implemented for coat ROC
-Coat_ROC_res = calCoatROC(dataCell = data_rep, sigmaTrue = option$Sigma_list$Sigma,
-                          nPlotPoint = 21, nGrid = 20, soft = 1) 
-
-plot(y=Coat_ROC_res[[1]],x=Coat_ROC_res[[2]] )
-
-#--------------
-# SPIEC-EASI
-#--------------
-# for inv-covariance graph recovery
-library(pulsar)
-Spiec_network <- spiec.easi(data, method='glasso', # choose from 'mb' for neighbourhood selection, or 'glasso'
-                 # if to perform model selection
-                 pulsar.select = F,
-                 pulsar.params = list(
-                   thresh=0.05,# Threshold for StARS criterion.
-                   subsample.ratio=0.8, # Subsample size for StARS.
-                   rep.num = 20), # Number of subsamples for StARS.
-                 lambda.min.ratio=1e-2, nlambda=10) # lambda is for penalty parameter, is tuning parameter
-
-# the result should be a solution path over lambda; the path is adjacency matrix with diagonal being zero
-Spiec_ROC_res = huge::huge.roc(Spiec_network$est$path, option$graph_Sigma$A, verbose=FALSE)
-Spiec_network_ROC$tp
-Spiec_network_ROC$fp
-
-getOptMerge(Spiec_network) # symmetric matrix with edge-wise stability; used for getting 0/1 network
-getOptInd(Spiec_network) # index of the selected lambda from provided lambda path
-getOptiCov(Spiec_network) # the optimal inverse covariance matrix (glasso only)
-getOptCov(Spiec_network) # the optimal covariance matrix associated with the selected network (glasso only)
-getOptBeta(Spiec_network) # the optimal coefficient matrix (mb only) (should be corresponding to inv-cov level, but may not the same)
-getOptNet(Spiec_network) # the optimal (StARS-refit) network, 0/1 adjacency matrix
-
-
-#--------------
-# gCoda
-#--------------
-source(paste0(filepath, '\\gCoda-master\\R\\gcoda.R'))
-gcoda_network <- gcoda(data, counts = T, pseudo = 1, lambda.min.ratio=1e-3, nlambda=20);
-
-gcoda_network$lambda
-gcoda_network$opt.index  # if at the boundary may need to change lambda.min.ratio; however maximum cannot be changed... any reason how they choose the lambda.max?
-gcoda_network$opt.icov
-
-gcode_ROC_res = huge::huge.roc(path=gcoda_network$path, theta = option$graph_Sigma$A, verbose=F)
-
-#---------------
-# SPRING
-#---------------
-# devtools::install_github("irinagain/mixedCCA")
-# devtools::install_github("GraceYoon/SPRING")
-library(SPRING)
-
-# supply abundance data with n by p data metrix. need to look at what data to pass, use mclr??
-fit.spring <- SPRING(QMP, quantitative = TRUE, lambdaseq = "data-specific", nlambda = 50, rep.num = 50)
-fit.spring <- SPRING(data, quantitative = TRUE, lambdaseq = "data-specific", nlambda = 5, rep.num = 5)
-# This takes around 23 minutes. We are working on reducing the computation time (10/25/2019).
-
-# StARS-selected lambda index based on the threshold (default = 0.01)
-opt.K <- fit.spring$output$stars$opt.index
-# Estimated adjacency matrix from sparse graphical modeling technique ("mb" method) (1 = edge, 0 = no edge)
-adj.K <- as.matrix(fit.spring$fit$est$path[[opt.K]])
-# Estimated partial correlation coefficient, same as negative precision matrix.
-pcor.K <- as.matrix(SpiecEasi::symBeta(fit.spring$output$est$beta[[opt.K]], mode = 'maxabs'))
-

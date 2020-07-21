@@ -231,7 +231,10 @@ SpiecEasi_graph_Sigma = function(data, type='erdos_renyi'){
                       epsBin = 0.01, numBinSearch = 100) # here can set different generating parameters
   Cor   <- cov2cor(prec2cov(Prec))
   
-  return(list(Sigma = Cor, A = graph, Omega = solve(Cor)))
+  A_cov = (abs(Cor)>1e-11)*1
+  diag(A_cov) = 0
+  
+  return(list(Sigma = Cor, A_inv = graph, Omega = solve(Cor), A_cov = A_cov))
   
 }
 
@@ -273,29 +276,22 @@ data_generation = function(n, p, option){
     }
     if(option$model == 'Dirichlet'){
       model_data = null_data_generate_2(n, p, library_scale = option$library_scale, alpha = option$alpha, mu=option$mu) 
-
     }
-    A = matrix(0, p, p)
-    other_data = list(A = A)
+
   }
   
   if(option$hypothesis == 'alternative'){
     if(option$model == 'copula'){
       # generate with SpiecEasi, with a chosen graph type and zero-inflated negative binomial marginal distribution
       data_list = SpiecEasi_generate(data = option$reference_data, 
-                                     graph_Sigma = option$graph_Sigma)
+                                     graph_Sigma = option$Sigma_list)
       model_data = data_list$data
-      Sigma = option$graph_Sigma$Sigma
-      A = option$graph_Sigma$A
-      Omega = option$graph_Sigma$Omega
+
     }
     if(option$model == 'log-normal'){
       Sigma = option$Sigma_list$Sigma
-      A = option$Sigma_list$A
-      Omega = option$Sigma_list$Omega
       model_data = para_data_generate_2(n, p, mu = option$mu, Sigma = Sigma)
     }
-    other_data = list(Sigma = Sigma, A=A, Omega = Omega)
   }
   
 
@@ -303,7 +299,7 @@ data_generation = function(n, p, option){
   W_zeros <- range(apply(model_data,1,function(a) sum(a==0)/p))
   cat('range of zero proportions across cells: ', W_zeros, '\n')
   
-  return(list(data = model_data, other_data = other_data))
+  return(list(data = model_data))
 }
 
 

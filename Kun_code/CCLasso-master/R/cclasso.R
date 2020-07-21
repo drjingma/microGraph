@@ -98,7 +98,7 @@ cclasso <- function(x, counts = FALSE, pseudo = 0.5, k_cv = 3,
         sigma = fa2$sigma, wd = wd, u_f = u_f, u0_wd = u0_wd, d0_wd = d0_wd, 
         wd2 = wd2);
 
-      lams <- c(lams, b2); 
+      lams <- c(lams, b2);
       fvals <- c(fvals, fb2$cv_loss);
     } else {
       b1 <- b2;
