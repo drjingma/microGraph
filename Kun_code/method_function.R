@@ -185,7 +185,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       ## (obtained from Github: https://github.com/huayingfang/CCLasso)
       source(paste0(filepath, "\\CCLasso-master\\R\\cclasso.R"));
       
-      lambda_vec = c(seq(0.01,0.1,0.01),seq(0.1,3,0.1)) * sqrt(log(p)/n) # Jing's setting for specifying the lambda list
+      lambda_vec = c(seq(0.01,0.1,0.02),seq(0.1,3,0.2)) * sqrt(log(p)/n) # Jing's setting for specifying the lambda list
       
       # for CCLasso, the input need to be zero-corrected. so add peudocount 1 if there are zero counts
       for( k in 1:ncol(data_rep)){
@@ -207,7 +207,8 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
                                  k_max=200, n_boot =1);  # input format n by p
         
         # res_ccl_count$info_cv$lams # the lambda path 
-        ccl_cor_path[[ind]] = res_ccl_count$cor_w
+        ccl_cor_path[[ind]] = (abs(res_ccl_count$cor_w)>1e-11)*1
+        diag(ccl_cor_path[[ind]]) = 0
         # res_ccl_count$p_vals # from bootstrap, ignored in our simulation
       }
       
@@ -282,7 +283,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # the result should be a solution path over lambda; the path is adjacency matrix with diagonal being zero
       Spiec_ROC_res = huge::huge.roc(Spiec_network$est$path, option$Sigma_list$A_inv, verbose=FALSE)
 
-      ROC = Spiec_ROC_res
+      ROC_inv = Spiec_ROC_res
       
       # getOptMerge(Spiec_network) # symmetric matrix with edge-wise stability; used for getting 0/1 network
       # getOptInd(Spiec_network) # index of the selected lambda from provided lambda path
@@ -296,13 +297,21 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # gCoda
       #--------------
       source(paste0(filepath, '\\gCoda-master\\R\\gcoda.R'))
-      gcoda_network <- gcoda(data, counts = T, pseudo = 1, lambda.min.ratio=1e-3, nlambda=20);
+      # input zero corrected compositional data
+      for( k in 1:ncol(data_rep)){
+        if (any(data_rep[[2,k]]==0)){
+          data_rep[[2,k]] = data_rep[[2,k]]+1
+          data_rep[[1,k]] = sweep(data_rep[[2,k]],1,STATS = rowSums(data_rep[[2,k]]), FUN='/')
+        }
+      }
+      gcoda_network <- gcoda(data_rep[[1,1]], counts = F, pseudo = 1, lambda.min.ratio=1e-3, nlambda=20);
       
       gcoda_network$lambda
-      gcoda_network$opt.index  # if at the boundary may need to change lambda.min.ratio; however maximum cannot be changed... any reason how they choose the lambda.max?
-      gcoda_network$opt.icov
+      # gcoda_network$opt.index  # if at the boundary may need to change lambda.min.ratio; however maximum cannot be changed... any reason how they choose the lambda.max?
+      # gcoda_network$opt.icov
       
-      gcode_ROC_res = huge::huge.roc(path=gcoda_network$path, theta = option$graph_Sigma$A, verbose=F)
+      gcoda_ROC_res = huge::huge.roc(path=gcoda_network$path, theta = option$Sigma_list$A_inv, verbose=F)
+      ROC_inv = gcoda_ROC_res
       
     }else if(grepl(method,'Spring',ignore.case=TRUE)){
       #---------------
@@ -312,15 +321,18 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # devtools::install_github("GraceYoon/SPRING")
       library(SPRING)
       source(paste0(filepath, '\\Jing_lib\\func_libs.R'))
-      # supply directly the compositional data with n by p data matrix. It will be mclr transformed inside their function
-      fit.spring <- SPRING(data_rep[[1,1]], quantitative = F, 
+      # supply uncorrected compositional data with n by p data matrix. It will be mclr transformed inside their function
+      fit.spring <- SPRING(data_rep[[1,1]], 
+                           quantitative = F, # F means input is compositional
                            lambdaseq = "data-specific", 
                            nlambda = 20, 
-                           subsample.ratio = 0.1, rep.num = 1 # these are for tuning parameter selection, for faster result we can set these small
+                           ncores = 4,
+                           subsample.ratio = 0.8, rep.num = 1 # these are for tuning parameter selection, for faster result we can set these small
       )
       
       
-      spring_ROC_res = huge::huge.roc(fit.spring$fit$est$path, theta = option$Sigma_list$A, verbose = F)
+      spring_ROC_res = huge::huge.roc(fit.spring$fit$est$path, theta = option$Sigma_list$A_inv, verbose = F)
+      ROC_inv = spring_ROC_res
       
       # # StARS-selected lambda index based on the threshold (default = 0.01)
       # opt.K <- fit.spring$output$stars$opt.index
