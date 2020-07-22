@@ -4,9 +4,9 @@ library(gtools)
 # library(SpiecEasi)
 library(seqgroup)
 
-# filepath = 'C:\\Users\\yuek\\Dropbox\\Microbial_Networks\\microGraph\\Kun_code' #BOX
- filepath = 'E:\\Dropbox\\Microbial_Networks\\microGraph\\Kun_code'
-# filepath = '/Users/Kun/Desktop/Dropbox/Microbial_Networks/microGraph/Kun_code'
+# filepath = 'C:\\Users\\yuek\\Dropbox\\Microbial_Networks\\microGraph' #BOX
+ filepath = 'E:\\Dropbox\\Microbial_Networks\\microGraph'
+# filepath = '/Users/Kun/Desktop/Dropbox/Microbial_Networks/microGraph'
 
 ###------------------------
 ### Data generating model
@@ -198,7 +198,7 @@ CClasso_Sigma = function(n, p, option){
 #-----------------------
 # COAT generative model (parametric, log-normal / log-gamma)
 #-----------------------
-source(paste0(filepath,'\\COAT-master\\COAT-master\\simulation.R')) # this contains all different data generating models
+source(paste0(filepath,'\\Kun_code\\COAT-master\\COAT-master\\simulation.R')) # this contains all different data generating models
 
 # data_list = generateDataCell(n, modelCov, p1 = 50, p2 = 100, p3 = 200, nRep = 100) #modelCov = 1: hub cov; modelCov = 2: block cov; modelCov = 3: sparse cov
 
@@ -209,7 +209,7 @@ source(paste0(filepath,'\\COAT-master\\COAT-master\\simulation.R')) # this conta
 # library(devtools)
 # install_github("zdk123/SpiecEasi")
 # library(SpiecEasi)
-setwd(paste0(filepath, '/SpiecEasi-master/SpiecEasi-master/R'))
+setwd(paste0(filepath, '\\Kun_code/SpiecEasi-master/SpiecEasi-master/R'))
 import_files = list.files()
 sapply(import_files, source)
 setwd(filepath)

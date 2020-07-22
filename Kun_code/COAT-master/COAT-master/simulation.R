@@ -180,12 +180,18 @@ calTprFpr <- function(sigmaTrue, sigmaHat, eps = 1e-10){
 #     tprGrid     -------- true positive rate along ROC curve
 #     fprGrid     -------- false positive rate along ROC curve
 #-----------------------------------------------------------------------------------------------------------
-calCoatROC <- function(dataCell, sigmaTrue, nPlotPoint = 21, nGrid = 20, soft = 1){
+calCoatROC <- function(dataCell, sigmaTrue, precTrue, nPlotPoint = 21, nGrid = 20, soft = 1){
   nRep <- ncol(dataCell)
   plotLength <- 1/(nPlotPoint - 1)
   p <- ncol(dataCell[[1,1]])
   TprMat <- matrix(0, nRep, nPlotPoint)
   FprMat <- matrix(0, nRep, nPlotPoint)
+  
+  TprMat_inv <- matrix(0, nRep, nPlotPoint)
+  FprMat_inv <- matrix(0, nRep, nPlotPoint)
+  
+  est_corr_list = matrix(list(), nRep, nGrid)
+  
   for (i in 1:nRep){
     W <- dataCell[[2,i]]
     logW <- log(W)
@@ -195,20 +201,34 @@ calCoatROC <- function(dataCell, sigmaTrue, nPlotPoint = 21, nGrid = 20, soft = 
     grid <- gridInfo$lower * (gridInfo$upper / gridInfo$lower)^(rep(1:nGrid)/nGrid)
     TPR <- matrix(0, nGrid, 1)
     FPR <- matrix(0, nGrid, 1)
+    
+    TPR_inv <- matrix(0, nGrid, 1)
+    FPR_inv <- matrix(0, nGrid, 1)
     for (j in 1:nGrid){
       sigmaHat <- adaptThreshold(gridInfo$cov,gridInfo$theta,grid[j],soft)
       corrHat <- diag(diag(sigmaHat)^(-0.5))%*%sigmaHat%*%diag(diag(sigmaHat)^(-0.5)) 
+      est_corr_list[[i,j]] = corrHat
+      precHat = solve(sigmaHat)
       tprFpr <- calTprFpr(sigmaTrue, corrHat)
       TPR[j] <- tprFpr$tpr
       FPR[j] <- tprFpr$fpr
+      
+      tprFpr_inv <- calTprFpr(precTrue, precHat)
+      TPR_inv[j] <- tprFpr_inv$tpr
+      FPR_inv[j] <- tprFpr_inv$fpr
     }
+    
     for (k in 0:(nPlotPoint-1)){
       TprMat[i, k+1] <- max(TPR[which(FPR < (plotLength/2 + k*plotLength))])
+      TprMat_inv[i, k+1] <- max(TPR_inv[which(FPR_inv < (plotLength/2 + k*plotLength))])
     }
   }
   tprGrid <- colMeans(TprMat)
   fprGrid <- rep(0:(nPlotPoint-1))/(nPlotPoint-1)
-  return(list(tprGrid = tprGrid, fprGrid = fprGrid))
+  tprGrid_inv <- colMeans(TprMat_inv)
+  fprGrid_inv <- rep(0:(nPlotPoint-1))/(nPlotPoint-1)
+  
+  return(list(tprGrid = tprGrid, fprGrid = fprGrid, tprGrid_inv = tprGrid_inv, fprGrid_inv = fprGrid_inv, est_corr_list = est_corr_list))
 }
 
 

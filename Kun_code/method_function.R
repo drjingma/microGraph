@@ -3,10 +3,10 @@
 ### Implementation of available methods for computing microbiome network
 ###
 ###-----------------------------------------------------------
-filepath = 'C:\\Users\\yuek\\Dropbox\\Microbial_Networks\\microGraph\\Kun_code' #BOX
+filepath = 'C:\\Users\\yuek\\Dropbox\\Microbial_Networks\\microGraph' #BOX
 
-filepath = '/Users/Kun/Desktop/Dropbox/Microbial_Networks/microGraph/Kun_code'
-filepath = 'E:\\Dropbox\\Microbial_Networks\\microGraph\\Kun_code'
+filepath = '/Users/Kun/Desktop/Dropbox/Microbial_Networks/microGraph'
+filepath = 'E:\\Dropbox\\Microbial_Networks\\microGraph'
 
 count_to_comp = function(W){
   X = sweep(W,1,STATS = rowSums(W), FUN='/') # the compositions from log-normal; different Xi for different cells
@@ -20,43 +20,43 @@ count_to_comp = function(W){
 
 ### option 1: use the CoNet software (not in R)
 
-filepath_conet = 'CoNet_app_output\\Conet_output2.txt'
-read_tab = function(filepath){
-  
-  processFile = function(filepath) {
-    full = list()
-    count=1
-    con = file(filepath, "r")
-    while ( TRUE ) {
-      line = readLines(con, n = 1)
-      if ( length(line) == 0 ) {
-        break
-      }
-      full[count]=line
-      count=count+1
-    }
-    close(con)
-    return(full)
-  }
-  
-  see = processFile(filepath)
-  
-  # search for nodes information
-  i=1
-  while (i <=length(see)){
-    if(substr(see[[i]],1,6) == ';NODES'){nodehead = i}
-    if(substr(see[[i]],1,5) == ';ARCS'){edgehead=i}
-    i=i+1
-  }
-  node_info = read.table(filepath, skip=nodehead-1, nrow=edgehead-nodehead, sep='\t')
-  edge_info = read.table(filepath, skip=edgehead-1, nrow=length(see) - edgehead+1, sep='\t', header=T)
-  colnames(edge_info)[1]<-'Node2'
-  edge_info = cbind(Node1 = rownames(edge_info), edge_info)
-  rownames(edge_info)<-NULL
-  
-  return(list(node_info = node_info, edge_info = edge_info))
-}
-# read_tab(filepath_conet) # still need toi determine how to use the edge informations.
+# filepath_conet = 'CoNet_app_output\\Conet_output2.txt'
+# read_tab = function(filepath){
+#   
+#   processFile = function(filepath) {
+#     full = list()
+#     count=1
+#     con = file(filepath, "r")
+#     while ( TRUE ) {
+#       line = readLines(con, n = 1)
+#       if ( length(line) == 0 ) {
+#         break
+#       }
+#       full[count]=line
+#       count=count+1
+#     }
+#     close(con)
+#     return(full)
+#   }
+#   
+#   see = processFile(filepath)
+#   
+#   # search for nodes information
+#   i=1
+#   while (i <=length(see)){
+#     if(substr(see[[i]],1,6) == ';NODES'){nodehead = i}
+#     if(substr(see[[i]],1,5) == ';ARCS'){edgehead=i}
+#     i=i+1
+#   }
+#   node_info = read.table(filepath, skip=nodehead-1, nrow=edgehead-nodehead, sep='\t')
+#   edge_info = read.table(filepath, skip=edgehead-1, nrow=length(see) - edgehead+1, sep='\t', header=T)
+#   colnames(edge_info)[1]<-'Node2'
+#   edge_info = cbind(Node1 = rownames(edge_info), edge_info)
+#   rownames(edge_info)<-NULL
+#   
+#   return(list(node_info = node_info, edge_info = edge_info))
+# }
+# read_tab(filepath_conet) # still need to determine how to use the edge informations.
 
 ### option 2: use its R version without some features
 # install.packages('gsl')
@@ -64,46 +64,63 @@ read_tab = function(filepath){
 # file.path(R.home("gsl"), "Makeconf")
 # 
 # 
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-
-BiocManager::install("DirichletMultinomial")
-
-library(devtools)
-install_github("hallucigenia-sparsa/seqgroup")
-library(seqgroup)
-# reference: https://hallucigenia-sparsa.github.io/seqgroup/reference/barebonesCoNet.html
-# input data needs p by n; need to name the taxa
-net_CoNet = barebonesCoNet(abundances = t(data), 
-                           methods = c("spearman",'pearson', 'bray',"kld"), 
-               method.num.T = 4, pval.T = 0.05,
-               #init.edge.num is using default value (sqrt(p)); this is the number of top and bottom edges to initially keep for later testing
-               init.edge.num = 50,
-               pval.cor = FALSE, # do not use usual correlation test
-               permut = T, renorm = T,permutandboot = T, # their permutation/bootstrap and renormalization will remove spurious correlation
-               iters = 100, bh = TRUE,
-               pseudocount = 1e-11, # counts added to zeros when taking log
-               plot = F, verbose = F) 
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#   install.packages("BiocManager")
+# 
+# BiocManager::install("DirichletMultinomial")
+# 
+# library(devtools)
+# install_github("hallucigenia-sparsa/seqgroup")
 
 
-# the output is am igraph object with edge weights; 
-# here consider tuning parameter init.edge.num ( methods, method.num are just set fixed, though can also be changed)
-# init.
-edge_attr(net_CoNet)
-network_matrix_CoNet = as_adjacency_matrix(net_CoNet,type='both', attr = "weight", sparse=F)
-
-net_CoNet = barebonesCoNet(abundances = t(data), methods = c("spearman"), 
-               method.num.T = 2, pval.T = 0.05,
-               pval.cor = F, # do not use usual correlation test
-               init.edge.num = 200,
-               
-               permut = F, renorm = T,permutandboot = T, # their permutation/bootstrap and renormalization will remove spurious correlation
-               iters = 100, bh = TRUE,
-               pseudocount = 1e-11, # counts added to zeros when taking log
-               plot = T, verbose = F) 
-plot(net_CoNet)
-
-
+# library(seqgroup)
+# # reference: https://hallucigenia-sparsa.github.io/seqgroup/reference/barebonesCoNet.html
+# # input data needs p by n; need to name the taxa
+# 
+# # not working
+# net_CoNet = barebonesCoNet(abundances = t(data_rep[[2,1]]), 
+#                            methods = c("spearman",'pearson', 'bray',"kld"), 
+#                method.num.T = 4, pval.T = 0.05,
+#                #init.edge.num is using default value (sqrt(p)); this is the number of top and bottom edges to initially keep for later testing
+#                init.edge.num = 50,
+#                pval.cor = FALSE, # do not use usual correlation test
+#                permut = T, renorm = T,permutandboot = T, # their permutation/bootstrap and renormalization will remove spurious correlation
+#                iters = 100, bh = TRUE,
+#                pseudocount = 1, # counts added to zeros when taking log
+#                plot = F, verbose = F) 
+# 
+# # not working
+# net_CoNet = barebonesCoNet(abundances = t(data_rep[[2,1]]), methods = c("spearman", 'kld'), 
+#                            method.num.T = 2, pval.T = 0.05,
+#                            pval.cor = T, # do not use usual correlation test
+#                            init.edge.num = 20,
+#                            permut = F, renorm = F,permutandboot = F, # their permutation/bootstrap and renormalization will remove spurious correlation
+#                            iters = 100, bh = TRUE,
+#                            pseudocount = 1e-11, # counts added to zeros when taking log
+#                            plot = T, verbose = F) 
+# 
+# # this one works
+# net_CoNet = barebonesCoNet(abundances = t(data_rep[[2,1]]), methods = c("spearman"), 
+#                            method.num.T = 2, pval.T = 0.05,
+#                            pval.cor = F, # do not use usual correlation test
+#                            init.edge.num = 40,
+#                            # pval.cor = FALSE,
+#                            permut = F, renorm = T,permutandboot = T, # their permutation/bootstrap and renormalization will remove spurious correlation
+#                            iters = 100, bh = TRUE,
+#                            pseudocount = 1e-11, # counts added to zeros when taking log
+#                            plot = T, verbose = F) 
+# 
+# 
+# # the output is am igraph object with edge weights; 
+# # here consider tuning parameter init.edge.num ( methods, method.num are just set fixed, though can also be changed)
+# # init.
+# edge_attr(net_CoNet)
+# network_matrix_CoNet = as_adjacency_matrix(net_CoNet,type='both', attr = "weight", sparse=F)
+# 
+# 
+# plot(net_CoNet)
+# 
+# 
 
 
 
@@ -115,17 +132,17 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
                            target = c('covariance', 'precision'),
                            method = c('CoNet', 'SparCC','CCLasso', 'COAT',
                                       'SpiecEasi', 'gCoDa','Spring'),
-                           target_graph_cov, target_graph_inv # input the targeted graph; if provide var/inverse cov, must set the diagonal to zero first
-         
+                           target_graph_cov, target_graph_inv, # input the targeted graph; if provide var/inverse cov, must set the diagonal to zero first
+                           option
 ){
   
-  diag(target_graph) <-0
+  diag(target_graph_cov) <- diag(target_graph_inv)<-0
   
   if (grepl(target,'covariance',ignore.case=TRUE)){
     if ( sum(grepl(method,c('CoNet', 'SparCC', 'CCLasso', 'COAT'),ignore.case=TRUE))==0) stop('target is Covariance graph, specified method not targeting the correct graph')
     
     if(grepl(method,'CoNet',ignore.case=TRUE)){
-      ...
+      ROC=NULL
       
       
       
@@ -173,23 +190,27 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
         
       }
       
-      ROC_raw = huge::huge.roc(path = get_path_raw, theta = option$Sigma_list$A_cov)
-      ROC_FDR = huge::huge.roc(path = get_path_FDR, theta = option$Sigma_list$A_cov)
+      ROC_raw = huge::huge.roc(path = get_path_raw, theta = target_graph_cov)
+      ROC_FDR = huge::huge.roc(path = get_path_FDR, theta = target_graph_cov)
       
-      ROC = list(ROC_raw = ROC_raw, ROC_FDR = ROC_FDR)
+      
+      # problem with ROC_inv: do not have p values to threshold
+      ROC = list(ROC_cov = list(ROC_raw = ROC_raw, ROC_FDR = ROC_FDR),
+                 ROC_inv = NULL)
 
     }else if(grepl(method,'CCLasso',ignore.case=TRUE)){
       #--------------
       # CClasso
       #--------------
       ## (obtained from Github: https://github.com/huayingfang/CCLasso)
-      source(paste0(filepath, "\\CCLasso-master\\R\\cclasso.R"));
+      source(paste0(filepath, "\\Kun_code\\CCLasso-master\\R\\cclasso.R"));
       
-      lambda_vec = c(seq(0.01,0.1,0.02),seq(0.1,3,0.2)) * sqrt(log(p)/n) # Jing's setting for specifying the lambda list
+      lambda_vec = c(seq(0.01,0.1,0.03),seq(0.1,3,0.3)) * sqrt(log(p)/n) # Jing's setting for specifying the lambda list
       
       # for CCLasso, the input need to be zero-corrected. so add peudocount 1 if there are zero counts
       for( k in 1:ncol(data_rep)){
         if (any(data_rep[[2,k]]==0)){
+          print('zero counts corrected by adding pseudocount=1')
           data_rep[[2,k]] = data_rep[[2,k]]+1
           data_rep[[1,k]] = sweep(data_rep[[2,k]],1,STATS = rowSums(data_rep[[2,k]]), FUN='/')
         }
@@ -197,6 +218,8 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       
       lambda_vec = sort(lambda_vec)
       ccl_cor_path = list()
+      ccl_cor = list()
+      ccl_inv = list()
       ind = 0
       for(lambda in lambda_vec){
         ind=ind+1
@@ -207,14 +230,25 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
                                  k_max=200, n_boot =1);  # input format n by p
         
         # res_ccl_count$info_cv$lams # the lambda path 
-        ccl_cor_path[[ind]] = (abs(res_ccl_count$cor_w)>1e-11)*1
-        diag(ccl_cor_path[[ind]]) = 0
+        ccl_cor[[ind]] = res_ccl_count$cor_w
         # res_ccl_count$p_vals # from bootstrap, ignored in our simulation
       }
       
-      ROC = huge::huge.roc(path = ccl_cor_path, theta = option$Sigma_list$A_cov)
-
       
+      ROC_cov = huge::huge.roc(path = lapply(ccl_cor, function(x){
+                                              tmp = (abs(x)>1e-11)*1
+                                              diag(tmp)=0
+                                              tmp}), 
+                               theta = target_graph_cov)
+      
+      ROC_inv = huge::huge.roc(path = lapply(ccl_cor, function(x){
+                                              x = solve(x)
+                                              tmp = (abs(x)>1e-11)*1
+                                              diag(tmp)=0
+                                              tmp}), 
+                               theta = target_graph_inv)
+      
+      ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv)
 
       
       # it also has an implementation of SparCC, but seems not giving the same results
@@ -228,8 +262,8 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       #--------------
       # COAT 
       #--------------
-      source(paste0(filepath, "\\COAT-master\\COAT-master\\simulation.R")) # this contains all different data generating models
-      source(paste0(filepath, "\\COAT-master\\COAT-master\\coat.R"))
+      source(paste0(filepath, "\\Kun_code\\COAT-master\\COAT-master\\simulation.R")) # this contains all different data generating models
+      source(paste0(filepath, "\\Kun_code\\COAT-master\\COAT-master\\coat.R"))
       
       # x = data_rep[[2,1]] # counts
       # if(any(x==0)) x = x+1
@@ -245,15 +279,23 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       }
       
       # look at this function under simulation.R, it seems to be implemented for coat ROC
-      Coat_ROC_res = calCoatROC(dataCell = data_rep, sigmaTrue = option$Sigma_list$Sigma,
+      Coat_ROC_res = calCoatROC(dataCell = data_rep, 
+                                sigmaTrue = option$Sigma_list$Sigma,
+                                precTrue = option$Sigma_list$Omega,
                                 nPlotPoint = 31, nGrid = 30, soft = 1) 
       
       # plot(y=Coat_ROC_res$tp,x=Coat_ROC_res$fp, type='o' ) # the output is averaged over different repetitions. Here to distribute the workload just input one repetition
       
       library(DescTools)
-      ROC = list(tp = Coat_ROC_res$tprGrid, fp = Coat_ROC_res$fprGrid)
-      ROC$AUC = AUC(x=ROC$fp , y=ROC$tp)
+      ROC_cov = list(tp = Coat_ROC_res$tprGrid, fp = Coat_ROC_res$fprGrid)
+      ROC_cov$AUC = AUC(x=ROC_cov$fp , y=ROC_cov$tp)
 
+      ROC_inv = list(tp = Coat_ROC_res$tprGrid_inv, fp = Coat_ROC_res$fprGrid_inv)
+      ROC_inv$AUC = AUC(x=ROC_inv$fp , y=ROC_inv$tp)
+      
+      ROC = list(ROC_cov = ROC, ROC_inv = ROC_inv)
+      
+      
       
     }else{
       stop('no method matched')
@@ -270,6 +312,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       #--------------
       # for inv-covariance graph recovery
       library(pulsar)
+      
       # input count data
       Spiec_network <- spiec.easi(data_rep[[2, 1]], method='glasso', # choose from 'mb' for neighbourhood selection, or 'glasso'
                                   # if to perform model selection
@@ -278,13 +321,22 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
                                     thresh=0.05,# Threshold for StARS criterion.
                                     subsample.ratio=0.8, # Subsample size for StARS.
                                     rep.num = 20), # Number of subsamples for StARS.
-                                  lambda.min.ratio=1e-2, nlambda=20) # lambda is for penalty parameter, is tuning parameter
+                                  lambda.min.ratio=1e-2, nlambda=30) # lambda is for penalty parameter, is tuning parameter
       
       # the result should be a solution path over lambda; the path is adjacency matrix with diagonal being zero
-      Spiec_ROC_res = huge::huge.roc(Spiec_network$est$path, option$Sigma_list$A_inv, verbose=FALSE)
-
+      Spiec_ROC_res = huge::huge.roc(path = Spiec_network$est$path, 
+                                     theta = target_graph_inv, verbose=FALSE)
+      
+      # solve(Spiec_network$est$icov[[1]])[1:10, 1:10]
+      # Spiec_network$est$cov[[1]][1:10, 1:10]
       ROC_inv = Spiec_ROC_res
       
+      ROC_cov = huge::huge.roc(path = lapply(Spiec_network$est$cov, function(x){
+        diag(x) = 0
+        tmp = (abs(x)>1e-11)*1
+        tmp}), theta = target_graph_cov)
+      
+      ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv)
       # getOptMerge(Spiec_network) # symmetric matrix with edge-wise stability; used for getting 0/1 network
       # getOptInd(Spiec_network) # index of the selected lambda from provided lambda path
       # getOptiCov(Spiec_network) # the optimal inverse covariance matrix (glasso only)
@@ -296,7 +348,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       #--------------
       # gCoda
       #--------------
-      source(paste0(filepath, '\\gCoda-master\\R\\gcoda.R'))
+      source(paste0(filepath, '\\Kun_code\\gCoda-master\\R\\gcoda.R'))
       # input zero corrected compositional data
       for( k in 1:ncol(data_rep)){
         if (any(data_rep[[2,k]]==0)){
@@ -306,12 +358,22 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       }
       gcoda_network <- gcoda(data_rep[[1,1]], counts = F, pseudo = 1, lambda.min.ratio=1e-3, nlambda=20);
       
-      gcoda_network$lambda
+      # gcoda_network$lambda
       # gcoda_network$opt.index  # if at the boundary may need to change lambda.min.ratio; however maximum cannot be changed... any reason how they choose the lambda.max?
       # gcoda_network$opt.icov
       
+      ROC_cov = huge::huge.roc(path = lapply(gcoda_network$icov, function(x){ 
+        x = solve(x) # compute covariance
+        diag(x) = 0
+        tmp = (abs(x)>1e-11)*1
+        tmp}), theta = target_graph_cov)
+
+
       gcoda_ROC_res = huge::huge.roc(path=gcoda_network$path, theta = option$Sigma_list$A_inv, verbose=F)
+      
       ROC_inv = gcoda_ROC_res
+      
+      ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv)
       
     }else if(grepl(method,'Spring',ignore.case=TRUE)){
       #---------------
@@ -320,20 +382,29 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # devtools::install_github("irinagain/mixedCCA")
       # devtools::install_github("GraceYoon/SPRING")
       library(SPRING)
-      source(paste0(filepath, '\\Jing_lib\\func_libs.R'))
+      source(paste0(filepath, '\\Kun_code\\Jing_lib\\func_libs.R'))
       # supply uncorrected compositional data with n by p data matrix. It will be mclr transformed inside their function
       fit.spring <- SPRING(data_rep[[1,1]], 
                            quantitative = F, # F means input is compositional
                            lambdaseq = "data-specific", 
                            nlambda = 20, 
-                           ncores = 4,
-                           subsample.ratio = 0.8, rep.num = 1 # these are for tuning parameter selection, for faster result we can set these small
+                           ncores = 1,
+                           subsample.ratio = 0.01, rep.num = 1 # these are for tuning parameter selection, for faster result we can set these small
       )
       
       
       spring_ROC_res = huge::huge.roc(fit.spring$fit$est$path, theta = option$Sigma_list$A_inv, verbose = F)
       ROC_inv = spring_ROC_res
       
+      ROC_cov = huge::huge.roc(path = lapply(fit.spring$fit$est$beta, # this is the partial correlations from neighbourhood selection
+                                             function(x){ 
+                                               diag(x) = 1
+        x = solve(x) # compute covariance
+        diag(x) = 0
+        tmp = (abs(x)>1e-11)*1
+        tmp}), theta = target_graph_cov)
+      
+      ROC - list(ROC_cov = ROC_cov, ROC_inv = ROC_inv)
       # # StARS-selected lambda index based on the threshold (default = 0.01)
       # opt.K <- fit.spring$output$stars$opt.index
       # # Estimated adjacency matrix from sparse graphical modeling technique ("mb" method) (1 = edge, 0 = no edge)
