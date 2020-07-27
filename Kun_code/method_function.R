@@ -44,8 +44,8 @@ find_glasso_ROC = function(covariance, lambda_seq, target_graph_inv){
     calTprFpr(sigmaTrue = target_graph_inv, sigmaHat = prec)
   })
   
-  tp = c(0, do.call(c, tpfp[1,]), 1) # always add this (0,0) and (1,1) point since the start/end point of ROC from (0,0) to (1,1)
-  fp = c(0, do.call(c,tpfp[2,]), 1)
+  tp = sort(c(0, do.call(c, tpfp[1,]), 1)) # always add this (0,0) and (1,1) point since the start/end point of ROC from (0,0) to (1,1)
+  fp = sort(c(0, do.call(c,tpfp[2,]), 1))
   auc = AUC(x=fp , y=tp)
   
   return(list(tp = tp, fp = fp, AUC = auc)) 
@@ -450,7 +450,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # getOptBeta(Spiec_network) # the optimal coefficient matrix (mb only) (should be corresponding to inv-cov level, but may not the same)
       # getOptNet(Spiec_network) # the optimal (StARS-refit) network, 0/1 adjacency matrix
       
-    }else if(grepl(method,'SpiecEasi',ignore.case=TRUE)){
+    }else if(grepl(method,'gcoda',ignore.case=TRUE)){
       #--------------
       # gCoda
       #--------------

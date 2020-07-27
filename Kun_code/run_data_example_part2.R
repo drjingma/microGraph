@@ -11,7 +11,7 @@ library(SpiecEasi)
 library(MASS)
 
 
-args = commandArgs(trailingOnly = T) # (n p null1 2 1),  n and p override by reference data set
+args = commandArgs(trailingOnly = T) # (n p null1 2 1),  n and p override by reference data set, e.g. args = c(50, 50, 'alt1', 2, 1)
 n = as.integer(args[1])
 p = as.integer(args[2])
 choose_model = as.character(args[3])
@@ -28,13 +28,13 @@ lambda_seq = sort(lambda_seq, decreasing = T)
 
 # compare methods for their ROC
 
-# cov_conet_roc = compare_methods(data_rep[,1, drop=F],
-#                                 est_mat = c('covariance', 'precision')[1],
-#                                 method = c('CoNet', 'SparCC','CCLasso', 'COAT',
-#                                            'SpiecEasi', 'gCoDa','Spring')[1],
-#                                 target_graph_cov = option$Sigma_list$A_cov,
-#                                 target_graph_inv = option$Sigma_list$A_inv,
-#                                 option = option)
+cov_conet_roc = compare_methods(data_rep[,1, drop=F],
+                                est_mat = c('covariance', 'precision')[1],
+                                method = c('CoNet', 'SparCC','CCLasso', 'COAT',
+                                           'SpiecEasi', 'gCoDa','Spring')[1],
+                                target_graph_cov = option$Sigma_list$A_cov,
+                                target_graph_inv = option$Sigma_list$A_inv,
+                                option = option)
 
 cov_sparcc_roc = compare_methods(data_rep[,run_rep, drop=F],  
                                  est_mat = c('covariance', 'precision')[1],
@@ -83,3 +83,8 @@ cov_spring_roc = compare_methods(data_rep[,run_rep, drop=F],
                                 target_graph_cov = option$Sigma_list$A_cov,
                                 target_graph_inv = option$Sigma_list$A_inv,
                                 option = option)
+
+
+rm('data_rep')
+
+save.image(paste0('data/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep, '.RData'))

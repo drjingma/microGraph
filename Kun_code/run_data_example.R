@@ -24,7 +24,7 @@ reference_data = amgut1.filt
 # n = c(100, 200, 500)[1]
 # p = 200
 
-args = commandArgs(trailingOnly = T) # (n p null1 2),  n and p override by reference data set, e.g. args = c(100, 200, 'alt1', 2)
+args = commandArgs(trailingOnly = T) # (n p null1 2),  n and p override by reference data set, e.g. args = c(50, 50, 'alt1', 2)
 n = as.integer(args[1])
 p = as.integer(args[2])
 choose_model = as.character(args[3])
