@@ -5,6 +5,7 @@
 ###-----------------------------------------------------------
 library(glasso)
 library(DescTools)
+library(ccrepe)
 
 filepath = 'C:\\Users\\yuek\\Dropbox\\Microbial_Networks\\microGraph' #BOX
 filepath = '/Users/Kun/Desktop/Dropbox/Microbial_Networks/microGraph'
@@ -132,10 +133,10 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # install_github("hallucigenia-sparsa/seqgroup")
       
       
-      library(seqgroup)
-      # reference: https://hallucigenia-sparsa.github.io/seqgroup/reference/barebonesCoNet.html
-      # input data needs p by n; need to name the taxa
-      
+      # library(seqgroup)
+      # #reference: https://hallucigenia-sparsa.github.io/seqgroup/reference/barebonesCoNet.html
+      # #input data needs p by n; need to name the taxa
+      #
       # # not working
       # net_CoNet = barebonesCoNet(abundances = t(data_rep[[2,1]]), 
       #                            methods = c("spearman",'pearson', 'bray',"kld"), 
@@ -189,7 +190,18 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       
       
       
-      ROC=NULL
+      ### another option: use ccrepe package for single correlation with permulation and renormalization
+      
+      conet_res = ccrepe(x = data_rep[[1,1]], sim.score = cor)
+      pvals = conet_res$p.values 
+      
+      
+      pvals_FDR = conet_res$q.values
+      
+      
+      fp_null = list(fp_null = mean(pvals<0.05, na.rm=T),
+                     fp_null_FDR = mean(pvals_FDR<0.05, na.rm=T))
+      ROC=list(fp_null = fp_null)
       
       
       
