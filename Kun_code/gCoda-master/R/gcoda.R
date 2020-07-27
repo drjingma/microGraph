@@ -9,7 +9,7 @@
 require(huge);
 #-------------------------------------------------------------------------------
 gcoda <- function(x, counts = F, pseudo = 0.5, lambda.min.ratio = 1e-4, 
-                  nlambda = 15, ebic.gamma = 0.5) {
+                  nlambda = 15, ebic.gamma = 0.5, lambda = NULL) {
     # Counts or fractions?
     if(counts) {
       x <- x + pseudo;
@@ -22,7 +22,11 @@ gcoda <- function(x, counts = F, pseudo = 0.5, lambda.min.ratio = 1e-4,
     # Generate lambda via lambda.min.ratio and nlambda
     lambda.max <- max(max(S - diag(p)), -min(S - diag(p)));
     lambda.min <- lambda.min.ratio * lambda.max;
-    lambda <- exp(seq(log(lambda.max), log(lambda.min), length = nlambda));
+    
+    # edits by Kun: override lambda if provide a sequence
+    if(is.null(lambda))lambda <- exp(seq(log(lambda.max), log(lambda.min), length = nlambda));
+    
+    
     # Store fit result for gcoda via a series of lambda
     fit <- list();
     fit$lambda <- lambda;

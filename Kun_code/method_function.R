@@ -35,20 +35,30 @@ calTprFpr <- function(sigmaTrue, sigmaHat, eps = 1e-11){
 
 
 find_glasso_ROC = function(covariance, lambda_seq, target_graph_inv){
-  tmp = glassopath(s = covariance, rholist = lambda_seq, penalize.diagonal = F, trace=0)
+
   
-  tpfp = sapply(1:length(lambda_seq), function(i){
-    prec = tmp$wi[,,i] # inverse covariance
-    diag(prec) = 0
-    prec = (abs(prec)>1e-11)*1
-    calTprFpr(sigmaTrue = target_graph_inv, sigmaHat = prec)
-  })
+  # tmp = glassopath(s = covariance, rholist = lambda_seq, penalize.diagonal = F, trace=0)
+  # 
+  # tpfp = sapply(1:length(lambda_seq), function(i){
+  #   prec = tmp$wi[,,i] # inverse covariance
+  #   diag(prec) = 0
+  #   prec = (abs(prec)>1e-11)*1
+  #   calTprFpr(sigmaTrue = target_graph_inv, sigmaHat = prec)
+  # })
+  # 
+  # tp = sort(c(0, do.call(c, tpfp[1,]), 1)) # always add this (0,0) and (1,1) point since the start/end point of ROC from (0,0) to (1,1)
+  # fp = sort(c(0, do.call(c,tpfp[2,]), 1))
+  # auc = AUC(x=fp , y=tp)
+  # ROC = list(tp = tp, fp = fp, AUC = auc)
   
-  tp = sort(c(0, do.call(c, tpfp[1,]), 1)) # always add this (0,0) and (1,1) point since the start/end point of ROC from (0,0) to (1,1)
-  fp = sort(c(0, do.call(c,tpfp[2,]), 1))
-  auc = AUC(x=fp , y=tp)
   
-  return(list(tp = tp, fp = fp, AUC = auc)) 
+  
+  # tmp = huge(covariance, nlambda=40, lambda.min.ratio = 0.001, method='glasso')
+  
+  tmp = huge(covariance, lambda=lambda_seq, method='glasso')
+  ROC = huge.roc(tmp$path, target_graph_inv)
+  
+  return(ROC) 
 }
 
 
@@ -57,7 +67,8 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
                            method = c('CoNet', 'SparCC','CCLasso', 'COAT',
                                       'SpiecEasi', 'gCoDa','Spring'),
                            target_graph_cov, target_graph_inv, # input the targeted graph; if provide var/inverse cov, must set the diagonal to zero first
-                           option
+                           option,
+                           lambda_seq
 ){
   n = nrow(data_rep[[1,1]])
   p = ncol(data_rep[[2,1]])
@@ -191,17 +202,21 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       
       
       ### another option: use ccrepe package for single correlation with permulation and renormalization
-      
-      conet_res = ccrepe(x = data_rep[[1,1]], sim.score = cor)
-      pvals = conet_res$p.values 
-      
-      
-      pvals_FDR = conet_res$q.values
-      
-      
-      fp_null = list(fp_null = mean(pvals<0.05, na.rm=T),
-                     fp_null_FDR = mean(pvals_FDR<0.05, na.rm=T))
-      ROC=list(fp_null = fp_null)
+      if(option$hypothesis == 'null'){
+        conet_res = ccrepe(x = data_rep[[1,1]], sim.score = cor)
+        pvals = conet_res$p.values 
+        
+        
+        pvals_FDR = conet_res$q.values
+        
+        
+        fp_null = list(fp_null = mean(pvals<0.05, na.rm=T),
+                       fp_null_FDR = mean(pvals_FDR<0.05, na.rm=T))
+        ROC=list(fp_null = fp_null)
+      }else{
+        ROC=NULL
+      }
+
       
       
       
@@ -262,19 +277,24 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
         
       }
       
-      sparcc_bootstrap_res = sparccboot(data = data_rep[[2,1]],
-                                        R=200,  # number of bootstraps
-                                        ncpus = 4,
-                                        sparcc.params = list(iter = 20, inner_iter = 10, th = 0.1)) # this is very slow
-      
-      # obtain p value for sparCC, use it for null model evaluation
-      pval_cov =  pval.sparccboot(sparcc_bootstrap_res)
-      fp_null = mean(pval_cov<0.05)
-      fp_null_FDR = mean(p.adjust(pval_cov, method='fdr')<0.05)
-      
+      fp_null<-fp_null_FDR <- NULL
+      if(option$hypothesis == 'null'){
+        sparcc_bootstrap_res = sparccboot(data = data_rep[[2,1]],
+                                          R=200,  # number of bootstraps
+                                          ncpus = 4,
+                                          sparcc.params = list(iter = 20, inner_iter = 10, th = 0.1)) # this is very slow
+        
+        # obtain p value for sparCC, use it for null model evaluation
+        pval_cov =  pval.sparccboot(sparcc_bootstrap_res)
+        fp_null = mean(pval_cov<0.05)
+        fp_null_FDR = mean(p.adjust(pval_cov, method='fdr')<0.05)
+        
+      }
+
       
       # use glasso for alternative model estimation and evaluation
       sparcc_res =  sparcc(data = data_rep[[2,1]],iter = 20, inner_iter = 10, th = 0.1)
+      ROC_cov = NULL
       ROC_inv = find_glasso_ROC(sparcc_res$Cov, lambda_seq, target_graph_inv)
       
       
@@ -424,11 +444,18 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
                                     thresh=0.05,# Threshold for StARS criterion.
                                     subsample.ratio=0.8, # Subsample size for StARS.
                                     rep.num = 20), # Number of subsamples for StARS.
-                                  lambda.min.ratio=1e-2, nlambda=30) # lambda is for penalty parameter, is tuning parameter
+                                  lambda.min.ratio= min(lambda_seq)/max(lambda_seq), lambda.max = max(lambda_seq), nlambda=length(lambda_seq)
+                                  # , lambda = lambda_seq
+                                  ) # lambda is for penalty parameter, is tuning parameter; override to set same as lambda_seq
+
+      
+      # Spiec_network$lambda
+      # lambda_seq
       
       # the result should be a solution path over lambda; the path is adjacency matrix with diagonal being zero
       Spiec_ROC_res = huge::huge.roc(path = Spiec_network$est$path, 
                                      theta = target_graph_inv, verbose=FALSE)
+      
       
       # solve(Spiec_network$est$icov[[1]])[1:10, 1:10]
       # Spiec_network$est$cov[[1]][1:10, 1:10]
@@ -462,7 +489,10 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
           data_rep[[1,k]] = sweep(data_rep[[2,k]],1,STATS = rowSums(data_rep[[2,k]]), FUN='/')
         }
       }
-      gcoda_network <- gcoda(data_rep[[1,1]], counts = F, pseudo = 1, lambda.min.ratio=1e-3, nlambda=20);
+      
+      gcoda_network <- gcoda(data_rep[[1,1]], counts = F, pseudo = 1, 
+                             lambda.min.ratio=1e-3, nlambda=20, # these will be ignored
+                             lambda = lambda_seq);
       
       # gcoda_network$lambda
       # gcoda_network$opt.index  # if at the boundary may need to change lambda.min.ratio; however maximum cannot be changed... any reason how they choose the lambda.max?
@@ -494,8 +524,8 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # supply uncorrected compositional data with n by p data matrix. It will be mclr transformed inside their function
       fit.spring <- SPRING(data_rep[[1,1]], 
                            quantitative = F, # F means input is compositional
-                           lambdaseq = "data-specific", 
-                           nlambda = 20, 
+                           lambdaseq = lambda_seq, 
+                          # nlambda = 20, 
                            ncores = 1,
                            subsample.ratio = 0.8, rep.num = 20 # these are for tuning parameter selection
       )
