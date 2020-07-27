@@ -1,8 +1,11 @@
-filepath = 'C:\\Users\\yuek\\Dropbox\\Microbial_Networks\\microGraph' #BOX
+# filepath = 'C:\\Users\\yuek\\Dropbox\\Microbial_Networks\\microGraph' #BOX
+# 
+# filepath = '/Users/Kun/Desktop/Dropbox/Microbial_Networks/microGraph' # MAC
+# 
+# filepath = 'E:\\Dropbox\\Microbial_Networks\\microGraph' #PC
 
-filepath = '/Users/Kun/Desktop/Dropbox/Microbial_Networks/microGraph' # MAC
+filepath = '~/Desktop/micro_net' #bayes
 
-filepath = 'E:\\Dropbox\\Microbial_Networks\\microGraph'
 setwd(filepath)
 source('lib/func_libs.R')
 source('Kun_code/generation_function.R')

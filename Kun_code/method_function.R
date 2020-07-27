@@ -7,10 +7,10 @@ library(glasso)
 library(DescTools)
 library(ccrepe)
 
-filepath = 'C:\\Users\\yuek\\Dropbox\\Microbial_Networks\\microGraph' #BOX
-filepath = '/Users/Kun/Desktop/Dropbox/Microbial_Networks/microGraph'
-
-filepath = 'E:\\Dropbox\\Microbial_Networks\\microGraph'
+# filepath = 'C:\\Users\\yuek\\Dropbox\\Microbial_Networks\\microGraph' #BOX
+# filepath = '/Users/Kun/Desktop/Dropbox/Microbial_Networks/microGraph' #mac
+# filepath = 'E:\\Dropbox\\Microbial_Networks\\microGraph' #PC
+filepath = '~/Desktop/micro_net' #bayes
 
 count_to_comp = function(W){
   X = sweep(W,1,STATS = rowSums(W), FUN='/') # the compositions from log-normal; different Xi for different cells
@@ -286,7 +286,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # CClasso
       #--------------
       ## (obtained from Github: https://github.com/huayingfang/CCLasso)
-      source(paste0(filepath, "\\Kun_code\\CCLasso-master\\R\\cclasso.R"));
+      source(paste0(filepath, "/Kun_code/CCLasso-master/R/cclasso.R"));
       
       # for CCLasso, the input need to be zero-corrected. so add peudocount 1 if there are zero counts
       for( k in 1:ncol(data_rep)){
@@ -360,8 +360,8 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       #--------------
       # COAT 
       #--------------
-      source(paste0(filepath, "\\Kun_code\\COAT-master\\COAT-master\\simulation.R")) # this contains all different data generating models
-      source(paste0(filepath, "\\Kun_code\\COAT-master\\COAT-master\\coat.R"))
+      source(paste0(filepath, "/Kun_code/COAT-master/COAT-master/simulation.R")) # this contains all different data generating models
+      source(paste0(filepath, "/Kun_code/COAT-master/COAT-master/coat.R"))
       
       
       # this function runs to provide the ROC; it seems peudocounts need to be added in advance for zero counts, and composition matrix adjusted accordingly
@@ -454,7 +454,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       #--------------
       # gCoda
       #--------------
-      source(paste0(filepath, '\\Kun_code\\gCoda-master\\R\\gcoda.R'))
+      source(paste0(filepath, '/Kun_code/gCoda-master/R/gcoda.R'))
       # input zero corrected compositional data
       for( k in 1:ncol(data_rep)){
         if (any(data_rep[[2,k]]==0)){
@@ -490,7 +490,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # devtools::install_github("irinagain/mixedCCA")
       # devtools::install_github("GraceYoon/SPRING")
       library(SPRING)
-      source(paste0(filepath, '\\Kun_code\\Jing_lib\\func_libs.R'))
+      source(paste0(filepath, '/Kun_code/Jing_lib/func_libs.R'))
       # supply uncorrected compositional data with n by p data matrix. It will be mclr transformed inside their function
       fit.spring <- SPRING(data_rep[[1,1]], 
                            quantitative = F, # F means input is compositional
