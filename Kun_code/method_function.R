@@ -285,7 +285,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
                                           sparcc.params = list(iter = 20, inner_iter = 10, th = 0.1)) # this is very slow
         
         # obtain p value for sparCC, use it for null model evaluation
-        pval_cov =  pval.sparccboot(sparcc_bootstrap_res)
+        pval_cov =  pval.sparccboot(sparcc_bootstrap_res)$pvals
         fp_null = mean(pval_cov<0.05)
         fp_null_FDR = mean(p.adjust(pval_cov, method='fdr')<0.05)
         

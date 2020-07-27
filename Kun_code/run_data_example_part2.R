@@ -7,11 +7,7 @@
 filepath = '~/Desktop/micro_net' #bayes
 
 setwd(filepath)
-source('lib/func_libs.R')
-source('Kun_code/generation_function.R')
-source('Kun_code/method_function.R')
-library(SpiecEasi)
-library(MASS)
+
 
 
 args = commandArgs(trailingOnly = T) # (n p null1 2 1),  n and p override by reference data set, e.g. args = c(50, 50, 'alt1', 2, 1)
@@ -20,9 +16,16 @@ p = as.integer(args[2])
 choose_model = as.character(args[3])
 nreps = as.integer(args[4])
 run_rep = as.integer(args[5])
-
+part = as.character(args[6])
 
 load(paste0('data/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
+
+
+source('lib/func_libs.R')
+source('Kun_code/generation_function.R')
+source('Kun_code/method_function.R')
+library(SpiecEasi)
+library(MASS)
 
 
 # use gcoda implemented lambda path computation, based on the first rep data
@@ -45,66 +48,96 @@ lambda_seq = sort(lambda_seq, decreasing = T)
 
 
 # compare methods for their ROC
-
-cov_conet_roc = compare_methods(data_rep[,run_rep, drop=F],
-                                est_mat = c('covariance', 'precision')[1],
-                                method = c('CoNet', 'SparCC','CCLasso', 'COAT',
-                                           'SpiecEasi', 'gCoDa','Spring')[1],
-                                target_graph_cov = option$Sigma_list$A_cov,
-                                target_graph_inv = option$Sigma_list$A_inv,
-                                option = option,
-                                lambda_seq = lambda_seq)
-
-cov_sparcc_roc = compare_methods(data_rep[,run_rep, drop=F],  
-                                 est_mat = c('covariance', 'precision')[1],
-                                 method = c('CoNet', 'SparCC','CCLasso', 'COAT',
-                                            'SpiecEasi', 'gCoDa','Spring')[2],
-                                 target_graph_cov = option$Sigma_list$A_cov,
-                                 target_graph_inv = option$Sigma_list$A_inv,
-                                 option = option,
-                                 lambda_seq = lambda_seq)
-
-cov_cclasso_roc = compare_methods(data_rep[,run_rep, drop=F], 
-                                  est_mat = c('covariance', 'precision')[1],
-                                  method = c('CoNet', 'SparCC','CCLasso', 'COAT',
-                                             'SpiecEasi', 'gCoDa','Spring')[3],
-                                  target_graph_cov = option$Sigma_list$A_cov,
-                                  target_graph_inv = option$Sigma_list$A_inv,
-                                  option = option)
-
-cov_coat_roc = compare_methods(data_rep[,run_rep, drop=F],  
-                               est_mat = c('covariance', 'precision')[1],
-                               method = c('CoNet', 'SparCC','CCLasso', 'COAT',
-                                          'SpiecEasi', 'gCoDa','Spring')[4],
-                               target_graph_cov = option$Sigma_list$A_cov,
-                               target_graph_inv = option$Sigma_list$A_inv,
-                               option = option)
-
-cov_spieceasi_roc = compare_methods(data_rep[,run_rep, drop=F],  
-                               est_mat = c('covariance', 'precision')[2],
-                               method = c('CoNet', 'SparCC','CCLasso', 'COAT',
-                                          'SpiecEasi', 'gCoDa','Spring')[5],
-                               target_graph_cov = option$Sigma_list$A_cov,
-                               target_graph_inv = option$Sigma_list$A_inv,
-                               option = option)
-
-cov_gcoda_roc = compare_methods(data_rep[,run_rep, drop=F],  
+switch(
+  part,
+  '1' = {
+    cat('CoNet \n')
+    roc = compare_methods(data_rep[,run_rep, drop=F],
+                                    est_mat = c('covariance', 'precision')[1],
+                                    method = c('CoNet', 'SparCC','CCLasso', 'COAT',
+                                               'SpiecEasi', 'gCoDa','Spring')[1],
+                                    target_graph_cov = option$Sigma_list$A_cov,
+                                    target_graph_inv = option$Sigma_list$A_inv,
+                                    option = option,
+                                    lambda_seq = lambda_seq)
+  }, 
+  '2' = {
+    cat('SparCC \n')
+    
+    roc = compare_methods(data_rep[,run_rep, drop=F],  
+                                     est_mat = c('covariance', 'precision')[1],
+                                     method = c('CoNet', 'SparCC','CCLasso', 'COAT',
+                                                'SpiecEasi', 'gCoDa','Spring')[2],
+                                     target_graph_cov = option$Sigma_list$A_cov,
+                                     target_graph_inv = option$Sigma_list$A_inv,
+                                     option = option,
+                                     lambda_seq = lambda_seq)
+  },
+  '3' = {
+    cat('CCLasso \n')
+    
+    roc = compare_methods(data_rep[,run_rep, drop=F], 
+                                      est_mat = c('covariance', 'precision')[1],
+                                      method = c('CoNet', 'SparCC','CCLasso', 'COAT',
+                                                 'SpiecEasi', 'gCoDa','Spring')[3],
+                                      target_graph_cov = option$Sigma_list$A_cov,
+                                      target_graph_inv = option$Sigma_list$A_inv,
+                                      option = option,
+                                      lambda_seq = lambda_seq)
+  },
+  '4' = {
+    cat('coat \n')
+    
+    roc = compare_methods(data_rep[,run_rep, drop=F],  
+                                   est_mat = c('covariance', 'precision')[1],
+                                   method = c('CoNet', 'SparCC','CCLasso', 'COAT',
+                                              'SpiecEasi', 'gCoDa','Spring')[4],
+                                   target_graph_cov = option$Sigma_list$A_cov,
+                                   target_graph_inv = option$Sigma_list$A_inv,
+                                   option = option,
+                                   lambda_seq = lambda_seq)
+  },
+  '5' = {
+    cat('Spieceasi \n')
+    
+    roc = compare_methods(data_rep[,run_rep, drop=F],  
+                                        est_mat = c('covariance', 'precision')[2],
+                                        method = c('CoNet', 'SparCC','CCLasso', 'COAT',
+                                                   'SpiecEasi', 'gCoDa','Spring')[5],
+                                        target_graph_cov = option$Sigma_list$A_cov,
+                                        target_graph_inv = option$Sigma_list$A_inv,
+                                        option = option,
+                                        lambda_seq = lambda_seq)
+  },
+  '6' = {
+    cat('gCoDa \n')
+    
+    roc = compare_methods(data_rep[,run_rep, drop=F],  
                                     est_mat = c('covariance', 'precision')[2],
                                     method = c('CoNet', 'SparCC','CCLasso', 'COAT',
                                                'SpiecEasi', 'gCoDa','Spring')[6],
                                     target_graph_cov = option$Sigma_list$A_cov,
                                     target_graph_inv = option$Sigma_list$A_inv,
-                                    option = option)
+                                    option = option,
+                                    lambda_seq = lambda_seq)
+  },
+  '7' = {
+    cat('Spring \n')
+    
+    cov_spring_roc = compare_methods(data_rep[,run_rep, drop=F],  
+                                     est_mat = c('covariance', 'precision')[2],
+                                     method = c('CoNet', 'SparCC','CCLasso', 'COAT',
+                                                'SpiecEasi', 'gCoDa','Spring')[7],
+                                     target_graph_cov = option$Sigma_list$A_cov,
+                                     target_graph_inv = option$Sigma_list$A_inv,
+                                     option = option,
+                                     lambda_seq = lambda_seq)
+  }
+)
 
-cov_spring_roc = compare_methods(data_rep[,run_rep, drop=F],  
-                                est_mat = c('covariance', 'precision')[2],
-                                method = c('CoNet', 'SparCC','CCLasso', 'COAT',
-                                           'SpiecEasi', 'gCoDa','Spring')[7],
-                                target_graph_cov = option$Sigma_list$A_cov,
-                                target_graph_inv = option$Sigma_list$A_inv,
-                                option = option)
 
+cat('Done \n')
 
 rm('data_rep')
 
-save.image(paste0('data/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep, '.RData'))
+save.image(paste0('data/', choose_model,'/res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData'))

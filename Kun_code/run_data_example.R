@@ -28,7 +28,9 @@ reference_data = amgut1.filt
 # n = c(100, 200, 500)[1]
 # p = 200
 
-args = commandArgs(trailingOnly = T) # (n p null1 2),  n and p override by reference data set, e.g. args = c(50, 50, 'alt1', 2)
+args = commandArgs(trailingOnly = T) # (n p null1 2),  n and p override by reference data set, e.g. 
+# args = c(50, 50, 'alt1', 2)
+# args = c(20, 30, 'null2', 2)
 n = as.integer(args[1])
 p = as.integer(args[2])
 choose_model = as.character(args[3])
@@ -114,7 +116,7 @@ for(k in 1:nreps){
 }
 
 save(data_rep, file = paste0('data/n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
-save.image(paste0('data/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
+save(list=c('data_rep', 'option', 'n', 'p'), file = paste0('data/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
 
 
 
