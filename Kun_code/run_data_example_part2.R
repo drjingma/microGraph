@@ -27,6 +27,7 @@ source('Kun_code/method_function.R')
 library(SpiecEasi)
 library(MASS)
 
+set.seed(2020)
 
 # use gcoda implemented lambda path computation, based on the first rep data
 x = data_rep[[2,1]]
@@ -124,7 +125,7 @@ switch(
   '7' = {
     cat('Spring \n')
     
-    cov_spring_roc = compare_methods(data_rep[,run_rep, drop=F],  
+    roc = compare_methods(data_rep[,run_rep, drop=F],  
                                      est_mat = c('covariance', 'precision')[2],
                                      method = c('CoNet', 'SparCC','CCLasso', 'COAT',
                                                 'SpiecEasi', 'gCoDa','Spring')[7],
@@ -138,6 +139,5 @@ switch(
 
 cat('Done \n')
 
-rm('data_rep')
 
-save.image(paste0('data/', choose_model,'/res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData'))
+save(list = c('roc'), file=paste0('data/', choose_model,'/res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData'))
