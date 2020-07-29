@@ -45,8 +45,7 @@ set.seed(102)
 if(choose_model == 'null1'){
   ## Null 1
   # shuffle reference data set, empty graph for both cov and inv-cov
-  reference_data = amgut1.filt
-  n = nrow(reference_data)
+  reference_data = amgut1.filt[1:n, ]
   p = ncol(reference_data)
   Sigma_list = list(Sigma=NULL, Omega=NULL, A_inv = diag(0, p), A_cov = diag(0, p))
   option = list(hypothesis = 'null', model='shuffle', reference_data = reference_data, Sigma_list = Sigma_list)
@@ -66,8 +65,20 @@ if(choose_model == 'null2'){
 # part II: Alternative hypothesis
 #---------------
 
-if(choose_model == 'alt1'){
+
+
+if(choose_model=='alt1'){
   ## Alternative 1
+  # use Copula generative model, graph is based on inverse covariance matrix.
+  reference_data = amgut1.filt[1:n, ]
+  p = ncol(reference_data)
+  Sigma_list = SpiecEasi_graph_Sigma(data = reference_data, type = c('band', 'cluster', 'erdos_renyi', 'hub', 'scale_free', 'block')[3])
+  option = list(hypothesis = 'alternative', model = 'copula', reference_data = reference_data, Sigma_list = Sigma_list)
+}
+
+
+if(choose_model == 'alt2'){
+  ## Alternative 2
   # generate from random graph, p nodes and m edges; const for correcting non-positive definite Sigma
   # this graph corresponds to inverse covariance
   Sigma_list  = model_gnm(p=p, m=p, const = 0.1)  # output=list(Sigma for covariance/Correlation, Omega for inv-cov, A for adjacency matrix)
@@ -78,16 +89,6 @@ if(choose_model == 'alt1'){
   option = list(hypothesis = 'alternative', model = 'log-normal', mu = mu, Sigma_list = Sigma_list)
   
 }
-
-if(choose_model=='alt2'){
-  ## Alternative 2
-  # use Copula generative model, graph is based on inverse covariance matrix.
-  n = nrow(reference_data)
-  p = ncol(reference_data)
-  Sigma_list = SpiecEasi_graph_Sigma(data = reference_data, type = c('band', 'cluster', 'erdos_renyi', 'hub', 'scale_free', 'block')[3])
-  option = list(hypothesis = 'alternative', model = 'copula', reference_data = reference_data, Sigma_list = Sigma_list)
-}
-
 
 # data_list = data_generation(n, p, option)
 # dim(data_list$data)
