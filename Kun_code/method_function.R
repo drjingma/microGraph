@@ -203,7 +203,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       
       ### another option: use ccrepe package for single correlation with permulation and renormalization
       if(option$hypothesis == 'null'){
-        conet_res = ccrepe(x = data_rep[[1,1]], sim.score = cor)
+        conet_res = ccrepe(x = data_rep[[1,1]], sim.score = cor) # default 1000 iterations for p values
         pvals = conet_res$p.values 
         
         
@@ -212,6 +212,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
         
         fp_null = list(fp_null = mean(pvals<0.05, na.rm=T),
                        fp_null_FDR = mean(pvals_FDR<0.05, na.rm=T))
+        
         ROC=list(fp_null = fp_null)
       }else{
         ROC=NULL
@@ -248,6 +249,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
         # sparcc_bootstrap_pval <- sparcc_bootstrap_cor <- matrix(0, p, p)
         # sparcc_bootstrap_pval[upper.tri(sparcc_bootstrap_pval)] = pval_cov$pvals
         # sparcc_bootstrap_pval = sparcc_bootstrap_pval+t(sparcc_bootstrap_pval) 
+        # # sparcc_bootstrap_pval[1:10, 1:10]
         # diag(sparcc_bootstrap_pval) = 2 # the diagonal set to 2, so never detect an edge on the diagonal
         # 
         # sparcc_bootstrap_cor[upper.tri(sparcc_bootstrap_pval)] = pval_cov$cors
@@ -278,14 +280,19 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       }
       
       fp_null<-fp_null_FDR <- NULL
+      
       if(option$hypothesis == 'null'){
         sparcc_bootstrap_res = sparccboot(data = data_rep[[2,1]],
-                                          R=200,  # number of bootstraps
+                                          R=1000,  # number of bootstraps, maybe this will make p value noisy? with 200 reps, p value of 0.05 should vary by sqrt(0.05*0.95/200)*1.96
                                           ncpus = 4,
                                           sparcc.params = list(iter = 20, inner_iter = 10, th = 0.1)) # this is very slow
         
         # obtain p value for sparCC, use it for null model evaluation
         pval_cov =  pval.sparccboot(sparcc_bootstrap_res)$pvals
+        
+        # mean(pval_cov < 0.05)
+        # mean(pval_cov < 0.05-sqrt(0.05*0.95/200)*1.96) # this is still showing inflated false positive
+        
         fp_null = mean(pval_cov<0.05)
         fp_null_FDR = mean(p.adjust(pval_cov, method='fdr')<0.05)
         
@@ -295,7 +302,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # use glasso for alternative model estimation and evaluation
       sparcc_res =  sparcc(data = data_rep[[2,1]],iter = 20, inner_iter = 10, th = 0.1)
       ROC_cov = NULL
-      ROC_inv = find_glasso_ROC(sparcc_res$Cov, lambda_seq, target_graph_inv)
+      ROC_inv = find_glasso_ROC(sparcc_res$Cor, lambda_seq, target_graph_inv)
       
       
       ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv, fp_null = list(fp_null = fp_null, fp_null_FDR = fp_null_FDR) )
@@ -413,9 +420,9 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       
       coat_res = coat(data_rep[[1, 1]], nFolder=5, soft=1) # x is n by p data matrix, need to be compositional and zero adjusted
       
-      ROC_inv = find_glasso_ROC(coat_res$sigma, lambda_seq, target_graph_inv)
+      ROC_inv = find_glasso_ROC(coat_res$corr, lambda_seq, target_graph_inv)
       ROC_cov = NULL
-      fp_null = calTprFpr(sigmaHat = coat_res$sigma, sigmaTrue = matrix(0, p, p))$fp
+      fp_null = calTprFpr(sigmaHat = coat_res$corr, sigmaTrue = matrix(0, p, p))$fp
       
       ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv, fp_null = fp_null)
       
