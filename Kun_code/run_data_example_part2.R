@@ -10,7 +10,7 @@ setwd(filepath)
 
 
 
-args = commandArgs(trailingOnly = T) # (n p null1 2 1),  n and p override by reference data set, e.g. args = c(50, 50, 'alt1', 2, 1)
+args = commandArgs(trailingOnly = T) # (n p null1 2 1),  n and p override by reference data set, e.g. args = c(100, 200, 'null2', 100, 8, 1)
 n = as.integer(args[1])
 p = as.integer(args[2])
 choose_model = as.character(args[3])

@@ -31,6 +31,7 @@ reference_data = amgut1.filt
 args = commandArgs(trailingOnly = T) # (n p null1 2),  n and p override by reference data set, e.g. 
 # args = c(50, 50, 'alt1', 2)
 # args = c(20, 30, 'null2', 2)
+# args = c(100, 127, 'null1.1', 100)
 n = as.integer(args[1])
 p = as.integer(args[2])
 choose_model = as.character(args[3])
@@ -51,6 +52,17 @@ if(choose_model == 'null1'){
   option = list(hypothesis = 'null', model='shuffle', reference_data = reference_data, Sigma_list = Sigma_list)
 }
 
+if(choose_model == 'null1.1'){
+  ## Null1 1.1
+  # Use reference data set, marginal distributions are NB, and the network is set empty
+  reference_data = amgut1.filt[1:n, ]
+  p = ncol(reference_data)
+  # generate a null graph object
+  option = list(hypothesis = 'null', model = 'copula', reference_data = reference_data, Sigma_list = NULL)
+  option$Sigma_list$A_inv <-  option$Sigma_list$A_cov <- matrix(0, p, p)
+  option$Sigma_list$Sigma <- option$Sigma_list$Omega <- diag(1, p)
+}
+
 if(choose_model == 'null2'){
   ## Null 2
   # generate from Dirichlet distribution, so will assume both inv and cov based graph being empty?
@@ -60,6 +72,8 @@ if(choose_model == 'null2'){
   Sigma_list = list(Sigma=NULL, Omega=NULL, A_inv = diag(0, p), A_cov = diag(0, p))
   option = list(hypothesis = 'null', model='Dirichlet', library_scale = library_scale, alpha = alpha, mu=mu, Sigma_list = Sigma_list)
 }
+
+
 
 #---------------
 # part II: Alternative hypothesis
