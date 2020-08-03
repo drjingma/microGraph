@@ -32,6 +32,18 @@ null_data_generate_1 = function(x){ # x is n by p real data matrix
   return(x_shuffle)
 }
 
+
+null_data_generate_1 = function(x){ # x is n by p real data matrix
+  # shuffle within taxa, so keep its marginal distribution
+  n = nrow(x)
+  p = ncol(x)
+  cat('Shuffle reference dataset, nsub ', n, ', ntaxa ', p, '\n')
+  index = replicate(p, sample(n, replace=F))
+  x_shuffle = sapply(1:p, function(i)x[index[,i], i])
+  return(x_shuffle)
+}
+
+
 #---------------
 # option two: generate composition from Dirichlet distribution, then generate counts from multinomial. Equivalent to independent Gamma distributions
 #---------------
@@ -59,6 +71,8 @@ null_data_generate_3 = function(n, p, library_scale){
   data[data<0]<-0
   return(data)
 }
+
+
 
 ##### Parametric network model: discovery rate evaluation
 ##-----------------
@@ -215,7 +229,7 @@ import_files = list.files()
 sapply(import_files, source)
 setwd(filepath)
 
-SpiecEasi_graph_Sigma = function(data, type='erdos_renyi'){
+SpiecEasi_graph_Sigma = function(data, type='erdos_renyi', graph = NULL){
   depths <- rowSums(data) # raw counts data, rows are obs, n by p
   data.n  <- t(apply(data, 1, norm_to_total))
   data.cs <- round(data.n * min(depths))
@@ -224,8 +238,9 @@ SpiecEasi_graph_Sigma = function(data, type='erdos_renyi'){
   n <- nrow(data.cs)
   e <- d
   
-
-  graph <- make_graph(type, d, e) # choose from band, cluster, erdos_renyi, hub, scale_free, block; can also write my own graph (essentially an adjacency matrix)
+  if(is.null(graph)){
+    graph <- make_graph(type, d, e) # choose from band, cluster, erdos_renyi, hub, scale_free, block; can also write my own graph (essentially an adjacency matrix)
+  }
   
   Prec  <- graph2prec(graph, posThetaLims = c(2, 3), # this is precision strength range
                       targetCondition = 100, # this is condition number kappa
@@ -275,6 +290,14 @@ data_generation = function(n, p, option){
       p = ncol(model_data)
 
     }
+    
+    if(option$model == 'copula'){
+      model_data = SpiecEasi_generate(data = option$reference_data, 
+                                      graph_Sigma = option$Sigma_list)
+      n = nrow(model_data)
+      p = ncol(model_data)
+    }
+    
     if(option$model == 'Dirichlet'){
       model_data = null_data_generate_2(n, p, library_scale = option$library_scale, alpha = option$alpha, mu=option$mu) 
     }
