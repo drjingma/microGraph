@@ -36,6 +36,8 @@ n = as.integer(args[1])
 p = as.integer(args[2])
 choose_model = as.character(args[3])
 nreps = as.integer(args[4])
+distr = ifelse(is.na(args[5]), NA, as.character(args[5]))
+if(is.na(distr)) distr = NULL
 
 set.seed(102)
 
@@ -46,7 +48,7 @@ set.seed(102)
 if(choose_model == 'null1'){
   ## Null 1
   # shuffle reference data set, empty graph for both cov and inv-cov
-  reference_data = amgut1.filt[1:n, ]
+  reference_data = amgut1.filt[sample(1:nrow(amgut1.filt), size=n, replace = F), ]
   p = ncol(reference_data)
   Sigma_list = list(Sigma=NULL, Omega=NULL, A_inv = diag(0, p), A_cov = diag(0, p))
   option = list(hypothesis = 'null', model='shuffle', reference_data = reference_data, Sigma_list = Sigma_list)
@@ -55,10 +57,10 @@ if(choose_model == 'null1'){
 if(choose_model == 'null1.1'){
   ## Null1 1.1
   # Use reference data set, marginal distributions are NB, and the network is set empty
-  reference_data = amgut1.filt[1:n, ]
+  reference_data = amgut1.filt[sample(1:nrow(amgut1.filt), size=n, replace = F), ]
   p = ncol(reference_data)
   # generate a null graph object
-  option = list(hypothesis = 'null', model = 'copula', reference_data = reference_data, Sigma_list = NULL)
+  option = list(hypothesis = 'null', model = 'copula', reference_data = reference_data, Sigma_list = NULL, distr = distr)
   option$Sigma_list$A_inv <-  option$Sigma_list$A_cov <- matrix(0, p, p)
   option$Sigma_list$Sigma <- option$Sigma_list$Omega <- diag(1, p)
 }
@@ -80,14 +82,13 @@ if(choose_model == 'null2'){
 #---------------
 
 
-
 if(choose_model=='alt1'){
   ## Alternative 1
   # use Copula generative model, graph is based on inverse covariance matrix.
   reference_data = amgut1.filt[1:n, ]
   p = ncol(reference_data)
   Sigma_list = SpiecEasi_graph_Sigma(data = reference_data, type = c('band', 'cluster', 'erdos_renyi', 'hub', 'scale_free', 'block')[3])
-  option = list(hypothesis = 'alternative', model = 'copula', reference_data = reference_data, Sigma_list = Sigma_list)
+  option = list(hypothesis = 'alternative', model = 'copula', reference_data = reference_data, Sigma_list = Sigma_list, distr = distr)
 }
 
 
@@ -130,8 +131,8 @@ for(k in 1:nreps){
   data_rep[[2, k]] = data # counts
 }
 
-save(data_rep, file = paste0('data/n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
-save(list=c('data_rep', 'option', 'n', 'p'), file = paste0('data/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
+save(data_rep, file = paste0('dist_data/', option$distr, '/n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
+save(list=c('data_rep', 'option', 'n', 'p'), file = paste0('dist_data/', option$distr, '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
 
 
 

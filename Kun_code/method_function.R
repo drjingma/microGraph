@@ -34,6 +34,8 @@ calTprFpr <- function(sigmaTrue, sigmaHat, eps = 1e-11){
 
 
 
+
+
 find_glasso_ROC = function(covariance, lambda_seq, target_graph_inv){
 
   
@@ -283,7 +285,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       
       if(option$hypothesis == 'null'){
         sparcc_bootstrap_res = sparccboot(data = data_rep[[2,1]],
-                                          R=1000,  # number of bootstraps, maybe this will make p value noisy? with 200 reps, p value of 0.05 should vary by sqrt(0.05*0.95/200)*1.96
+                                          R=1000,                                                      # number of bootstraps, maybe this will make p value noisy? with 200 reps, p value of 0.05 should vary by sqrt(0.05*0.95/200)*1.96
                                           ncpus = 4,
                                           sparcc.params = list(iter = 20, inner_iter = 10, th = 0.1)) # this is very slow
         
@@ -470,7 +472,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       
       ROC_cov = huge::huge.roc(path = lapply(Spiec_network$est$cov, function(x){
         diag(x) = 0
-        tmp = (abs(x)>1e-11)*1
+        tmp = (abs(x)>1e-11)*1   ### I manually thresholded at 1e-11..........
         tmp}), theta = target_graph_cov)
       
       # also need to get fp at optimal tuning value for null model

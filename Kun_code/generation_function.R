@@ -254,7 +254,7 @@ SpiecEasi_graph_Sigma = function(data, type='erdos_renyi', graph = NULL){
   
 }
 
-SpiecEasi_generate = function(data, graph_Sigma){
+SpiecEasi_generate = function(data, graph_Sigma, distr = 'zinegbin'){
   depths <- rowSums(data) # raw counts data, rows are obs, n by p
   data.n  <- t(apply(data, 1, norm_to_total))
   data.cs <- round(data.n * min(depths))
@@ -265,7 +265,7 @@ SpiecEasi_generate = function(data, graph_Sigma){
   
   
   X <- synth_comm_from_counts(data.cs, mar=2, 
-                              distr='zinegbin', # choose from zipois, zinegbin, nbinom, pois, lnorm, negbin
+                              distr=distr, # choose from zipois, zinegbin, pois, lognorm, negbin
                               Sigma=graph_Sigma$Sigma, n=n) # output data n by p
   
   return(list(data=X, Sigma_list = graph_Sigma))
@@ -292,8 +292,10 @@ data_generation = function(n, p, option){
     }
     
     if(option$model == 'copula'){
-      model_data = SpiecEasi_generate(data = option$reference_data, 
-                                      graph_Sigma = option$Sigma_list)
+      data_list = SpiecEasi_generate(data = option$reference_data, 
+                                      graph_Sigma = option$Sigma_list,
+                                     distr = option$distr)
+      model_data = data_list$data
       n = nrow(model_data)
       p = ncol(model_data)
     }
@@ -308,7 +310,8 @@ data_generation = function(n, p, option){
     if(option$model == 'copula'){
       # generate with SpiecEasi, with a chosen graph type and zero-inflated negative binomial marginal distribution
       data_list = SpiecEasi_generate(data = option$reference_data, 
-                                     graph_Sigma = option$Sigma_list)
+                                     graph_Sigma = option$Sigma_list,
+                                     distr = option$distr)
       model_data = data_list$data
 
     }

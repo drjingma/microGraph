@@ -17,8 +17,10 @@ choose_model = as.character(args[3])
 nreps = as.integer(args[4])
 run_rep = as.integer(args[5])
 part = as.character(args[6])
+distr = ifelse(is.na(args[7]), NA, as.character(args[7]))
+if(is.na(distr)) distr = NULL
 
-load(paste0('data/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
+load(paste0('dist_data/', distr, '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
 
 
 source('lib/func_libs.R')
@@ -140,4 +142,4 @@ switch(
 cat('Done \n')
 
 
-save(list = c('roc'), file=paste0('data/', choose_model,'/res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData'))
+save(list = c('roc'), file=paste0('dist_data/', option$distr, '/', choose_model,'/res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData'))
