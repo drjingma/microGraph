@@ -52,7 +52,8 @@ null_data_generate_2 = function(n, p, library_scale, alpha, mu){
   # generate total counts (library_scale) from negative-binomial, using settings suggested by Jing, 
   # generate Dirichelt(alpha*X_i) with a fixed alpha; where X is compositional from log-normal(mu, sd=1.5)
   
-  Phi = matrix(rnorm(p*n, mean=mu, sd = 1.5),nrow=n, ncol=p) # the normal values
+  # Phi = matrix(rnorm(p*n, mean=mu, sd = 1.5),nrow=n, ncol=p, byrow=T) # the normal values (!!!!! this was wrong! need byrow=T)
+  Phi = mvtnorm::rmvnorm(n,mean=mu,sigma = diag(1.5,p)) 
   X = sweep(exp(Phi),1,STATS = rowSums(exp(Phi)), FUN='/') # the compositions from log-normal; different Xi for different cells
   W <- t(sapply(1:n, function(i) {
     a <- dirmult::rdirichlet(1,alpha*X[i,])

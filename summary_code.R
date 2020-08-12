@@ -10,6 +10,9 @@ part_name = list('1'='CoNet', '2' = 'Sparcc', '3' = 'CCLasso', '4' = 'Coat','5' 
 copula_distr = 'pois'
 copula_distr = 'negbin'
 copula_distr = 'zinegbin'
+copula_distr = 'none'
+copula_distr = 'fixN'
+copula_distr = 'fixNandrmvnorm'
 
 # compute fp summary for null models, dist_data files
 get_summary_fp = function(choose_model, n, p, nreps, part, part_name, copula_distr){
@@ -35,17 +38,18 @@ get_summary_fp = function(choose_model, n, p, nreps, part, part_name, copula_dis
   
 }
 
+library(ggplot2)
 library(kableExtra)
-# null1.1
-choose_model = 'null1.1'
 
-null1= lapply(c(100, 120, 150, 200, 289), function(n)cbind(do.call(rbind, lapply(1:7,  function(part)
+choose_model = 'null1'
+
+null1= lapply(c(100, 289), function(n)cbind(do.call(rbind, lapply(1:7,  function(part)
   get_summary_fp(choose_model,n=n, p=127, nreps=100, part=part, part_name, copula_distr=copula_distr))),
   dist = copula_distr))
 null1 = do.call(rbind, null1)
 head(null1)
 
-library(ggplot2)
+
 pp = ggplot(data = null1, aes(x=n, y=x, group=interaction(method,adjust), color=interaction(method, adjust)))+
   coord_cartesian(ylim = c(0, min(max(null1$x), 0.2)))+
   geom_line(data=null1, aes(linetype = interaction(method, adjust)))+
@@ -55,34 +59,86 @@ pp = ggplot(data = null1, aes(x=n, y=x, group=interaction(method,adjust), color=
 ggsave(pp, filename = paste0('plot/', copula_distr, '_', choose_model,'.png'))
 
 
-# null1 models
-null1.2 = do.call(rbind, lapply(1:7,  function(part)get_summary_fp('null1',n=289, p=127, nreps=100, part=part, part_name)))
-null1.2$x = round(null1.2$x, 4)
-kable(null1.2, 'latex', booktab=T, col.names = c(names(null1.2)[1:5], 'False Positive Rate'))%>%
-  kable_styling()
+
+# null1.1
+
+choose_model = 'null1.1'
+
+null1.1= lapply(c(100, 120, 150, 200, 289), function(n)cbind(do.call(rbind, lapply(1:7,  function(part)
+  get_summary_fp(choose_model,n=n, p=127, nreps=100, part=part, part_name, copula_distr=copula_distr))),
+  dist = copula_distr))
+null1.1 = do.call(rbind, null1.1)
+head(null1.1)
 
 
-null1.2 = do.call(rbind, lapply(1:7,  function(part)get_summary_fp('null1',n=100, p=127, nreps=100, part=part, part_name)))
-null1.2$x = round(null1.2$x, 4)
-kable(null1.2, 'latex', booktab=T, col.names = c(names(null1.2)[1:5], 'False Positive Rate'))%>%
-  kable_styling()
+pp = ggplot(data = null1.1, aes(x=n, y=x, group=interaction(method,adjust), color=interaction(method, adjust)))+
+  coord_cartesian(ylim = c(0, min(max(null1.1$x), 0.2)))+
+  geom_line(data=null1.1, aes(linetype = interaction(method, adjust)))+
+  geom_hline(yintercept = 0.05, color=1, linetype=2)+
+  theme(legend.title = element_blank())+
+  ggtitle(paste0('dist: ', copula_distr, ', ', choose_model))
+ggsave(pp, filename = paste0('plot/', copula_distr, '_', choose_model,'.png'))
+
+
+# # null1 models
+# null1.2 = do.call(rbind, lapply(1:7,  function(part)get_summary_fp('null1',n=289, p=127, nreps=100, part=part, part_name)))
+# null1.2$x = round(null1.2$x, 4)
+# kable(null1.2, 'latex', booktab=T, col.names = c(names(null1.2)[1:5], 'False Positive Rate'))%>%
+#   kable_styling()
+# 
+# 
+# null1.2 = do.call(rbind, lapply(1:7,  function(part)get_summary_fp('null1',n=100, p=127, nreps=100, part=part, part_name)))
+# null1.2$x = round(null1.2$x, 4)
+# kable(null1.2, 'latex', booktab=T, col.names = c(names(null1.2)[1:5], 'False Positive Rate'))%>%
+#   kable_styling()
 
 # null2
-null2.1 = do.call(rbind, lapply(1:7,  function(part)get_summary_fp('null2',n=100, p=200, nreps=100, part=part, part_name)))
-null2.1$x = round(null2.1$x, 4)
-kable(null2.1, 'latex', booktab=T, col.names = c(names(null2.1)[1:5], 'False Positive Rate'))%>%
-  kable_styling()
 
-null2.2 = do.call(rbind, lapply(1:7,  function(part)get_summary_fp('null2',n=200, p=200, nreps=100, part=part, part_name)))
-null2.2$x = round(null2.2$x, 4)
-kable(null2.2, 'latex', booktab=T, col.names = c(names(null2.2)[1:5], 'False Positive Rate'))%>%
-  kable_styling()
+choose_model = 'null2'
+null2 = lapply(c(20, 50, 100, 150, 200), function(p){
+  null2= lapply(c(100, 200, 500), function(n)cbind(do.call(rbind, lapply(1:7,  function(part)
+  get_summary_fp(choose_model,n=n, p=p, nreps=100, part=part, part_name, copula_distr=copula_distr))),
+  dist = copula_distr))
+null2 = do.call(rbind, null2)
+null2
+})
 
+null2 = do.call(rbind, null2)
+head(null2)
 
-null2.3= do.call(rbind, lapply(1:7,  function(part)get_summary_fp('null2',n=500, p=200, nreps=100, part=part, part_name)))
-null2.3$x = round(null2.3$x, 4)
-kable(null2.3, 'latex', booktab=T, col.names = c(names(null2.3)[1:5], 'False Positive Rate'))%>%
-  kable_styling()
+pp1 = ggplot(data = null2, aes(x=n, y=x, group=interaction(method,adjust), color=interaction(method, adjust)))+
+  coord_cartesian(ylim = c(0, min(max(null2$x), 0.2)))+
+  geom_line(data=null2, aes(linetype = interaction(method, adjust)))+
+  geom_hline(yintercept = 0.05, color=1, linetype=2)+
+  theme(legend.title = element_blank())+
+  ggtitle(paste0('dist: ', copula_distr, ', ', choose_model))+
+  facet_wrap(~p)
+pp2 = ggplot(data = null2, aes(x=p, y=x, group=interaction(method,adjust), color=interaction(method, adjust)))+
+  coord_cartesian(ylim = c(0, min(max(null2$x), 0.2)))+
+  geom_line(data=null2, aes(linetype = interaction(method, adjust)))+
+  geom_hline(yintercept = 0.05, color=1, linetype=2)+
+  theme(legend.title = element_blank())+
+  ggtitle(paste0('dist: ', copula_distr, ', ', choose_model))+
+  facet_wrap(~n)
+
+ggsave(pp1, filename = paste0('plot/', copula_distr, '_', choose_model,'n.png'))
+ggsave(pp2, filename = paste0('plot/', copula_distr, '_', choose_model,'p.png'))
+
+# null2.1 = do.call(rbind, lapply(1:7,  function(part)get_summary_fp('null2',n=100, p=200, nreps=100, part=part, part_name)))
+# null2.1$x = round(null2.1$x, 4)
+# kable(null2.1, 'latex', booktab=T, col.names = c(names(null2.1)[1:5], 'False Positive Rate'))%>%
+#   kable_styling()
+# 
+# null2.2 = do.call(rbind, lapply(1:7,  function(part)get_summary_fp('null2',n=200, p=200, nreps=100, part=part, part_name)))
+# null2.2$x = round(null2.2$x, 4)
+# kable(null2.2, 'latex', booktab=T, col.names = c(names(null2.2)[1:5], 'False Positive Rate'))%>%
+#   kable_styling()
+# 
+# 
+# null2.3= do.call(rbind, lapply(1:7,  function(part)get_summary_fp('null2',n=500, p=200, nreps=100, part=part, part_name)))
+# null2.3$x = round(null2.3$x, 4)
+# kable(null2.3, 'latex', booktab=T, col.names = c(names(null2.3)[1:5], 'False Positive Rate'))%>%
+#   kable_styling()
 
 
 # get ROC summary for alternative models, dist_data files

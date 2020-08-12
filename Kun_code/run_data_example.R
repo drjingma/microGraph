@@ -68,11 +68,12 @@ if(choose_model == 'null1.1'){
 if(choose_model == 'null2'){
   ## Null 2
   # generate from Dirichlet distribution, so will assume both inv and cov based graph being empty?
-  mu = runif(p, 0, 4) # the mu is for underlying log-normal of Dirichlet parameters
+  mu = runif(p, 0, 1) # the mu is for underlying log-normal of Dirichlet parameters
   alpha=100
-  library_scale = rnegbin(n,mu=3e4, theta=9e8/(3e6-3e4)) # use library_scale to directly specify the total counts per sample
+  # library_scale = rnegbin(n,mu=3e4, theta=9e8/(3e6-3e4)) # use library_scale to directly specify the total counts per sample
+  library_scale = rep(3e4, n)
   Sigma_list = list(Sigma=NULL, Omega=NULL, A_inv = diag(0, p), A_cov = diag(0, p))
-  option = list(hypothesis = 'null', model='Dirichlet', library_scale = library_scale, alpha = alpha, mu=mu, Sigma_list = Sigma_list)
+  option = list(hypothesis = 'null', model='Dirichlet', library_scale = library_scale, alpha = alpha, mu=mu, Sigma_list = Sigma_list, distr = distr)
 }
 
 
@@ -100,8 +101,8 @@ if(choose_model == 'alt2'){
   Sigma_list$A_inv = Sigma_list$Adj
   eps = 1e-11
   Sigma_list$A_cov = (abs(Sigma_list$Sigma)>eps)*1; diag(Sigma_list$A_cov) = 0
-  mu = runif(p, 0, 4)
-  option = list(hypothesis = 'alternative', model = 'log-normal', mu = mu, Sigma_list = Sigma_list)
+  mu = runif(p, 0, 1)
+  option = list(hypothesis = 'alternative', model = 'log-normal', mu = mu, Sigma_list = Sigma_list, distr = distr)
   
 }
 
