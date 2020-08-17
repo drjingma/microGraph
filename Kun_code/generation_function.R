@@ -101,6 +101,18 @@ para_data_generate_2 = function(n, p, mu, Sigma){
   return(data)
 }
 
+## option3: multinomial log normal
+
+para_data_generate_3 = function(n, p, mu, Sigma, library_scale){
+  Sigma_mat_decomp = t(chol(Sigma))
+  # Sigma_mat = Sigma_mat_decomp%*%t(Sigma_mat_decomp)
+  x = Sigma_mat_decomp %*% t(matrix(rnorm(n=n*p, mean = 0), n, p, byrow=T)) + mu
+  y = t(exp(x))
+  comp_mat = sweep(y,1,STATS = rowSums(y), FUN='/')
+  data = t(do.call(cbind,lapply(1:n, function(i)rmultinom(n=1,size=library_scale[i], prob = comp_mat[i,]))))
+  return(data)
+}
+
 ##-----------------
 ## Conet naive generative model
 ##-----------------
@@ -230,15 +242,10 @@ import_files = list.files()
 sapply(import_files, source)
 setwd(filepath)
 
-SpiecEasi_graph_Sigma = function(data, type='erdos_renyi', graph = NULL){
-  depths <- rowSums(data) # raw counts data, rows are obs, n by p
-  data.n  <- t(apply(data, 1, norm_to_total))
-  data.cs <- round(data.n * min(depths))
-  
-  d <- ncol(data.cs)
-  n <- nrow(data.cs)
-  e <- d
-  
+SpiecEasi_graph_Sigma = function(p,e, type='erdos_renyi', graph = NULL){
+
+  d <- p
+
   if(is.null(graph)){
     graph <- make_graph(type, d, e) # choose from band, cluster, erdos_renyi, hub, scale_free, block; can also write my own graph (essentially an adjacency matrix)
   }
@@ -317,8 +324,12 @@ data_generation = function(n, p, option){
 
     }
     if(option$model == 'log-normal'){
-      Sigma = option$Sigma_list$Sigma
-      model_data = para_data_generate_2(n, p, mu = option$mu, Sigma = Sigma)
+      model_data = para_data_generate_2(n, p, mu = option$mu, Sigma = option$Sigma_list$Sigma)
+    }
+    
+    if(option$model == 'multinomial-log-normal'){
+      model_data = para_data_generate_3(n, p, mu = option$mu, Sigma = option$Sigma_list$Sigma, 
+                                        library_scale = option$library_scale)
     }
   }
   

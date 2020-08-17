@@ -470,10 +470,11 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # Spiec_network$est$cov[[1]][1:10, 1:10]
       ROC_inv = Spiec_ROC_res
       
-      ROC_cov = huge::huge.roc(path = lapply(Spiec_network$est$cov, function(x){
-        diag(x) = 0
-        tmp = (abs(x)>1e-11)*1   ### I manually thresholded at 1e-11..........
-        tmp}), theta = target_graph_cov)
+      ROC_cov = NULL
+        # huge::huge.roc(path = lapply(Spiec_network$est$cov, function(x){
+        # diag(x) = 0
+        # tmp = (abs(x)>1e-11)*1   ### I manually thresholded at 1e-11..........
+        # tmp}), theta = target_graph_cov)
       
       # also need to get fp at optimal tuning value for null model
       precision = getOptNet(Spiec_network)
@@ -507,12 +508,13 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # gcoda_network$opt.index  # if at the boundary may need to change lambda.min.ratio; however maximum cannot be changed... any reason how they choose the lambda.max?
       # gcoda_network$opt.icov
       
-      ROC_cov = huge::huge.roc(path = lapply(gcoda_network$icov, function(x){ 
-        x = solve(x) # compute covariance
-        diag(x) = 0
-        tmp = (abs(x)>1e-11)*1
-        tmp}), theta = target_graph_cov)
-      
+      ROC_cov = NULL
+        # huge::huge.roc(path = lapply(gcoda_network$icov, function(x){ 
+        # x = solve(x) # compute covariance
+        # diag(x) = 0
+        # tmp = (abs(x)>1e-11)*1
+        # tmp}), theta = target_graph_cov)
+        # 
       
       gcoda_ROC_res = huge::huge.roc(path=gcoda_network$path, theta = option$Sigma_list$A_inv, verbose=F)
       
@@ -543,13 +545,14 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       spring_ROC_res = huge::huge.roc(fit.spring$fit$est$path, theta = option$Sigma_list$A_inv, verbose = F)
       ROC_inv = spring_ROC_res
       
-      ROC_cov = huge::huge.roc(path = lapply(fit.spring$fit$est$beta, # this is the partial correlations from neighbourhood selection
-                                             function(x){ 
-                                               diag(x) = 1
-                                               x = solve(x) # compute covariance
-                                               diag(x) = 0
-                                               tmp = (abs(x)>1e-11)*1
-                                               tmp}), theta = target_graph_cov)
+      ROC_cov = NULL
+        # huge::huge.roc(path = lapply(fit.spring$fit$est$beta, # this is the partial correlations from neighbourhood selection
+        #                                      function(x){ 
+        #                                        diag(x) = 1
+        #                                        x = solve(x) # compute covariance
+        #                                        diag(x) = 0
+        #                                        tmp = (abs(x)>1e-11)*1
+        #                                        tmp}), theta = target_graph_cov)
       
       opt.K <- fit.spring$output$stars$opt.index
       precision <- as.matrix(fit.spring$fit$est$path[[opt.K]]) # adjacency matrix

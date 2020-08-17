@@ -9,14 +9,16 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73",  "#0072B2", "#D55E00"
 # run_rep = 1:10 # just compute for 10 repetitions
 # part = (1:7)[1] # for the 7 methods
 part_name = list('1'='CoNet', '2' = 'SparCC', '3' = 'CCLasso', '4' = 'COAT','5' = 'SPIEC-EASI', '6' = 'gCoda', '7' = 'SPRING')
-copula_distr = 'pois'
-copula_distr = 'negbin'
-copula_distr = 'zinegbin'
-copula_distr = 'none'
-copula_distr = 'fixN'
-copula_distr = 'fixNandrmvnorm'
-copula_distr = 'fixNandrmvnorm_mu01'
-copula_distr = 'rmvnorm_mu04'
+
+copula_distr = 'pois'             # poisson generating model, for nul1.1 and alt1
+copula_distr = 'negbin'           # for null1.1 and alt1
+copula_distr = 'zinegbin'         # for null1.1 and alt1
+copula_distr = 'none'             # for varying library scale and mu~uniform(0,4), alt2; also for null1
+#copula_distr = 'fixN'
+#copula_distr = 'fixNandrmvnorm'
+#copula_distr = 'fixNandrmvnorm_mu01'
+copula_distr = 'rmvnorm_mu04'     # for varying library scale and mu~uniform(0,4), null2
+
 # compute fp summary for null models, dist_data files
 get_summary_fp = function(choose_model, n, p, nreps, part, part_name, copula_distr){
   # conet and Sparcc have p values, others only fp_null
@@ -46,6 +48,9 @@ library(ggplot2)
 library(kableExtra)
 library(cowplot)
 theme_set(theme_cowplot())
+
+
+copula_distr = 'none'
 
 choose_model = 'null1'
 
@@ -87,10 +92,10 @@ pp = ggplot(data = null1.1, aes(x=n, y=x, group=interaction(method,adjust), colo
   ggtitle(paste0('dist: ', copula_distr, ', ', choose_model))
 ggsave(pp, filename = paste0('plot/', copula_distr, '_', choose_model,'.png'))
 
-null1.1 = null1.1[null1.1$adjust=='none', ]
-pp = ggplot(data = null1.1, aes(x=n, y=x, group=method, color=method, 
+null1.1_none = null1.1[null1.1$adjust=='none', ]
+pp = ggplot(data = null1.1_none, aes(x=n, y=x, group=method, color=method, 
                                 linetype = method))+
-  coord_cartesian(ylim = c(0, min(max(null1.1$x), 0.2)))+
+  coord_cartesian(ylim = c(0, min(max(null1.1_none$x), 0.2)))+
   geom_line(size=1)+
   geom_point(size=2, shape=18)+
   ylab('Type I Error')+
@@ -148,10 +153,10 @@ pp2 = ggplot(data = null2, aes(x=p, y=x, group=interaction(method,adjust), color
 ggsave(pp1, filename = paste0('plot/', copula_distr, '_', choose_model,'n.png'))
 ggsave(pp2, filename = paste0('plot/', copula_distr, '_', choose_model,'p.png'))
 
-null2 = null2[null2$adjust=='none' & null2$p==200,]
-pp1 =ggplot(data = null2, aes(x=n, y=x, group=method, color=method, 
+null2_none = null2[null2$adjust=='none' & null2$p==200,]
+pp1 =ggplot(data = null2_none, aes(x=n, y=x, group=method, color=method, 
                               linetype=method))+
-  coord_cartesian(ylim = c(0, min(max(null2$x), 0.2)))+
+  coord_cartesian(ylim = c(0, min(max(null2_none$x), 0.2)))+
   geom_line(size=1)+
   geom_point(size=2, shape=18)+
   geom_hline(yintercept = 0.05, color=1, linetype=2)+
@@ -180,7 +185,7 @@ ggsave(pp1, filename = paste0('plot/type_I_null2.png'), width = 7, height = 7)
 # kable(null2.3, 'latex', booktab=T, col.names = c(names(null2.3)[1:5], 'False Positive Rate'))%>%
 #   kable_styling()
 
-
+#######################################################################
 # get ROC summary for alternative models, dist_data files
 get_summary_roc = function(choose_model, n, p, nreps, part, part_name, copula_distr){
   # all models we compare the inverse cov graph ROC
@@ -252,6 +257,10 @@ output_plot_all = function(choose_model, n, p, nreps, part_name, copula_distr){
   return(list(data= data, plots = plot_all))
 }
 
+
+
+#alt1
+
 copula_distr = 'zinegbin'
 
 data = lapply(c(100, 120,150,200,289 ), function(n){
@@ -280,20 +289,22 @@ ggsave(plot_all, filename = paste0('plot/ROC_alt1.png'), width = 14, height = 9)
 # output_plot_all('alt1',n=289, p=127, nreps=100, part_name, copula_distr)
 
 
-copula_distr = 'none'
+# alt2
+copula_distr = 'edge_2_3'
+# copula_distr = '2pnetwork'
 
-data = lapply(c(100, 200, 500), function(n){
+data2 = lapply(c(100, 200, 500), function(n){
   tmp = lapply(c(20, 50, 100, 150, 200), function(p){
     output_plot_all('alt2',n=n, p=p, nreps=100, part_name, copula_distr)$data
   })
   do.call(rbind, tmp)
 })
-data = do.call(rbind, data)
-data$p = as.factor(data$p)
+data2 = do.call(rbind, data2)
+data2$p = as.factor(data2$p)
 
 for(nn in c(100, 200, 500)){
-  tmpdata = data[data$group=='mean'& data$n==nn,]
-  plot_all = ggplot(tmpdata, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
+  tmpdata2 = data2[data2$group=='mean'& data2$n==nn,]
+  plot_all = ggplot(tmpdata2, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
     geom_line(size=1.2)+
     geom_abline(slope=1, intercept=0,linetype = 3)+
     xlab('False Positive')+
@@ -307,8 +318,8 @@ for(nn in c(100, 200, 500)){
 }
 
 for(pp in c(20,50,100,150,200)){
-  tmpdata = data[data$group=='mean'& data$p==pp,]
-  plot_all = ggplot(tmpdata, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
+  tmpdata2 = data2[data2$group=='mean'& data2$p==pp,]
+  plot_all = ggplot(tmpdata2, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
     geom_line(size=1.2)+
     geom_abline(slope=1, intercept=0,linetype = 3)+
     xlab('False Positive')+
@@ -321,6 +332,49 @@ for(pp in c(20,50,100,150,200)){
   
 }
 
+
+
+
+data3 = lapply(c(100, 200, 500), function(n){
+  tmp = lapply(c(20, 50, 100, 150, 200), function(p){
+    output_plot_all('alt3',n=n, p=p, nreps=100, part_name, copula_distr)$data
+  })
+  do.call(rbind, tmp)
+})
+data3 = do.call(rbind, data3)
+data3$p = as.factor(data3$p)
+
+for(nn in c(100, 200, 500)){
+  tmpdata3 = data3[data3$group=='mean'& data3$n==nn,]
+  plot_all = ggplot(tmpdata3, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
+    geom_line(size=1.2)+
+    geom_abline(slope=1, intercept=0,linetype = 3)+
+    xlab('False Positive')+
+    ylab('True Positive')+
+    ggtitle(paste('sample size n =', nn))+
+    theme(legend.position = 'right')+
+    scale_color_manual(values=cbPalette[2:7])+
+    facet_wrap(~p, labeller = label_both)
+  ggsave(plot_all, filename = paste0('plot/ROC_alt3_n_',nn,'.png'), width = 14, height = 9)
+  
+}
+
+for(pp in c(20,50,100,150,200)){
+  tmpdata3 = data3[data3$group=='mean'& data3$p==pp,]
+  plot_all = ggplot(tmpdata3, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
+    geom_line(size=1.2)+
+    geom_abline(slope=1, intercept=0,linetype = 3)+
+    xlab('False Positive')+
+    ylab('True Positive')+
+    ggtitle(paste('number of genes p =', pp))+
+    theme(legend.position = 'right')+
+    scale_color_manual(values=cbPalette[2:7])+
+    facet_wrap(~n, labeller = label_both)
+  ggsave(plot_all, filename = paste0('plot/ROC_alt3_p_',pp,'.png'), width = 14, height = 4.5)
+  
+}
+
+
 # output_plot_all('alt2',n=200, p=200, nreps=100, part_name, copula_distr)
 # output_plot_all('alt2',n=500, p=200, nreps=100, part_name, copula_distr)
 
@@ -328,10 +382,10 @@ for(pp in c(20,50,100,150,200)){
 nn=100
 for(pp in c(20, 50, 100, 150, 200)){
   plot_all =output_plot_all('alt2',n=nn, p=pp, nreps=100, part_name, copula_distr)$plots
-  ggsave(plot_all, filename = paste0('plot/', copula_distr, '_n_',nn,'_p_',pp,  data$model[1],'.png'))
+  ggsave(plot_all, filename = paste0('plot/', copula_distr, '_n_',nn,'_p_',pp,'alt2.png'))
 }
 
 
-output_plot_all('alt2',n=200, p=100, nreps=100, part_name, copula_distr)$plots
-output_plot_all('alt2',n=200, p=150, nreps=100, part_name, copula_distr)$plots
-output_plot_all('alt2',n=200, p=200, nreps=100, part_name, copula_distr)$plots
+# output_plot_all('alt2',n=200, p=100, nreps=100, part_name, copula_distr)$plots
+# output_plot_all('alt2',n=200, p=150, nreps=100, part_name, copula_distr)$plots
+# output_plot_all('alt2',n=200, p=200, nreps=100, part_name, copula_distr)$plots
