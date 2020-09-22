@@ -1,33 +1,19 @@
 #!/bin/sh
 
-for p in 20 50 100 150 200
+
+
+for p in 200
   do
-  for i in {1..20..1} 
+  for i in {1..200..1} 
     do
-    for j in 1 2 3 4 5 6 7
+    for j in {1..7..1}
       do
 	  for n in 100 200 500
 	    do
-        qsub -cwd -q shojaie-normal.q -e iotrash/ -o iotrash/ run_data_example_part2.csh $n $p alt2 100 $i $j edge_2_3
+        qsub -cwd -q shojaie-bigmem.q -e iotrash/ -o iotrash/ run_data_example_part2.csh $n $p null2 500 $i $j rmvnorm_mu04
       done
 	done
   done
 done
-
-for p in 20 50 100 150 200
-  do
-  for i in {1..20..1} 
-    do
-    for j in 1 2 3 4 5 6 7
-      do
-	  for n in 100 200 500
-	    do
-        qsub -cwd -q shojaie-normal.q -e iotrash/ -o iotrash/ run_data_example_part2.csh $n $p alt3 100 $i $j edge_2_3
-      done
-	done
-  done
-done
-
-
 
 

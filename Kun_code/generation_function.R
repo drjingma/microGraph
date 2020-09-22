@@ -251,7 +251,7 @@ SpiecEasi_graph_Sigma = function(p,e, type='erdos_renyi', graph = NULL){
   }
   
   Prec  <- graph2prec(graph, posThetaLims = c(2, 3), # this is precision strength range
-                      targetCondition = 100, # this is condition number kappa
+                      targetCondition = 1000, # this is condition number kappa
                       epsBin = 0.01, numBinSearch = 100) # here can set different generating parameters
   Cor   <- cov2cor(prec2cov(Prec))
   

@@ -501,8 +501,9 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       }
       
       gcoda_network <- gcoda(data_rep[[1,1]], counts = F, pseudo = 1, 
-                             lambda.min.ratio=1e-3, nlambda=20, # these will be ignored
-                             lambda = lambda_seq);
+                             lambda.min.ratio=1e-3, # these will be ignored
+                             nlambda= length(lambda_seq), # this has to be the length of provided lambda_seq
+                             lambda = lambda_seq);  # it seems gcoda will automatically include more lambda values. need to pay attention to this.
       
       # gcoda_network$lambda
       # gcoda_network$opt.index  # if at the boundary may need to change lambda.min.ratio; however maximum cannot be changed... any reason how they choose the lambda.max?
@@ -522,7 +523,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       
       precision = gcoda_network$opt.icov
       fp_inv_null = calTprFpr(sigmaHat = precision, sigmaTrue = matrix(0, p, p))$fp
-      ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv, fp_inv_null = fp_inv_null)
+      ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv, fp_inv_null = fp_inv_null, lambda_seq = gcoda_network$lambda)
       
     }else if(grepl(method,'Spring',ignore.case=TRUE)){
       #---------------

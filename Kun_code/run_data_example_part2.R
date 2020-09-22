@@ -20,6 +20,7 @@ part = as.character(args[6])
 distr = ifelse(is.na(args[7]), NA, as.character(args[7]))
 if(is.na(distr)) distr = NULL
 
+
 load(paste0('dist_data/', distr, '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
 
 

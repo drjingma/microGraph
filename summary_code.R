@@ -22,7 +22,7 @@ copula_distr = 'rmvnorm_mu04'     # for varying library scale and mu~uniform(0,4
 # compute fp summary for null models, dist_data files
 get_summary_fp = function(choose_model, n, p, nreps, part, part_name, copula_distr){
   # conet and Sparcc have p values, others only fp_null
-  res_for_20 = do.call(rbind, lapply(1:20, function(run_rep){
+  res_for_200 = do.call(rbind, lapply(1:200, function(run_rep){
     load(paste0(filepath,'/dist_data/',copula_distr, '/', choose_model,'/res_n_', n, '_p_', p, '_', choose_model, 
                 '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData'))
     if(part %in% c(1, 2)){
@@ -38,9 +38,9 @@ get_summary_fp = function(choose_model, n, p, nreps, part, part_name, copula_dis
                  fp=roc$fp_inv_null, adjust = 'none', rep=run_rep)
     }
   }))
-  res_for_20$method = factor(res_for_20$method, levels=do.call(c,part_name))
+  res_for_200$method = factor(res_for_200$method, levels=do.call(c,part_name))
   
-  with(res_for_20, aggregate(fp, by = list(n=n, p=p, model= model, method=method, adjust=adjust), function(x)mean(x,na.rm=T) ))
+  with(res_for_200, aggregate(fp, by = list(n=n, p=p, model= model, method=method, adjust=adjust), function(x)mean(x,na.rm=T) ))
   
 }
 
@@ -76,8 +76,8 @@ copula_distr = 'zinegbin'
 
 choose_model = 'null1.1'
 
-null1.1= lapply(c(100, 120, 150, 200, 289), function(n)cbind(do.call(rbind, lapply(1:7,  function(part)
-  get_summary_fp(choose_model,n=n, p=127, nreps=100, part=part, part_name, copula_distr=copula_distr))),
+null1.1= lapply(c(100, 150, 200, 289), function(n)cbind(do.call(rbind, lapply(1:7,  function(part)
+  get_summary_fp(choose_model,n=n, p=127, nreps=500, part=part, part_name, copula_distr=copula_distr))),
   dist = copula_distr))
 null1.1 = do.call(rbind, null1.1)
 head(null1.1)
@@ -103,9 +103,10 @@ pp = ggplot(data = null1.1_none, aes(x=n, y=x, group=method, color=method,
   scale_color_manual(values=cbPalette[1:7])+
   geom_hline(yintercept = 0.05, color=1, linetype=2)+
   theme(legend.title = element_blank())+
+  scale_linetype_manual(values=1:7)+
   # ggtitle(paste0('dist: ', copula_distr, ', ', choose_model))+
-  scale_x_continuous(breaks=c(100, 120, 150, 200, 289))
-ggsave(pp, filename = paste0('plot/type_I_null1.1.png'),width = 7, height=7)
+  scale_x_continuous(breaks=c(100, 150, 200, 250))
+ggsave(pp, filename = paste0('plot/type_I_null1.1.png'),width =11.7*1.7, height= 11.7*1.7, units = 'cm')
 
 
 # # null1 models
@@ -120,7 +121,7 @@ ggsave(pp, filename = paste0('plot/type_I_null1.1.png'),width = 7, height=7)
 # kable(null1.2, 'latex', booktab=T, col.names = c(names(null1.2)[1:5], 'False Positive Rate'))%>%
 #   kable_styling()
 
-# null2
+# null2 full
 copula_distr = 'rmvnorm_mu04'
 
 choose_model = 'null2'
@@ -153,11 +154,27 @@ pp2 = ggplot(data = null2, aes(x=p, y=x, group=interaction(method,adjust), color
 ggsave(pp1, filename = paste0('plot/', copula_distr, '_', choose_model,'n.png'))
 ggsave(pp2, filename = paste0('plot/', copula_distr, '_', choose_model,'p.png'))
 
+# null2 p=200
+copula_distr = 'rmvnorm_mu04'
+
+choose_model = 'null2'
+null2 = lapply(c(200), function(p){
+  null2= lapply(c(100, 200, 500), function(n)cbind(do.call(rbind, lapply(1:7,  function(part)
+    get_summary_fp(choose_model,n=n, p=p, nreps=500, part=part, part_name, copula_distr=copula_distr))),
+    dist = copula_distr))
+  null2 = do.call(rbind, null2)
+  null2
+})
+
+null2 = do.call(rbind, null2)
+head(null2)
+
 null2_none = null2[null2$adjust=='none' & null2$p==200,]
 pp1 =ggplot(data = null2_none, aes(x=n, y=x, group=method, color=method, 
                               linetype=method))+
   coord_cartesian(ylim = c(0, min(max(null2_none$x), 0.2)))+
   geom_line(size=1)+
+  scale_linetype_manual(values=1:7)+
   geom_point(size=2, shape=18)+
   geom_hline(yintercept = 0.05, color=1, linetype=2)+
   theme(legend.title = element_blank())+
@@ -167,7 +184,12 @@ pp1 =ggplot(data = null2_none, aes(x=n, y=x, group=method, color=method,
   scale_x_continuous(breaks=c(100,  200, 300,400,500))+
   scale_y_continuous(breaks=c(0,0.01,0.02,0.03,0.04,0.05,0.06))
 
-ggsave(pp1, filename = paste0('plot/type_I_null2.png'), width = 7, height = 7)
+ggsave(pp1, filename = paste0('plot/type_I_null2.png'), width = 11.7*1.7, height = 11.7*1.7, units = 'cm')
+
+library(ggpubr)
+null_plot = ggarrange(pp,pp1,labels = c('A', 'B'), common.legend = T, legend = 'right' )
+ggsave(null_plot, filename = paste0('plot/type1error.png'), width = 11.7*1.7, height = 7*1.7, units = 'cm')
+
 
 # null2.1 = do.call(rbind, lapply(1:7,  function(part)get_summary_fp('null2',n=100, p=200, nreps=100, part=part, part_name)))
 # null2.1$x = round(null2.1$x, 4)
@@ -198,8 +220,14 @@ get_summary_roc = function(choose_model, n, p, nreps, part, part_name, copula_di
 
   })
   
-  ave_tp = rowMeans(do.call(cbind, sapply(res_for_20, `[`, 'tp')))
-  ave_fp = rowMeans(do.call(cbind, sapply(res_for_20, `[`, 'fp')))
+  tps = sapply(res_for_20, `[`, 'tp')
+  if(length(unique(sapply(tps, FUN = length)))>1) stop(paste('check lambda sequence, tp not same length across replications: n',n,'p',p, 'part', part))
+  fps = sapply(res_for_20, `[`, 'fp')
+  if(length(unique(sapply(fps, FUN = length)))>1) stop(paste('check lambda sequence, fp not same length across replications: n',n,'p',p, 'part', part))
+  
+  ave_tp = rowMeans(do.call(cbind, tps))
+  
+  ave_fp = rowMeans(do.call(cbind, fps))
   ave_auc = mean(do.call(cbind, sapply(res_for_20, `[`, 'auc')))
     
   ave_res = list(n=n, p=p, model = choose_model, method = part_name[[part]],
@@ -271,7 +299,7 @@ data$n = as.factor(data$n)
 
 
 tmpdata = data[data$group=='mean',]
-plot_all = ggplot(tmpdata, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
+plot_all = ggplot(tmpdata[tmpdata$n %in% c(100,150,200,289),], aes(x=fp, y=tp, group=method, color = method,linetype=method))+
   geom_line(size=1.2)+
   geom_abline(slope=1, intercept=0,linetype = 3)+
   xlab('False Positive')+
@@ -279,8 +307,9 @@ plot_all = ggplot(tmpdata, aes(x=fp, y=tp, group=method, color = method,linetype
   #ggtitle(paste('dist', copula_distr, 'n',nn, data$model[1]))+
   theme(legend.position = 'right')+
   facet_wrap(~n, labeller = label_both)+
-  scale_color_manual(values = cbPalette[2:7])
-ggsave(plot_all, filename = paste0('plot/ROC_alt1.png'), width = 14, height = 9)
+  scale_color_manual(values = cbPalette[2:7])+
+  scale_linetype_manual(values = c(2:7))
+ggsave(plot_all, filename = paste0('plot/ROC_alt1.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
 
 # output_plot_all('alt1',n=100, p=127, nreps=100, part_name, copula_distr)
 # output_plot_all('alt1',n=120, p=127, nreps=100, part_name, copula_distr)
@@ -309,11 +338,12 @@ for(nn in c(100, 200, 500)){
     geom_abline(slope=1, intercept=0,linetype = 3)+
     xlab('False Positive')+
     ylab('True Positive')+
-    ggtitle(paste('sample size n =', nn))+
-    theme(legend.position = 'right')+
+    # ggtitle(paste('sample size n =', nn))+
+    theme(legend.position = 'right', axis.text.x = element_text(size=10),axis.text.y = element_text(size=10))+
     scale_color_manual(values=cbPalette[2:7])+
+    scale_linetype_manual(values=2:7)+
     facet_wrap(~p, labeller = label_both)
-  ggsave(plot_all, filename = paste0('plot/ROC_alt2_n_',nn,'.png'), width = 14, height = 9)
+  ggsave(plot_all, filename = paste0('plot/ROC_alt2_n_',nn,'.png'), width = 11.7*1.9, height = 8*1.9, units = 'cm')
   
 }
 
@@ -324,11 +354,12 @@ for(pp in c(20,50,100,150,200)){
     geom_abline(slope=1, intercept=0,linetype = 3)+
     xlab('False Positive')+
     ylab('True Positive')+
-    ggtitle(paste('number of genes p =', pp))+
-    theme(legend.position = 'right')+
+    # ggtitle(paste('number of genes p =', pp))+
+    theme(legend.position = 'right', axis.text.x = element_text(size=10),axis.text.y = element_text(size=10))+
     scale_color_manual(values=cbPalette[2:7])+
+    scale_linetype_manual(values=2:7)+
     facet_wrap(~n, labeller = label_both)
-  ggsave(plot_all, filename = paste0('plot/ROC_alt2_p_',pp,'.png'), width = 14, height = 4.5)
+  ggsave(plot_all, filename = paste0('plot/ROC_alt2_p_',pp,'.png'), width = 11.7*1.9, height = 4*1.9, units = 'cm')
   
 }
 
@@ -351,11 +382,14 @@ for(nn in c(100, 200, 500)){
     geom_abline(slope=1, intercept=0,linetype = 3)+
     xlab('False Positive')+
     ylab('True Positive')+
-    ggtitle(paste('sample size n =', nn))+
-    theme(legend.position = 'right')+
+#    ggtitle(paste('sample size n =', nn))+
+    theme(legend.position = 'right', axis.text.x = element_text(size=10),axis.text.y = element_text(size=10))+
     scale_color_manual(values=cbPalette[2:7])+
+    scale_linetype_manual(values=2:7)+
+    
     facet_wrap(~p, labeller = label_both)
-  ggsave(plot_all, filename = paste0('plot/ROC_alt3_n_',nn,'.png'), width = 14, height = 9)
+  ggsave(plot_all, filename = paste0('plot/ROC_alt3_n_',nn,'.png'), width = 11.7*1.9, 
+         height = 8*1.9, units = 'cm')
   
 }
 
@@ -366,11 +400,13 @@ for(pp in c(20,50,100,150,200)){
     geom_abline(slope=1, intercept=0,linetype = 3)+
     xlab('False Positive')+
     ylab('True Positive')+
-    ggtitle(paste('number of genes p =', pp))+
-    theme(legend.position = 'right')+
+   # ggtitle(paste('number of genes p =', pp))+
+    theme(legend.position = 'right', axis.text.x = element_text(size=10),axis.text.y = element_text(size=10))+
     scale_color_manual(values=cbPalette[2:7])+
+    scale_linetype_manual(values=2:7)+
     facet_wrap(~n, labeller = label_both)
-  ggsave(plot_all, filename = paste0('plot/ROC_alt3_p_',pp,'.png'), width = 14, height = 4.5)
+  ggsave(plot_all, filename = paste0('plot/ROC_alt3_p_',pp,'.png'), width = 11.7*1.9,
+         height = 4*1.9, units = 'cm')
   
 }
 
