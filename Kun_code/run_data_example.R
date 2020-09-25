@@ -5,6 +5,11 @@
 ##
 ##
 ########################
+
+######
+## updated on 9/24/2020: 
+## 1. adding generating partial correlation network from AR(1)/chain graph; use rho = 0.5 (small) and rho=0.8 (large) cases, use small n and large p
+
  
 # filepath = 'C:\\Users\\yuek\\Dropbox\\Microbial_Networks\\microGraph' #BOX
 # 
@@ -29,15 +34,21 @@ reference_data = amgut1.filt
 # p = 200
 
 args = commandArgs(trailingOnly = T) # (n p null1 2),  n and p override by reference data set, e.g. 
-# args = c(50, 50, 'alt1', 2)
+# args = c(50, 127, 'alt1', 20, 'zinegbin', 'chain_small', 0)
 # args = c(20, 30, 'null2', 2)
 # args = c(100, 127, 'null1.1', 100)
 n = as.integer(args[1])
 p = as.integer(args[2])
-choose_model = as.character(args[3])
-nreps = as.integer(args[4])
-distr = ifelse(is.na(args[5]), NA, as.character(args[5]))
-if(is.na(distr)) distr = NULL
+choose_model = as.character(args[3]) # choose among 'null1' (shuffle reference data), 
+                                    # 'null1.1' (use copula model with NB marginal distr, based on reference data), 
+                                    # 'null2' (generate from Dirichelt distribution with varying total count), 
+                                    # 'alt1' (generate with copula model and reference data), 
+                                    # 'alt2' (generate from log-normal distribution directly)
+                                    # 'alt3' (generate from logisitic normal multinomial with fixed total count)
+nreps = as.integer(args[4]) # just run 200 for all methods
+distr = as.character(args[5]) # specify the distribution for copula model, if used 
+network_option = as.character(args[6]) # 'erdos_renyi', or 'chain_small', 'chain_large' for AR(1) (small: rho=0.5, large:rho=0.8)
+network_condition_number = as.numeric(args[7]) # specify the condition number of the inverse covariance matrix
 
 set.seed(102)
 
@@ -56,11 +67,12 @@ if(choose_model == 'null1'){
 
 if(choose_model == 'null1.1'){
   ## Null1 1.1
-  # Use reference data set, marginal distributions are NB, and the network is set empty
+  # Use reference data set, marginal distributions are ZINB, and the network is set to empty
   reference_data = amgut1.filt[sample(1:nrow(amgut1.filt), size=n, replace = F), ]
   p = ncol(reference_data)
   # generate a null graph object
-  option = list(hypothesis = 'null', model = 'copula', reference_data = reference_data, Sigma_list = NULL, distr = distr)
+  option = list(hypothesis = 'null', model = 'copula', 
+                reference_data = reference_data, Sigma_list = NULL, distr = distr)
   option$Sigma_list$A_inv <-  option$Sigma_list$A_cov <- matrix(0, p, p)
   option$Sigma_list$Sigma <- option$Sigma_list$Omega <- diag(1, p)
 }
@@ -88,31 +100,33 @@ if(choose_model=='alt1'){
   # use Copula generative model, graph is based on inverse covariance matrix.
   reference_data = amgut1.filt[1:n, ]
   p = ncol(reference_data)
-  Sigma_list = SpiecEasi_graph_Sigma(p,e=p, type = 'erdos_renyi')
-  option = list(hypothesis = 'alternative', model = 'copula', reference_data = reference_data, Sigma_list = Sigma_list, distr = distr)
+  Sigma_list = SpiecEasi_graph_Sigma(p,e=p, type = network_option, graph=NULL, network_condition_number = network_condition_number)
+  option = list(hypothesis = 'alternative', model = 'copula', reference_data = reference_data, 
+                Sigma_list = Sigma_list, distr = distr, network_option = network_option, network_condition_number = network_condition_number)
 }
 
 
 if(choose_model == 'alt2'){
-  ## Alternative 2
-  # generate from random graph, p nodes and e edges; 
+  ## Alternative 2: log normal
+  # generate graph, p nodes and e edges; 
   # this graph corresponds to inverse covariance
-  Sigma_list  = SpiecEasi_graph_Sigma(p,e=p, type='erdos_renyi', graph = NULL)  # output=list(Sigma for covariance/Correlation, Omega for inv-cov, A for adjacency matrix)
+  Sigma_list  = SpiecEasi_graph_Sigma(p,e=p, type=network_option, graph = NULL, network_condition_number = network_condition_number)  # output=list(Sigma for covariance/Correlation, Omega for inv-cov, A for adjacency matrix)
   mu = runif(p, 0, 4)
-  option = list(hypothesis = 'alternative', model = 'log-normal', mu = mu, Sigma_list = Sigma_list, distr = distr)
+  option = list(hypothesis = 'alternative', model = 'log-normal', mu = mu, Sigma_list = Sigma_list, 
+                distr = distr, network_option = network_option, network_condition_number = network_condition_number)
   
 }
 
 if(choose_model == 'alt3'){
-  ## Alternative 3
-  # generate from random graph, p nodes and e edges; 
+  ## Alternative 3: logistic normal multinomial
+  # generate graph, p nodes and e edges; 
   # this graph corresponds to inverse covariance
-  Sigma_list  = SpiecEasi_graph_Sigma(p,e=p, type='erdos_renyi', graph = NULL)  # output=list(Sigma for covariance/Correlation, Omega for inv-cov, A for adjacency matrix)
+  Sigma_list  = SpiecEasi_graph_Sigma(p,e=p, type=network_option, graph = NULL, network_condition_number = network_condition_number)  # output=list(Sigma for covariance/Correlation, Omega for inv-cov, A for adjacency matrix)
   mu = runif(p, 0, 4)
   library_scale = rep(3e4,n)
   option = list(hypothesis = 'alternative', model = 'multinomial-log-normal', 
                 mu = mu, Sigma_list = Sigma_list, distr = distr, 
-                library_scale = library_scale)
+                library_scale = library_scale, network_option = network_option, network_condition_number = network_condition_number)
   
 }
 # data_list = data_generation(n, p, option)
@@ -141,8 +155,10 @@ for(k in 1:nreps){
   data_rep[[2, k]] = data # counts
 }
 
-save(data_rep, file = paste0('dist_data/', option$distr, '/n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
-save(list=c('data_rep', 'option', 'n', 'p'), file = paste0('dist_data/', option$distr, '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
+save(data_rep, file = 
+       paste0('dist_data/', option$distr,'/', option$network_option, '/cond_', option$network_condition_number, '/n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
+save(list=c('data_rep', 'option', 'n', 'p'), file = 
+       paste0('dist_data/', option$distr,'/', option$network_option, '/cond_', option$network_condition_number,  '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
 
 
 

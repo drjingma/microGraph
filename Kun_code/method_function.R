@@ -31,7 +31,22 @@ calTprFpr <- function(sigmaTrue, sigmaHat, eps = 1e-11){
 }
 
 
-
+get_cov_ROC = function(Cor, target){
+  if(any(diag(Cor)!=1)){
+    Cor = diag(1/sqrt(diag(Cor))) %*% Cor %*%diag(1/sqrt(diag(Cor)))
+  }
+  
+  cov_tp <- cov_fp <- NULL
+  for(thresh in seq(0, 1, length.out = 40)){
+    tmp = calTprFpr(sigmaTrue = target, sigmaHat = (abs(Cor)>thresh))
+    cov_tp = c(cov_tp,tmp$tpr)
+    cov_fp = c(cov_fp, tmp$fpr)
+    
+  }
+  
+  return(list(fp = cov_fp, tp = cov_tp))
+  
+}
 
 
 
@@ -83,12 +98,12 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
     
     if(grepl(method,'CoNet',ignore.case=TRUE)){
       #--------------
-      # CoNet 
+      # CoNet (also named as ReBoot)
       #--------------
       ## (input data should be p by n)
       
       ### option 1: use the CoNet software (not in R)
-      
+      {
       # filepath_conet = 'CoNet_app_output\\Conet_output2.txt'
       # read_tab = function(filepath){
       #   
@@ -200,30 +215,38 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # 
       # 
       # plot(net_CoNet)
+      }
       
       
-      
-      ### another option: use ccrepe package for single correlation with permulation and renormalization
-      if(option$hypothesis == 'null'){
+      ### working option: use ccrepe package for single correlation with permulation and renormalization
+      time = sum(system.time({
         conet_res = ccrepe(x = data_rep[[1,1]], sim.score = cor) # default 1000 iterations for p values
-        pvals = conet_res$p.values 
-        
-        
-        pvals_FDR = conet_res$q.values
-        
-        
-        fp_null = list(fp_null = mean(pvals<0.05, na.rm=T),
+      })[2:3])
+      
+      pvals = conet_res$p.values 
+      pvals_FDR = conet_res$q.values
+      
+      fp_null = list(fp_null = mean(pvals<0.05, na.rm=T),
                        fp_null_FDR = mean(pvals_FDR<0.05, na.rm=T))
         
-        ROC=list(fp_null = fp_null)
-      }else{
-        ROC=NULL
+      # constructing the RIC under alternative by thresholding the p values, for covariance graph only
+      tmp = matrix(0, p, p)
+      target_graph_cov
+      target_graph_inv
+      
+      cov_tp <- cov_fp <- NULL
+      for(p_thresh in seq(0, 1, length.out = 40)){
+        tmp = calTprFpr(sigmaTrue = target_graph_cov, sigmaHat = (pvals<p_thresh))
+        cov_tp = c(cov_tp,tmp$tpr)
+        cov_fp = c(cov_fp, tmp$fpr)
+        
       }
+      
+      ROC_cov = list(tp = cov_tp, fp = cov_fp)
+      ROC_inv = NULL
 
-      
-      
-      
-      
+
+      ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv, fp_null = fp_null, time = time)
       
       
       
@@ -282,15 +305,19 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       }
       
       fp_null<-fp_null_FDR <- NULL
+      ROC_cov <- ROC_inv <- NULL
       
       if(option$hypothesis == 'null'){
-        sparcc_bootstrap_res = sparccboot(data = data_rep[[2,1]],
-                                          R=1000,                                                      # number of bootstraps, maybe this will make p value noisy? with 200 reps, p value of 0.05 should vary by sqrt(0.05*0.95/200)*1.96
-                                          ncpus = 4,
-                                          sparcc.params = list(iter = 20, inner_iter = 10, th = 0.1)) # this is very slow
-        
-        # obtain p value for sparCC, use it for null model evaluation
-        pval_cov =  pval.sparccboot(sparcc_bootstrap_res)$pvals
+        time = sum(system.time({
+          sparcc_bootstrap_res = sparccboot(data = data_rep[[2,1]],
+                                            R=1000,                                                      # number of bootstraps, maybe this will make p value noisy? with 200 reps, p value of 0.05 should vary by sqrt(0.05*0.95/200)*1.96
+                                            ncpus = 4,
+                                            sparcc.params = list(iter = 20, inner_iter = 10, th = 0.1)) # this is very slow
+          
+          # obtain p value for sparCC, use it for null model evaluation
+          pval_cov =  pval.sparccboot(sparcc_bootstrap_res)$pvals
+          
+        })[2:3])
         
         # mean(pval_cov < 0.05)
         # mean(pval_cov < 0.05-sqrt(0.05*0.95/200)*1.96) # this is still showing inflated false positive
@@ -298,16 +325,24 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
         fp_null = mean(pval_cov<0.05)
         fp_null_FDR = mean(p.adjust(pval_cov, method='fdr')<0.05)
         
+      }else{
+        time = sum(system.time({
+          # use glasso for alternative model estimation and evaluation
+          sparcc_res =  sparcc(data = data_rep[[2,1]],iter = 20, inner_iter = 10, th = 0.1)
+        })[2:3])
+        
+        ROC_cov = get_cov_ROC(sparcc_res$Cor, target_graph_cov)
+        ROC_inv = find_glasso_ROC(sparcc_res$Cor, lambda_seq, target_graph_inv)
+        
       }
 
-      
-      # use glasso for alternative model estimation and evaluation
-      sparcc_res =  sparcc(data = data_rep[[2,1]],iter = 20, inner_iter = 10, th = 0.1)
-      ROC_cov = NULL
-      ROC_inv = find_glasso_ROC(sparcc_res$Cor, lambda_seq, target_graph_inv)
+
       
       
-      ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv, fp_null = list(fp_null = fp_null, fp_null_FDR = fp_null_FDR) )
+      
+      ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv, 
+                 fp_null = list(fp_null = fp_null, fp_null_FDR = fp_null_FDR) ,
+                 time = time)
       
       
     }else if(grepl(method,'CCLasso',ignore.case=TRUE)){
@@ -370,20 +405,22 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       #res$Cov[1:5, 1:5]
       #res_spa_count$cov.w[1:5, 1:5]
       
-      
-      res_ccl_count <- cclasso(x = data_rep[[1,1]],
-                               counts = F, pseudo = 1, # for correction of count matrix; ignored if we direclty supply composition matrix
-                               k_cv = 3, # cv folds, min=2
-                               lam_int = c(1e-6, 3), #tuning parameter value range; need to vary this for ROC curve
-                               k_max=20, n_boot =20)  # input format n by p
+      time= sum(system.time({
+        res_ccl_count <- cclasso(x = data_rep[[1,1]],
+                                 counts = F, pseudo = 1, # for correction of count matrix; ignored if we direclty supply composition matrix
+                                 k_cv = 3, # cv folds, min=2
+                                 lam_int = c(1e-6, 3), #tuning parameter value range; need to vary this for ROC curve
+                                 k_max=20, n_boot =20)  # input format n by p
+        
+      })[2:3])
       
       ROC_inv = find_glasso_ROC(res_ccl_count$cor_w, lambda_seq, target_graph_inv)
-      ROC_cov = NULL
+      ROC_cov = get_cov_ROC(Cor =res_ccl_count$cor_w, target = target_graph_cov )
       
       # separately compute the false positive rate under null model, for Covariance
       fp_null = calTprFpr(sigmaHat = res_ccl_count$cor_w, sigmaTrue = matrix(0, p, p))$fp
       
-      ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv, fp_null = fp_null)
+      ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv, fp_null = fp_null, time = time)
       
     }else if (grepl(method,'COAT',ignore.case=TRUE)){
       #--------------
@@ -419,14 +456,16 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # ROC = list(ROC_cov = ROC, ROC_inv = ROC_inv)
       
       
-      
-      coat_res = coat(data_rep[[1, 1]], nFolder=5, soft=1) # x is n by p data matrix, need to be compositional and zero adjusted
+      time = sum(system.time({
+        coat_res = coat(data_rep[[1, 1]], nFolder=5, soft=1) # x is n by p data matrix, need to be compositional and zero adjusted
+        
+      })[2:3])
       
       ROC_inv = find_glasso_ROC(coat_res$corr, lambda_seq, target_graph_inv)
-      ROC_cov = NULL
+      ROC_cov = get_cov_ROC(Cor = coat_res$corr, target = target_graph_cov)
       fp_null = calTprFpr(sigmaHat = coat_res$corr, sigmaTrue = matrix(0, p, p))$fp
       
-      ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv, fp_null = fp_null)
+      ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv, fp_null = fp_null, time=time)
       
       
     }else{
@@ -445,18 +484,21 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # for inv-covariance graph recovery
       library(pulsar)
       
-      # input count data
-      Spiec_network <- spiec.easi(data_rep[[2, 1]], method='glasso', # choose from 'mb' for neighbourhood selection, or 'glasso'
-                                  # if to perform model selection
-                                  pulsar.select = T,
-                                  pulsar.params = list(
-                                    thresh=0.05,# Threshold for StARS criterion.
-                                    subsample.ratio=0.8, # Subsample size for StARS.
-                                    rep.num = 20), # Number of subsamples for StARS.
-                                  lambda.min.ratio= min(lambda_seq)/max(lambda_seq), lambda.max = max(lambda_seq), nlambda=length(lambda_seq)
-                                  # , lambda = lambda_seq
-                                  ) # lambda is for penalty parameter, is tuning parameter; override to set same as lambda_seq
-
+      time = sum(system.time({
+        # input count data
+        Spiec_network <- spiec.easi(data_rep[[2, 1]], method='glasso', # choose from 'mb' for neighbourhood selection, or 'glasso'
+                                    # if to perform model selection
+                                    pulsar.select = T,
+                                    pulsar.params = list(
+                                      thresh=0.05,# Threshold for StARS criterion.
+                                      subsample.ratio=0.8, # Subsample size for StARS.
+                                      rep.num = 20), # Number of subsamples for StARS.
+                                    lambda.min.ratio= min(lambda_seq)/max(lambda_seq), lambda.max = max(lambda_seq), nlambda=length(lambda_seq)
+                                    # , lambda = lambda_seq
+        ) # lambda is for penalty parameter, is tuning parameter; override to set same as lambda_seq
+        
+        
+      })[2:3])
       
       # Spiec_network$lambda
       # lambda_seq
@@ -479,7 +521,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # also need to get fp at optimal tuning value for null model
       precision = getOptNet(Spiec_network)
       fp_inv_null = calTprFpr(sigmaHat = precision, sigmaTrue = matrix(0, p, p))$fp
-      ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv, fp_inv_null = fp_inv_null)
+      ROC = list(ROC_cov = ROC_cov, ROC_inv = ROC_inv, fp_inv_null = fp_inv_null, time=time)
       # getOptMerge(Spiec_network) # symmetric matrix with edge-wise stability; used for getting 0/1 network
       # getOptInd(Spiec_network) # index of the selected lambda from provided lambda path
       # getOptiCov(Spiec_network) # the optimal inverse covariance matrix (glasso only)

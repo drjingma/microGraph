@@ -8,16 +8,12 @@ cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73",  "#0072B2", "#D55E00"
 # nreps=100
 # run_rep = 1:10 # just compute for 10 repetitions
 # part = (1:7)[1] # for the 7 methods
-part_name = list('1'='CoNet', '2' = 'SparCC', '3' = 'CCLasso', '4' = 'COAT','5' = 'SPIEC-EASI', '6' = 'gCoda', '7' = 'SPRING')
+part_name = list('1'='ReBoot', '2' = 'SparCC', '3' = 'CCLasso', '4' = 'COAT','5' = 'SPIEC-EASI', '6' = 'gCoda', '7' = 'SPRING')
 
-copula_distr = 'pois'             # poisson generating model, for nul1.1 and alt1
-copula_distr = 'negbin'           # for null1.1 and alt1
+
 copula_distr = 'zinegbin'         # for null1.1 and alt1
-copula_distr = 'none'             # for varying library scale and mu~uniform(0,4), alt2; also for null1
-#copula_distr = 'fixN'
-#copula_distr = 'fixNandrmvnorm'
-#copula_distr = 'fixNandrmvnorm_mu01'
-copula_distr = 'rmvnorm_mu04'     # for varying library scale and mu~uniform(0,4), null2
+copula_distr = 'none'             # for varying library scale and mu~uniform(0,4), alt2; also for null2
+
 
 # compute fp summary for null models, dist_data files
 get_summary_fp = function(choose_model, n, p, nreps, part, part_name, copula_distr){
@@ -264,7 +260,7 @@ plot_roc = function(roc_res){
 
 # if to plot all methods together:
 output_plot_all = function(choose_model, n, p, nreps, part_name, copula_distr){
-  data = do.call(rbind, lapply(2:7, function(part){
+  data = do.call(rbind, lapply(1:7, function(part){
     roc_res = get_summary_roc(choose_model, n, p, nreps, part, part_name, copula_distr)
     plot_roc(roc_res)$data
   }))
@@ -307,8 +303,8 @@ plot_all = ggplot(tmpdata[tmpdata$n %in% c(100,150,200,289),], aes(x=fp, y=tp, g
   #ggtitle(paste('dist', copula_distr, 'n',nn, data$model[1]))+
   theme(legend.position = 'right')+
   facet_wrap(~n, labeller = label_both)+
-  scale_color_manual(values = cbPalette[2:7])+
-  scale_linetype_manual(values = c(2:7))
+  scale_color_manual(values = cbPalette[1:7])+
+  scale_linetype_manual(values = c(1:7))
 ggsave(plot_all, filename = paste0('plot/ROC_alt1.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
 
 # output_plot_all('alt1',n=100, p=127, nreps=100, part_name, copula_distr)
@@ -340,8 +336,8 @@ for(nn in c(100, 200, 500)){
     ylab('True Positive')+
     # ggtitle(paste('sample size n =', nn))+
     theme(legend.position = 'right', axis.text.x = element_text(size=10),axis.text.y = element_text(size=10))+
-    scale_color_manual(values=cbPalette[2:7])+
-    scale_linetype_manual(values=2:7)+
+    scale_color_manual(values=cbPalette[1:7])+
+    scale_linetype_manual(values=1:7)+
     facet_wrap(~p, labeller = label_both)
   ggsave(plot_all, filename = paste0('plot/ROC_alt2_n_',nn,'.png'), width = 11.7*1.9, height = 8*1.9, units = 'cm')
   
@@ -356,8 +352,8 @@ for(pp in c(20,50,100,150,200)){
     ylab('True Positive')+
     # ggtitle(paste('number of genes p =', pp))+
     theme(legend.position = 'right', axis.text.x = element_text(size=10),axis.text.y = element_text(size=10))+
-    scale_color_manual(values=cbPalette[2:7])+
-    scale_linetype_manual(values=2:7)+
+    scale_color_manual(values=cbPalette[1:7])+
+    scale_linetype_manual(values=1:7)+
     facet_wrap(~n, labeller = label_both)
   ggsave(plot_all, filename = paste0('plot/ROC_alt2_p_',pp,'.png'), width = 11.7*1.9, height = 4*1.9, units = 'cm')
   
@@ -384,8 +380,8 @@ for(nn in c(100, 200, 500)){
     ylab('True Positive')+
 #    ggtitle(paste('sample size n =', nn))+
     theme(legend.position = 'right', axis.text.x = element_text(size=10),axis.text.y = element_text(size=10))+
-    scale_color_manual(values=cbPalette[2:7])+
-    scale_linetype_manual(values=2:7)+
+    scale_color_manual(values=cbPalette[1:7])+
+    scale_linetype_manual(values=1:7)+
     
     facet_wrap(~p, labeller = label_both)
   ggsave(plot_all, filename = paste0('plot/ROC_alt3_n_',nn,'.png'), width = 11.7*1.9, 
@@ -402,8 +398,8 @@ for(pp in c(20,50,100,150,200)){
     ylab('True Positive')+
    # ggtitle(paste('number of genes p =', pp))+
     theme(legend.position = 'right', axis.text.x = element_text(size=10),axis.text.y = element_text(size=10))+
-    scale_color_manual(values=cbPalette[2:7])+
-    scale_linetype_manual(values=2:7)+
+    scale_color_manual(values=cbPalette[1:7])+
+    scale_linetype_manual(values=1:7)+
     facet_wrap(~n, labeller = label_both)
   ggsave(plot_all, filename = paste0('plot/ROC_alt3_p_',pp,'.png'), width = 11.7*1.9,
          height = 4*1.9, units = 'cm')

@@ -11,17 +11,19 @@ setwd(filepath)
 
 
 args = commandArgs(trailingOnly = T) # (n p null1 2 1),  n and p override by reference data set, e.g. args = c(100, 200, 'null2', 100, 8, 1)
+# args = c(50, 127, 'alt1', 20, 'zinegbin', 'chain_small', 0, 1, 1)
 n = as.integer(args[1])
 p = as.integer(args[2])
 choose_model = as.character(args[3])
 nreps = as.integer(args[4])
-run_rep = as.integer(args[5])
-part = as.character(args[6])
-distr = ifelse(is.na(args[7]), NA, as.character(args[7]))
-if(is.na(distr)) distr = NULL
+distr = as.character(args[5])
+network_option = as.character(args[6])
+network_condition_number = as.numeric(args[7]) 
+run_rep = as.integer(args[8])
+part = as.character(args[9])
 
 
-load(paste0('dist_data/', distr, '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
+load(paste0('dist_data/', distr,'/', network_option, '/cond_', network_condition_number, '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
 
 
 source('lib/func_libs.R')
@@ -55,7 +57,7 @@ lambda_seq = sort(lambda_seq, decreasing = T)
 switch(
   part,
   '1' = {
-    cat('CoNet \n')
+    cat('CoNet/ReBoot \n')
     roc = compare_methods(data_rep[,run_rep, drop=F],
                                     est_mat = c('covariance', 'precision')[1],
                                     method = c('CoNet', 'SparCC','CCLasso', 'COAT',
@@ -143,4 +145,5 @@ switch(
 cat('Done \n')
 
 
-save(list = c('roc'), file=paste0('dist_data/', option$distr, '/', choose_model,'/res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData'))
+save(list = c('roc'), file=
+       paste0('dist_data/', option$distr,'/', option$network_option, '/cond_', option$network_condition_number, '/', choose_model,'/res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData'))

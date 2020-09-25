@@ -242,23 +242,55 @@ import_files = list.files()
 sapply(import_files, source)
 setwd(filepath)
 
-SpiecEasi_graph_Sigma = function(p,e, type='erdos_renyi', graph = NULL){
-
-  d <- p
-
+SpiecEasi_graph_Sigma = function(p,e, type, graph = NULL, network_condition_number){
+  
+  if(!is.null(graph)){
+    Prec  <- graph2prec(graph, posThetaLims = c(2, 3), # this is precision strength range
+                        targetCondition = network_condition_number, # this is condition number kappa
+                        epsBin = 0.01, numBinSearch = 100) # here can set different generating parameters
+    Omega = diag(1/sqrt(diag(Prec))) %*% Prec %*% diag(1/sqrt(diag(Prec)))
+    Cor = cov2cor(prec2cov(Prec))
+    A_cov = (abs(Cor)>1e-11)*1
+    diag(A_cov) = 0
+  }
+    
   if(is.null(graph)){
-    graph <- make_graph(type, d, e) # choose from band, cluster, erdos_renyi, hub, scale_free, block; can also write my own graph (essentially an adjacency matrix)
+    if(type %in% c('band', 'cluster', 'erdos_renyi', 'hub', 'scale_free', 'block')){
+      d <- p
+      graph <- make_graph(type, d, e) # choose from band, cluster, erdos_renyi, hub, scale_free, block; can also write my own graph (essentially an adjacency matrix)
+      Prec  <- graph2prec(graph, posThetaLims = c(2, 3), # this is precision strength range
+                          targetCondition = network_condition_number, # this is condition number kappa
+                          epsBin = 0.01, numBinSearch = 100) # here can set different generating parameters
+      Omega = diag(1/sqrt(diag(Prec))) %*% Prec %*% diag(1/sqrt(diag(Prec)))
+      Cor = cov2cor(prec2cov(Prec))
+      A_cov = (abs(Cor)>1e-11)*1
+      diag(A_cov) = 0
+      
+    }else if(type %in% c('chain_small', 'chain_large')){
+      library(stats)
+      
+      if(type=='chain_small'){
+        # create a toeplitz matrix
+        Cor<- toeplitz(0.5^(0:(p-1)))
+      }else{
+        Cor<-  toeplitz(0.8^(0:(p-1)))
+      }
+      
+      Omega = solve(Cor)
+      graph = 1*(abs(Omega)>1e-11)
+      A_cov = 1*(abs(Cor)>1e-11)
+      diag(graph)<-diag(A_cov)<-0
+
+    }else{
+      stop('error: type of graph do not match pool of available graphs')
+    }
+
   }
   
-  Prec  <- graph2prec(graph, posThetaLims = c(2, 3), # this is precision strength range
-                      targetCondition = 1000, # this is condition number kappa
-                      epsBin = 0.01, numBinSearch = 100) # here can set different generating parameters
-  Cor   <- cov2cor(prec2cov(Prec))
+
+
   
-  A_cov = (abs(Cor)>1e-11)*1
-  diag(A_cov) = 0
-  
-  return(list(Sigma = Cor, A_inv = graph, Omega = solve(Cor), A_cov = A_cov))
+  return(list(Sigma = Cor, A_inv = graph, Omega = Omega, A_cov = A_cov))
   
 }
 
