@@ -34,7 +34,9 @@ reference_data = amgut1.filt
 # p = 200
 
 args = commandArgs(trailingOnly = T) # (n p null1 2),  n and p override by reference data set, e.g. 
+print(args)
 # args = c(50, 127, 'alt1', 20, 'zinegbin', 'chain_small', 0)
+# args = c(50, 40, 'alt2', 20, 'none', 'chain_small', 0)
 # args = c(20, 30, 'null2', 2)
 # args = c(100, 127, 'null1.1', 100)
 n = as.integer(args[1])
@@ -156,9 +158,9 @@ for(k in 1:nreps){
 }
 
 save(data_rep, file = 
-       paste0('dist_data/', option$distr,'/', option$network_option, '/cond_', option$network_condition_number, '/n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
+       paste0('dist_data/', distr,'/', network_option, '/cond_', network_condition_number, '/n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
 save(list=c('data_rep', 'option', 'n', 'p'), file = 
-       paste0('dist_data/', option$distr,'/', option$network_option, '/cond_', option$network_condition_number,  '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
+       paste0('dist_data/', distr,'/', network_option, '/cond_', network_condition_number,  '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
 
 
 

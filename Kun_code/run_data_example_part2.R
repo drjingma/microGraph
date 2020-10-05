@@ -146,4 +146,4 @@ cat('Done \n')
 
 
 save(list = c('roc'), file=
-       paste0('dist_data/', option$distr,'/', option$network_option, '/cond_', option$network_condition_number, '/', choose_model,'/res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData'))
+       paste0('dist_data/', distr,'/', network_option, '/cond_', network_condition_number, '/', choose_model,'/res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData'))

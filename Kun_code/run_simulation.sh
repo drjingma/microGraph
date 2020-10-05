@@ -1,12 +1,17 @@
 #!/bin/sh
-
-for n in 100 200 500
+for p in 127
   do
-  for i in {40..50..1} 
+  for i in {1..200..1} 
     do
-    for j in 1 2 3 4 5 6 7
+    for j in {1..7..1}
       do
-      qsub -cwd -e iotrash/ -o iotrash/ run_data_example_part2.csh $n 200 null2 100 $i $j rmvnorm_mu04
-    done
+	  for n in 289
+	    do
+        qsub -cwd -q shojaie-normal.q -e iotrash/ -o iotrash/ run_data_example_part2.csh $n $p alt1 200 zinegbin erdos_renyi 100 $i $j
+        qsub -cwd -q shojaie-normal.q -e iotrash/ -o iotrash/ run_data_example_part2.csh $n $p alt1 200 zinegbin erdos_renyi 1000 $i $j
+        qsub -cwd -q shojaie-normal.q -e iotrash/ -o iotrash/ run_data_example_part2.csh $n $p alt1 200 zinegbin chain_large 0 $i $j
+        qsub -cwd -q shojaie-normal.q -e iotrash/ -o iotrash/ run_data_example_part2.csh $n $p alt1 200 zinegbin chain_small 0 $i $j
+      done
+	done
   done
 done
