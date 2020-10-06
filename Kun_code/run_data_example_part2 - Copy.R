@@ -40,8 +40,8 @@ load(paste0('dist_data/', distr,'/', network_option, '/cond_', network_condition
 
 
 source('lib/func_libs.R')
-source('Kun_code/generation_function.R')
-source('Kun_code/method_function.R')
+source('Kun_code/generation_function - Copy.R')
+source('Kun_code/method_function - Copy.R')
 library(SpiecEasi)
 library(MASS)
 

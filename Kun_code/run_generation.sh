@@ -37,3 +37,31 @@ for p in 100 200
     Rscript ~/Desktop/micro_net/Kun_code/run_data_example.R $n $p alt2 200 none chain_small 0 &
   done
 done
+
+
+
+for p in 127
+  do
+  for n in 100 150 200 289
+    do
+    Rscript ~/Desktop/micro_net/Kun_code/"run_data_example - Copy.R" $n $p alt1 200 zinegbin cov_erdos_renyi 100 &
+  done
+done
+
+for p in 200 100
+  do
+  for n in 100 200 500
+    do
+    Rscript ~/Desktop/micro_net/Kun_code/"run_data_example - Copy.R" $n $p alt2 200 none cov_erdos_renyi 100 &
+  done
+done
+
+
+for p in 200 100
+  do
+  for n in 100 200 500
+    do
+    Rscript ~/Desktop/micro_net/Kun_code/"run_data_example - Copy.R" $n $p null2 200 none_sparse none 0 &
+  done
+done
+

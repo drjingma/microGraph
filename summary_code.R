@@ -277,8 +277,7 @@ get_summary_roc = function(choose_model, n, p, nreps, part, part_name, copula_di
   # all models we compare the inverse cov graph ROC
   # to have an 'averaged' ROC curve, we may take average of fp and tp at each grid? (since we are using the same sequence of lambda)
   res_for_20 = lapply(1:50, function(run_rep){
-    load_file = paste0(filepath,
-                       '/dist_data/', copula_distr,'/', network_option, '/cond_', network_condition_number,'/', choose_model, '/res_n_', n, '_p_', p, '_', choose_model, 
+    load_file = paste0('dist_data/', copula_distr,'/', network_option, '/cond_', network_condition_number,'/', choose_model, '/res_n_', n, '_p_', p, '_', choose_model, 
                        '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData')
     #print(load_file)
     tryCatch(load(load_file), error=function(e)print(load_file))
@@ -363,7 +362,7 @@ plot_roc = function(roc_res, target){
 
 # if to plot all methods together:
 output_plot_all = function(choose_model, n, p, nreps, part_name, copula_distr, network_option, network_condition_number, target){
-  data = do.call(rbind, lapply(1:7, function(part){
+  data = do.call(rbind, lapply(c(1:5,6, 7), function(part){
     roc_res = get_summary_roc(choose_model, n, p, nreps, part, part_name, copula_distr, network_option, network_condition_number)
     plot_roc(roc_res, target)$data
   }))
@@ -476,7 +475,7 @@ if(T){
   choose_model = 'alt2'
   network_option='erdos_renyi'
   network_condition_number = 1000 
-}
+} # missing some method 6, only use up to 20 reps for now
 
 {
   target = 'inv' # or 'cov'
@@ -492,7 +491,7 @@ if(T){
   choose_model = 'alt2'
   network_option='chain_large'
   network_condition_number = 0 
-}
+} # for method 6 missing, seems to be error. skip method 6 results
 
 
 if(T){
@@ -512,8 +511,8 @@ plot_all = ggplot(tmpdata[tmpdata$n %in% c(100,200,500),], aes(x=fp, y=tp, group
   theme(legend.position = 'right')+
   theme(legend.title = element_blank())+
   facet_wrap(~n, labeller = label_both, nrow = 2, ncol=2)+
-  scale_color_manual(values = cbPalette[2:7])+
-  scale_linetype_manual(values = c(2:7))
+  scale_color_manual(values = cbPalette[c(2:5,6, 7)])+
+  scale_linetype_manual(values = c(2:5,6, 7))
 ggsave(plot_all, filename = paste0('plot/(50 reps)ROC_alt2_',target, '_',network_option, network_condition_number,'.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
 
 tmpdata2 = with(tmpdata, aggregate(time, by = list(n=n, p=p, method=method), FUN=mean, ))
@@ -521,14 +520,14 @@ for(i in c(1))tmpdata2[,i] = as.numeric(levels(tmpdata2[,i]))[tmpdata2[,i]]
 plot_time = ggplot(tmpdata2[tmpdata2$n %in% c(100,200,500),], aes(x=n, y=log10(x), group=method, color = method,linetype=method))+
   geom_line(size=1)+
   geom_point(size=2, shape=18)+
-  scale_shape_manual(values=2:7)+
+  scale_shape_manual(values=c(2:5,6,7))+
   xlab('n')+
   ylab('log10(time) (seconds)')+
   theme(legend.position = 'right')+
   theme(legend.title = element_blank())+
-  scale_color_manual(values = cbPalette[2:7])+
-  scale_linetype_manual(values = c(2:7))+
-  scale_x_continuous(breaks=c(100, 150, 200, 250))
+  scale_color_manual(values = cbPalette[c(2:5,6, 7)])+
+  scale_linetype_manual(values = c(2:5,6,7))+
+  scale_x_continuous(breaks=c(100, 200,300, 400, 500))
 ggsave(plot_time, filename = paste0('plot/time_alt2_',target, '_',network_option, network_condition_number,'.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
 
 }

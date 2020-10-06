@@ -49,7 +49,7 @@ choose_model = as.character(args[3]) # choose among 'null1' (shuffle reference d
                                     # 'alt3' (generate from logisitic normal multinomial with fixed total count)
 nreps = as.integer(args[4]) # just run 200 for all methods
 distr = as.character(args[5]) # specify the distribution for copula model, if used 
-network_option = as.character(args[6]) # 'erdos_renyi', or 'chain_small', 'chain_large' for AR(1) (small: rho=0.5, large:rho=0.8)
+network_option = as.character(args[6]) # 'erdos_renyi', or 'chain_small', 'chain_large' for AR(1) (small: rho=0.5, large:rho=0.8), 'cov_erdos_renyi' for correlation based graph
 network_condition_number = as.numeric(args[7]) # specify the condition number of the inverse covariance matrix
 
 set.seed(102)
@@ -82,7 +82,7 @@ if(choose_model == 'null1.1'){
 if(choose_model == 'null2'){
   ## Null 2
   # generate from Dirichlet distribution, so will assume both inv and cov based graph being empty?
-  mu = runif(p, 0, 4) # the mu is for underlying log-normal of Dirichlet parameters
+  mu = runif(p, 0, 8) # the mu is for underlying log-normal of Dirichlet parameters
   alpha=100
   library_scale = rnegbin(n,mu=3e4, theta=9e8/(3e6-3e4)) # use library_scale to directly specify the total counts per sample
   # library_scale = rep(3e4, n)

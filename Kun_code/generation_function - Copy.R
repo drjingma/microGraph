@@ -281,14 +281,25 @@ SpiecEasi_graph_Sigma = function(p,e, type, graph = NULL, network_condition_numb
       A_cov = 1*(abs(Cor)>1e-11)
       diag(graph)<-diag(A_cov)<-0
 
+    }else if(type %in% c('cov_erdos_renyi')){
+      d <- p
+      graph <- make_graph('erdos_renyi', d, e) # choose from band, cluster, erdos_renyi, hub, scale_free, block; can also write my own graph (essentially an adjacency matrix)
+      Cov  <- graph2prec(graph, posThetaLims = c(2, 3), # this is precision strength range
+                          targetCondition = network_condition_number, # this is condition number kappa
+                          epsBin = 0.01, numBinSearch = 100) # here can set different generating parameters
+      Cor = diag(1/sqrt(diag(Cov))) %*% Cov %*% diag(1/sqrt(diag(Cov)))  
+      Omega = solve(Cor)
+      A_cov = (abs(Cor)>1e-11)*1
+      diag(A_cov) = 0
+      graph = (abs(Omega)>1e-11)*1
+      diag(graph) <-0
+    
     }else{
       stop('error: type of graph do not match pool of available graphs')
     }
 
   }
   
-
-
   
   return(list(Sigma = Cor, A_inv = graph, Omega = Omega, A_cov = A_cov))
   
