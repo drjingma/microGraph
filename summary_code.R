@@ -276,7 +276,7 @@ ggsave(null_plot, filename = paste0('plot/type1error_null1.1_null2.png'), width 
 get_summary_roc = function(choose_model, n, p, nreps, part, part_name, copula_distr, network_option, network_condition_number){
   # all models we compare the inverse cov graph ROC
   # to have an 'averaged' ROC curve, we may take average of fp and tp at each grid? (since we are using the same sequence of lambda)
-  res_for_20 = lapply(1:200, function(run_rep){
+  res_for_20 = lapply(1:50, function(run_rep){
     load_file = paste0(filepath,
                        '/dist_data/', copula_distr,'/', network_option, '/cond_', network_condition_number,'/', choose_model, '/res_n_', n, '_p_', p, '_', choose_model, 
                        '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData')
@@ -447,7 +447,7 @@ if(T){
   plot_time = ggplot(tmpdata2[tmpdata2$n %in% c(100,150,200,289),], aes(x=n, y=log10(x), group=method, color = method,linetype=method))+
     geom_line(size=1)+
     geom_point(size=2, shape=18)+
-    scale_shape_manual(values=1:7)+
+    scale_shape_manual(values=2:7)+
     xlab('n')+
     ylab('log10(time) (seconds)')+
     theme(legend.position = 'right')+
@@ -495,14 +495,15 @@ if(T){
 }
 
 
-data = lapply(c(100, 150,200), function(n){
+if(T){
+  data = lapply(c(100,200, 500), function(n){
   output_plot_all(choose_model,n=n, p=200, nreps=200, part_name, copula_distr,network_option, network_condition_number, target)$data
 })
 data = do.call(rbind, data)
 data$n = as.factor(data$n)
 
-tmpdata = data[data$group=='mean',]
-plot_all = ggplot(tmpdata[tmpdata$n %in% c(100,150,200,289),], aes(x=fp, y=tp, group=method, color = method,linetype=method))+
+tmpdata = data[data$group=='mean' & data$method != 'ReBoot',]
+plot_all = ggplot(tmpdata[tmpdata$n %in% c(100,200,500),], aes(x=fp, y=tp, group=method, color = method,linetype=method))+
   geom_line(size=1.2)+
   geom_abline(slope=1, intercept=0,linetype = 3)+
   xlab('False Positive')+
@@ -511,100 +512,73 @@ plot_all = ggplot(tmpdata[tmpdata$n %in% c(100,150,200,289),], aes(x=fp, y=tp, g
   theme(legend.position = 'right')+
   theme(legend.title = element_blank())+
   facet_wrap(~n, labeller = label_both, nrow = 2, ncol=2)+
-  scale_color_manual(values = cbPalette[1:7])+
-  scale_linetype_manual(values = c(1:7))
-ggsave(plot_all, filename = paste0('plot/(50 reps)ROC_alt1_',target, '_',network_option, network_condition_number,'.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
+  scale_color_manual(values = cbPalette[2:7])+
+  scale_linetype_manual(values = c(2:7))
+ggsave(plot_all, filename = paste0('plot/(50 reps)ROC_alt2_',target, '_',network_option, network_condition_number,'.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
 
+tmpdata2 = with(tmpdata, aggregate(time, by = list(n=n, p=p, method=method), FUN=mean, ))
+for(i in c(1))tmpdata2[,i] = as.numeric(levels(tmpdata2[,i]))[tmpdata2[,i]]
+plot_time = ggplot(tmpdata2[tmpdata2$n %in% c(100,200,500),], aes(x=n, y=log10(x), group=method, color = method,linetype=method))+
+  geom_line(size=1)+
+  geom_point(size=2, shape=18)+
+  scale_shape_manual(values=2:7)+
+  xlab('n')+
+  ylab('log10(time) (seconds)')+
+  theme(legend.position = 'right')+
+  theme(legend.title = element_blank())+
+  scale_color_manual(values = cbPalette[2:7])+
+  scale_linetype_manual(values = c(2:7))+
+  scale_x_continuous(breaks=c(100, 150, 200, 250))
+ggsave(plot_time, filename = paste0('plot/time_alt2_',target, '_',network_option, network_condition_number,'.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
 
-
-data2 = lapply(c(100, 200, 500), function(n){
-  tmp = lapply(c(20, 50, 100, 150, 200), function(p){
-    output_plot_all('alt2',n=n, p=p, nreps=100, part_name, copula_distr)$data
-  })
-  do.call(rbind, tmp)
-})
-data2 = do.call(rbind, data2)
-data2$p = as.factor(data2$p)
-
-for(nn in c(100, 200, 500)){
-  tmpdata2 = data2[data2$group=='mean'& data2$n==nn,]
-  plot_all = ggplot(tmpdata2, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
-    geom_line(size=1.2)+
-    geom_abline(slope=1, intercept=0,linetype = 3)+
-    xlab('False Positive')+
-    ylab('True Positive')+
-    # ggtitle(paste('sample size n =', nn))+
-    theme(legend.position = 'right', axis.text.x = element_text(size=10),axis.text.y = element_text(size=10))+
-    scale_color_manual(values=cbPalette[1:7])+
-    scale_linetype_manual(values=1:7)+
-    facet_wrap(~p, labeller = label_both)
-  ggsave(plot_all, filename = paste0('plot/ROC_alt2_n_',nn,'.png'), width = 11.7*1.9, height = 8*1.9, units = 'cm')
-  
-}
-
-for(pp in c(20,50,100,150,200)){
-  tmpdata2 = data2[data2$group=='mean'& data2$p==pp,]
-  plot_all = ggplot(tmpdata2, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
-    geom_line(size=1.2)+
-    geom_abline(slope=1, intercept=0,linetype = 3)+
-    xlab('False Positive')+
-    ylab('True Positive')+
-    # ggtitle(paste('number of genes p =', pp))+
-    theme(legend.position = 'right', axis.text.x = element_text(size=10),axis.text.y = element_text(size=10))+
-    scale_color_manual(values=cbPalette[1:7])+
-    scale_linetype_manual(values=1:7)+
-    facet_wrap(~n, labeller = label_both)
-  ggsave(plot_all, filename = paste0('plot/ROC_alt2_p_',pp,'.png'), width = 11.7*1.9, height = 4*1.9, units = 'cm')
-  
 }
 
 
-
-
-data3 = lapply(c(100, 200, 500), function(n){
-  tmp = lapply(c(20, 50, 100, 150, 200), function(p){
-    output_plot_all('alt3',n=n, p=p, nreps=100, part_name, copula_distr)$data
-  })
-  do.call(rbind, tmp)
-})
-data3 = do.call(rbind, data3)
-data3$p = as.factor(data3$p)
-
-for(nn in c(100, 200, 500)){
-  tmpdata3 = data3[data3$group=='mean'& data3$n==nn,]
-  plot_all = ggplot(tmpdata3, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
-    geom_line(size=1.2)+
-    geom_abline(slope=1, intercept=0,linetype = 3)+
-    xlab('False Positive')+
-    ylab('True Positive')+
-#    ggtitle(paste('sample size n =', nn))+
-    theme(legend.position = 'right', axis.text.x = element_text(size=10),axis.text.y = element_text(size=10))+
-    scale_color_manual(values=cbPalette[1:7])+
-    scale_linetype_manual(values=1:7)+
-    
-    facet_wrap(~p, labeller = label_both)
-  ggsave(plot_all, filename = paste0('plot/ROC_alt3_n_',nn,'.png'), width = 11.7*1.9, 
-         height = 8*1.9, units = 'cm')
-  
-}
-
-for(pp in c(20,50,100,150,200)){
-  tmpdata3 = data3[data3$group=='mean'& data3$p==pp,]
-  plot_all = ggplot(tmpdata3, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
-    geom_line(size=1.2)+
-    geom_abline(slope=1, intercept=0,linetype = 3)+
-    xlab('False Positive')+
-    ylab('True Positive')+
-   # ggtitle(paste('number of genes p =', pp))+
-    theme(legend.position = 'right', axis.text.x = element_text(size=10),axis.text.y = element_text(size=10))+
-    scale_color_manual(values=cbPalette[1:7])+
-    scale_linetype_manual(values=1:7)+
-    facet_wrap(~n, labeller = label_both)
-  ggsave(plot_all, filename = paste0('plot/ROC_alt3_p_',pp,'.png'), width = 11.7*1.9,
-         height = 4*1.9, units = 'cm')
-  
-}
-
+# 
+# data3 = lapply(c(100, 200, 500), function(n){
+#   tmp = lapply(c(20, 50, 100, 150, 200), function(p){
+#     output_plot_all('alt3',n=n, p=p, nreps=100, part_name, copula_distr)$data
+#   })
+#   do.call(rbind, tmp)
+# })
+# data3 = do.call(rbind, data3)
+# data3$p = as.factor(data3$p)
+# 
+# for(nn in c(100, 200, 500)){
+#   tmpdata3 = data3[data3$group=='mean'& data3$n==nn,]
+#   plot_all = ggplot(tmpdata3, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
+#     geom_line(size=1.2)+
+#     geom_abline(slope=1, intercept=0,linetype = 3)+
+#     xlab('False Positive')+
+#     ylab('True Positive')+
+# #    ggtitle(paste('sample size n =', nn))+
+#     theme(legend.position = 'right', axis.text.x = element_text(size=10),axis.text.y = element_text(size=10))+
+#     scale_color_manual(values=cbPalette[1:7])+
+#     scale_linetype_manual(values=1:7)+
+#     
+#     facet_wrap(~p, labeller = label_both)
+#   ggsave(plot_all, filename = paste0('plot/ROC_alt3_n_',nn,'.png'), width = 11.7*1.9, 
+#          height = 8*1.9, units = 'cm')
+#   
+# }
+# 
+# for(pp in c(20,50,100,150,200)){
+#   tmpdata3 = data3[data3$group=='mean'& data3$p==pp,]
+#   plot_all = ggplot(tmpdata3, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
+#     geom_line(size=1.2)+
+#     geom_abline(slope=1, intercept=0,linetype = 3)+
+#     xlab('False Positive')+
+#     ylab('True Positive')+
+#    # ggtitle(paste('number of genes p =', pp))+
+#     theme(legend.position = 'right', axis.text.x = element_text(size=10),axis.text.y = element_text(size=10))+
+#     scale_color_manual(values=cbPalette[1:7])+
+#     scale_linetype_manual(values=1:7)+
+#     facet_wrap(~n, labeller = label_both)
+#   ggsave(plot_all, filename = paste0('plot/ROC_alt3_p_',pp,'.png'), width = 11.7*1.9,
+#          height = 4*1.9, units = 'cm')
+#   
+# }
+# 
 
 # output_plot_all('alt2',n=200, p=200, nreps=100, part_name, copula_distr)
 # output_plot_all('alt2',n=500, p=200, nreps=100, part_name, copula_distr)
