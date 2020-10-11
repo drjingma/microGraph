@@ -12,19 +12,22 @@ setwd(filepath)
 
 args = commandArgs(trailingOnly = T) # (n p null1 2 1),  n and p override by reference data set, e.g. args = c(100, 200, 'null2', 100, 8, 1)
 # args = c(100, 200, 'alt2', 200, 'none', 'chain_large', 0, 6, 6)
-n = as.integer(args[1])
-p = as.integer(args[2])
-choose_model = as.character(args[3])
-nreps = as.integer(args[4])
-distr = as.character(args[5])
-network_option = as.character(args[6])
-network_condition_number = as.numeric(args[7]) 
-run_rep = as.integer(args[8])
-part = as.character(args[9])
+n = as.integer(args[2])
+p = as.integer(args[3])
+choose_model = as.character(args[4])
+nreps = as.integer(args[5])
+distr = as.character(args[6])
+network_option = as.character(args[7])
+network_condition_number = as.numeric(args[8]) 
+run_rep = as.integer(args[9])
+part = as.character(args[10])
+save_folder_name = args[1]
+
+print(args)
 
 # check if file exist
 check_file=
-       paste0('dist_data/', distr,'/', network_option, '/cond_', network_condition_number, '/', choose_model,'/res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData')
+       paste0('data/',save_folder_name,'/', distr,'/', network_option, '/cond_', network_condition_number, '/', choose_model,'/res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData')
 
 if_have_file = tryCatch(
   {
@@ -33,10 +36,10 @@ if_have_file = tryCatch(
   ,error =  function(e) e
 )
 
-if('simpleError' %in% class(if_have_file)){
+if('simpleError' %in% class(if_have_file) | part==2){
   
 
-load(paste0('dist_data/', distr,'/', network_option, '/cond_', network_condition_number, '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
+load(paste0('data/',save_folder_name,'/',  distr,'/', network_option, '/cond_', network_condition_number, '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
 
 
 source('lib/func_libs.R')
@@ -58,7 +61,7 @@ x = sweep(x,1,STATS = rowSums(x), FUN='/')
 S <- var(log(x) - rowMeans(log(x)));
 # Generate lambda via lambda.min.ratio and nlambda
 lambda.max <- max(max(S - diag(p)), -min(S - diag(p)));
-lambda.min.ratio = 1e-4
+lambda.min.ratio = 1e-5
 lambda.min <- lambda.min.ratio * lambda.max;
 
 
@@ -159,7 +162,7 @@ cat('Done \n')
 
 
 save(list = c('roc'), file=
-       paste0('dist_data/', distr,'/', network_option, '/cond_', network_condition_number, '/', choose_model,'/res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData'))
+       paste0('data/',save_folder_name,'/', distr,'/', network_option, '/cond_', network_condition_number, '/', choose_model,'/res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData'))
 
 
 }

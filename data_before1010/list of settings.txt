@@ -1,11 +1,15 @@
 data stored into:
 	dist_data/distr/network_option/cond_#/model_type/...
 
+reference dataset was American Gut
+for random network, number of edges = p
+
 'null1' (shuffle reference data), 
 	not used for now
 
 'null1.1' (use copula model with ZINB marginal distr, based on reference data), 
 	set n=100, 150, 200, 289, p=127, distr = 'zinegbin', condition_number  = 0, network_option = 'none', 
+
 
 'null2' (generate from Dirichelt distribution with varying total count), 
 	set n=100, 200, 500, p=100,200, distr = 'none', condition_number =0, network_option='none'
@@ -14,12 +18,13 @@ data stored into:
 	set n=100, 150, 200,289,  p=127, distr = 'zinegbin', 
 		condition_number  = 100, 1000, network_option = 'erdos_renyi', 
 		or condition_number=0, network_option ='chain_small', 'chain_large' (condition number is determined fromm generation)
+		or condition_number =100, network_option = 'cov_erdos_renyi'
 
 'alt2' (generate from log-normal distribution directly)
 	set n=100, 200, 500, p=100, 200, distr ='none', 
 		condition_number  = 100, 1000, network_option = 'erdos_renyi', 
 		or condition_number=0, network_option ='chain_small', 'chain_large' (condition number is determined fromm generation)
-
+		or condition_number =100, network_option = 'cov_erdos_renyi'
 
 'alt3' (generate from logisitic normal multinomial with fixed total count)
 	not used for now

@@ -231,6 +231,8 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
         
       # constructing the RIC under alternative by thresholding the p values, for covariance graph only
       
+      # pvals have NA columns/rows due to insufficient data/too many zeros, for those entries we supply pvals=2 to denote non-edge
+      pvals[is.na(pvals)] <-2
       cov_tp <- cov_fp <- NULL
       for(p_thresh in seq(0, 1, length.out = 40)){
         tmp = calTprFpr(sigmaTrue = target_graph_cov, sigmaHat = (pvals<p_thresh))
@@ -319,8 +321,8 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
         # mean(pval_cov < 0.05)
         # mean(pval_cov < 0.05-sqrt(0.05*0.95/200)*1.96) # this is still showing inflated false positive
         
-        fp_null = mean(pval_cov<0.05)
-        fp_null_FDR = mean(p.adjust(pval_cov, method='fdr')<0.05)
+        fp_null = mean(pval_cov<0.05, na.rm=T)
+        fp_null_FDR = mean(p.adjust(pval_cov, method='fdr')<0.05, na.rm=T)
         
       }else{
         time = sum(system.time({

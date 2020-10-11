@@ -16,16 +16,18 @@ copula_distr = 'none'             # for alt2; also for null2
 
 
 # compute fp summary for null models, dist_data files
-get_summary_fp = function(choose_model, n, p, nreps, part, part_name, copula_distr, network_option, network_condition_number){
+get_summary_fp = function(folder_name, choose_model, n, p, nreps, part, part_name, copula_distr, network_option, network_condition_number){
   # conet and Sparcc have p values, others only fp_null
-  res_for_200 = do.call(rbind, lapply(1:200, function(run_rep){
+  res_for_200 = do.call(rbind, lapply(1:include, function(run_rep){
     load_file = paste0(filepath,
-                       '/dist_data/', copula_distr,'/', network_option, '/cond_', network_condition_number,'/', choose_model, '/res_n_', n, '_p_', p, '_', choose_model, 
+                       '/', folder_name, '/', copula_distr,'/', network_option, '/cond_', network_condition_number,'/', choose_model, '/res_n_', n, '_p_', p, '_', choose_model, 
                        '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData')
     # print(load_file)
-    tryCatch(load(load_file), error = function(e){
-      print(e)
-      print(load_file)})
+    iferror = tryCatch(load(load_file), error = function(e){
+      print(load_file)
+      return(e)
+      })
+    if('simpleError' %in% class(iferror)) return(NULL)
     if(part %in% c(1, 2)){
       rbind(data.frame(n=n, p=p, model = choose_model, method = part_name[[part]], 
                        fp=roc$fp_null$fp_null, adjust = 'none', rep = run_rep, time = roc$time),
@@ -39,7 +41,8 @@ get_summary_fp = function(choose_model, n, p, nreps, part, part_name, copula_dis
                  fp=roc$fp_inv_null, adjust = 'none', rep=run_rep, time = roc$time)
     }
   }))
-  res_for_200$method = factor(res_for_200$method, levels=do.call(c,part_name))
+  if(!is.null(res_for_200)){
+      res_for_200$method = factor(res_for_200$method, levels=do.call(c,part_name))
   
   output = with(res_for_200, aggregate(fp, by = list(n=n, p=p, model= model, method=method, adjust=adjust), 
                               function(x)mean(x,na.rm=T) ))
@@ -49,6 +52,10 @@ get_summary_fp = function(choose_model, n, p, nreps, part, part_name, copula_dis
   
   output$time = time_out$x
   output
+  }else{
+    NULL
+  }
+
   
   
 }
@@ -80,22 +87,38 @@ theme_set(theme_cowplot())
 
 
 
-# null1.1
+###### null1.1
+folder_name= 'data_before1010/dist_data'
+include=200
+
 copula_distr = 'zinegbin'
-
 choose_model = 'null1.1'
-
 network_option='none'
-
 network_condition_number = 0
 
 null1.1= lapply(c(100, 150, 200, 289), function(n)cbind(do.call(rbind, lapply(1:7,  function(part)
-  get_summary_fp(choose_model,n=n, p=127, nreps=200, part=part, part_name, copula_distr=copula_distr,
+  get_summary_fp(folder_name, choose_model,n=n, p=127, nreps=200, part=part, part_name, copula_distr=copula_distr,
                  network_option = network_option, network_condition_number = network_condition_number))),
   dist = copula_distr, network_option = network_option, network_condition_number = network_condition_number))
 null1.1 = do.call(rbind, null1.1)
 head(null1.1)
 
+## new version: with new ref
+## problem: with n=100, p=200, gCoda is not working
+folder_name= 'data/newref2p'
+include=20
+
+copula_distr = 'zinegbin'
+choose_model = 'null1.1'
+network_option='none'
+network_condition_number = 0
+
+null1.1= lapply(c(100, 200, 500), function(n)cbind(do.call(rbind, lapply(1:7,  function(part)
+  get_summary_fp(folder_name, choose_model,n=n, p=200, nreps=200, part=part, part_name, copula_distr=copula_distr,
+                 network_option = network_option, network_condition_number = network_condition_number))),
+  dist = copula_distr, network_option = network_option, network_condition_number = network_condition_number))
+null1.1 = do.call(rbind, null1.1)
+head(null1.1)
 
 
 # pp = ggplot(data = null1.1, aes(x=n, y=x, group=interaction(method,adjust), color=interaction(method, adjust)))+
@@ -120,8 +143,8 @@ pp = ggplot(data = null1.1_none, aes(x=n, y=x, group=method, color=method,
   theme(legend.title = element_blank())+
   scale_linetype_manual(values=1:7)+
   # ggtitle(paste0('dist: ', copula_distr, ', ', choose_model))+
-  scale_x_continuous(breaks=c(100, 150, 200, 250))
-ggsave(pp, filename = paste0('plot/type_I_null1.1.png'),width =11.7*1.7, height= 11.7*1.7, units = 'cm')
+  scale_x_continuous(breaks=c(100, 150, 200, 250, 300, 350, 400, 450, 500))
+ggsave(pp, filename = paste0('plot/newref_type_I_null1.1.png'),width =11.7*1.7, height= 11.7*1.7, units = 'cm')
 
 # summarize time information for each method under varying sample size
 
@@ -136,8 +159,8 @@ pp_time = ggplot(data = null1.1_none, aes(x=n, y=log10(time), group=method, colo
   theme(legend.title = element_blank())+
   scale_linetype_manual(values=1:7)+
   # ggtitle(paste0('dist: ', copula_distr, ', ', choose_model))+
-  scale_x_continuous(breaks=c(100, 150, 200, 250))
-ggsave(pp_time, filename = paste0('plot/time_null1.1.png'),width =11.7*1.7, height= 11.7*1.7, units = 'cm')
+  scale_x_continuous(breaks=c(100, 150, 200, 250, 300, 350, 400, 450, 500))
+ggsave(pp_time, filename = paste0('plot/newref_time_null1.1.png'),width =11.7*1.7, height= 11.7*1.7, units = 'cm')
 
 
 
@@ -155,13 +178,21 @@ ggsave(pp_time, filename = paste0('plot/time_null1.1.png'),width =11.7*1.7, heig
 
 
 
-# null2 model
+##### null2 model
+folder_name= 'data_before1010/dist_data'
 copula_distr = 'none'
-
 choose_model = 'null2'
 network_option='none'
-
 network_condition_number = 0
+
+### null2 with new parameters (changed mu and library_scale)
+folder_name= 'data/newref2p'
+include=20
+copula_distr = 'none'
+choose_model = 'null2'
+network_option='none'
+network_condition_number = 0
+
 
 # null2 = lapply(c(100, 200), function(p){
 #                   null2= lapply(c(100, 200, 500), function(n)
@@ -203,7 +234,7 @@ network_condition_number = 0
 null2 = lapply(c(200), function(p){
   null2= lapply(c(100, 200, 500), function(n)
     cbind(do.call(rbind, lapply(1:7,  function(part)
-      get_summary_fp(choose_model,n=n, p=p, nreps=200, part=part, part_name, 
+      get_summary_fp(folder_name, choose_model,n=n, p=p, nreps=200, part=part, part_name, 
                      copula_distr=copula_distr,network_option = network_option, 
                      network_condition_number = network_condition_number))),
       dist = copula_distr, 
@@ -232,7 +263,7 @@ pp1 =ggplot(data = null2_none, aes(x=n, y=x, group=method, color=method,
   scale_x_continuous(breaks=c(100,  200, 300,400,500))+
   scale_y_continuous(breaks=c(0,0.01,0.02,0.03,0.04,0.05,0.06))
 
-ggsave(pp1, filename = paste0('plot/type_I_null2.png'), width = 11.7*1.7, height = 11.7*1.7, units = 'cm')
+ggsave(pp1, filename = paste0('plot/newref_type_I_null2.png'), width = 11.7*1.7, height = 11.7*1.7, units = 'cm')
 
 pp_time = ggplot(data = null2_none, aes(x=n, y=log10(time), group=method, color=method, 
                                           linetype = method))+
@@ -246,7 +277,7 @@ pp_time = ggplot(data = null2_none, aes(x=n, y=log10(time), group=method, color=
   scale_linetype_manual(values=1:7)+
   # ggtitle(paste0('dist: ', copula_distr, ', ', choose_model))+
   scale_x_continuous(breaks=c(100,  200, 300,400,500))
-ggsave(pp_time, filename = paste0('plot/time_null2.png'),width =11.7*1.7, height= 11.7*1.7, units = 'cm')
+ggsave(pp_time, filename = paste0('plot/newref_time_null2.png'),width =11.7*1.7, height= 11.7*1.7, units = 'cm')
 
 
 
@@ -271,12 +302,72 @@ ggsave(null_plot, filename = paste0('plot/type1error_null1.1_null2.png'), width 
 # kable(null2.3, 'latex', booktab=T, col.names = c(names(null2.3)[1:5], 'False Positive Rate'))%>%
 #   kable_styling()
 
+
+########################
+copula_distr = 'none_sparse'
+choose_model = 'null2'
+network_option='none'
+network_condition_number = 0
+
+
+null2 = lapply(c(200), function(p){
+  null2= lapply(c(100, 200, 500), function(n)
+    cbind(do.call(rbind, lapply(2:7,  function(part)
+      get_summary_fp(choose_model,n=n, p=p, nreps=200, part=part, part_name, 
+                     copula_distr=copula_distr,network_option = network_option, 
+                     network_condition_number = network_condition_number))),
+      dist = copula_distr, 
+      network_option = network_option, 
+      network_condition_number = network_condition_number))
+  
+  null2 = do.call(rbind, null2)
+  null2
+})
+
+null2 = do.call(rbind, null2)
+head(null2)
+
+null2_none = null2[null2$adjust=='none' & null2$p==200,]
+pp1 =ggplot(data = null2_none, aes(x=n, y=x, group=method, color=method, 
+                                   linetype=method))+
+  coord_cartesian(ylim = c(0, min(max(null2_none$x), 0.2)))+
+  geom_line(size=1)+
+  scale_linetype_manual(values=2:7)+
+  geom_point(size=2, shape=18)+
+  geom_hline(yintercept = 0.05, color=1, linetype=2)+
+  theme(legend.title = element_blank())+
+  ylab('Type I Error')+
+  scale_shape_manual(values=2:7)+
+  scale_color_manual(values=cbPalette[c(2:7)])+
+  scale_x_continuous(breaks=c(100,  200, 300,400,500))+
+  scale_y_continuous(breaks=c(0,0.01,0.02,0.03,0.04,0.05,0.06))
+
+ggsave(pp1, filename = paste0('plot/type_I_null2_sparse.png'), width = 11.7*1.7, height = 11.7*1.7, units = 'cm')
+
+pp_time = ggplot(data = null2_none, aes(x=n, y=log10(time), group=method, color=method, 
+                                        linetype = method))+
+  # coord_cartesian(ylim = c(0, min(max(null1.1_none$time), 0.2)))+
+  geom_line(size=1)+
+  geom_point(size=2, shape=18)+
+  ylab('log10(time) (seconds)')+
+  scale_shape_manual(values=1:7)+
+  scale_color_manual(values=cbPalette[1:7])+
+  theme(legend.title = element_blank())+
+  scale_linetype_manual(values=1:7)+
+  # ggtitle(paste0('dist: ', copula_distr, ', ', choose_model))+
+  scale_x_continuous(breaks=c(100,  200, 300,400,500))
+ggsave(pp_time, filename = paste0('plot/time_null2.png'),width =11.7*1.7, height= 11.7*1.7, units = 'cm')
+
+
+
+
 #######################################################################
 # get ROC summary for alternative models, dist_data files
+include = 200
 get_summary_roc = function(choose_model, n, p, nreps, part, part_name, copula_distr, network_option, network_condition_number){
   # all models we compare the inverse cov graph ROC
   # to have an 'averaged' ROC curve, we may take average of fp and tp at each grid? (since we are using the same sequence of lambda)
-  res_for_20 = lapply(1:50, function(run_rep){
+  res_for_20 = lapply(1:include, function(run_rep){
     load_file = paste0('dist_data/', copula_distr,'/', network_option, '/cond_', network_condition_number,'/', choose_model, '/res_n_', n, '_p_', p, '_', choose_model, 
                        '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData')
     #print(load_file)
@@ -532,7 +623,102 @@ ggsave(plot_time, filename = paste0('plot/time_alt2_',target, '_',network_option
 
 }
 
+## plot for covariance based results
+{
+  target = 'cov' 
+  copula_distr = 'zinegbin'
+  choose_model = 'alt1'
+  network_option='cov_erdos_renyi'
+  network_condition_number = 100 
+}
+include=20
+if(T){
+  data = lapply(c(100,150, 200, 289), function(n){
+    output_plot_all(choose_model,n=n, p=127, nreps=200, part_name, copula_distr,network_option, network_condition_number, target)$data
+  })
+  data = do.call(rbind, data)
+  data$n = as.factor(data$n)
+  
+  tmpdata = data[data$group=='mean',]
+  plot_all = ggplot(tmpdata, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
+    geom_line(size=1.2)+
+    geom_abline(slope=1, intercept=0,linetype = 3)+
+    xlab('False Positive')+
+    ylab('True Positive')+
+    #ggtitle(paste('dist', copula_distr, 'n',nn, data$model[1]))+
+    theme(legend.position = 'right')+
+    theme(legend.title = element_blank())+
+    facet_wrap(~n, labeller = label_both, nrow = 2, ncol=2)+
+    scale_color_manual(values = cbPalette[c(1:7)])+
+    scale_linetype_manual(values = c(1:7))
+  ggsave(plot_all, filename = paste0('plot/(', include, ' reps)ROC_alt1_',target, '_',network_option, network_condition_number,'.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
+  
+  tmpdata2 = with(tmpdata, aggregate(time, by = list(n=n, p=p, method=method), FUN=mean, ))
+  for(i in c(1))tmpdata2[,i] = as.numeric(levels(tmpdata2[,i]))[tmpdata2[,i]]
+  plot_time = ggplot(tmpdata2, aes(x=n, y=log10(x), group=method, color = method,linetype=method))+
+    geom_line(size=1)+
+    geom_point(size=2, shape=18)+
+    scale_shape_manual(values=1:7)+
+    xlab('n')+
+    ylab('log10(time) (seconds)')+
+    theme(legend.position = 'right')+
+    theme(legend.title = element_blank())+
+    scale_color_manual(values = cbPalette)+
+    scale_linetype_manual(values = 1:7)+
+    scale_x_continuous(breaks=c(100, 150, 200, 250))
+  ggsave(plot_time, filename = paste0('plot/time_alt1_',target, '_',network_option, network_condition_number,'.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
+  
+}
+ 
+{
+  target = 'cov' 
+  copula_distr = 'none'
+  choose_model = 'alt2'
+  network_option='cov_erdos_renyi'
+  network_condition_number = 100 
+} 
+include=20
+if(T){
+  data = lapply(c(100, 200, 500), function(n){
+    output_plot_all(choose_model,n=n, p=200, nreps=200, part_name, copula_distr,network_option, network_condition_number, target)$data
+  })
+  data = do.call(rbind, data)
+  data$n = as.factor(data$n)
+  
+  tmpdata = data[data$group=='mean',]
+  plot_all = ggplot(tmpdata, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
+    geom_line(size=1.2)+
+    geom_abline(slope=1, intercept=0,linetype = 3)+
+    xlab('False Positive')+
+    ylab('True Positive')+
+    #ggtitle(paste('dist', copula_distr, 'n',nn, data$model[1]))+
+    theme(legend.position = 'right')+
+    theme(legend.title = element_blank())+
+    facet_wrap(~n, labeller = label_both, nrow = 2, ncol=2)+
+    scale_color_manual(values = cbPalette[c(1:7)])+
+    scale_linetype_manual(values = c(1:7))
+  ggsave(plot_all, filename = paste0('plot/(', include, ' reps)ROC_alt2_',target, '_',network_option, network_condition_number,'.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
+  
+  tmpdata2 = with(tmpdata, aggregate(time, by = list(n=n, p=p, method=method), FUN=mean, ))
+  for(i in c(1))tmpdata2[,i] = as.numeric(levels(tmpdata2[,i]))[tmpdata2[,i]]
+  plot_time = ggplot(tmpdata2, aes(x=n, y=log10(x), group=method, color = method,linetype=method))+
+    geom_line(size=1)+
+    geom_point(size=2, shape=18)+
+    scale_shape_manual(values=1:7)+
+    xlab('n')+
+    ylab('log10(time) (seconds)')+
+    theme(legend.position = 'right')+
+    theme(legend.title = element_blank())+
+    scale_color_manual(values = cbPalette)+
+    scale_linetype_manual(values = 1:7)+
+    scale_x_continuous(breaks=c(100, 150, 200, 250))
+  ggsave(plot_time, filename = paste0('plot/time_alt2_',target, '_',network_option, network_condition_number,'.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
+  
+}
 
+
+
+######
 # 
 # data3 = lapply(c(100, 200, 500), function(n){
 #   tmp = lapply(c(20, 50, 100, 150, 200), function(p){
@@ -578,42 +764,42 @@ ggsave(plot_time, filename = paste0('plot/time_alt2_',target, '_',network_option
 #   
 # }
 # 
-
+#
 # output_plot_all('alt2',n=200, p=200, nreps=100, part_name, copula_distr)
 # output_plot_all('alt2',n=500, p=200, nreps=100, part_name, copula_distr)
-
+#
 # inspect CClasso problem
 # nn=100
 # for(pp in c(20, 50, 100, 150, 200)){
 #   plot_all =output_plot_all('alt2',n=nn, p=pp, nreps=100, part_name, copula_distr)$plots
 #   ggsave(plot_all, filename = paste0('plot/', copula_distr, '_n_',nn,'_p_',pp,'alt2.png'))
 # }
-
-
+#
+#
 # output_plot_all('alt2',n=200, p=100, nreps=100, part_name, copula_distr)$plots
 # output_plot_all('alt2',n=200, p=150, nreps=100, part_name, copula_distr)$plots
 # output_plot_all('alt2',n=200, p=200, nreps=100, part_name, copula_distr)$plots
 
 
-
+######
 # summarize dataset sparsity level, output mean sparsity level of the whole dataset (across all cells and taxa)
-get_data_sparsity = function(choose_model, n, p, nreps, copula_distr, network_option, network_condition_number){
+get_data_sparsity = function(save_folder_name, choose_model, n, p, nreps, copula_distr, network_option, network_condition_number){
   load_file = paste0(filepath,
-                     '/dist_data/', copula_distr,'/', network_option, '/cond_', network_condition_number,'/n_', n, '_p_', p, '_', choose_model, 
+                     '/data/',save_folder_name,'/', copula_distr,'/', network_option, '/cond_', network_condition_number,'/n_', n, '_p_', p, '_', choose_model, 
                      '_nreps_', nreps, '_data_rep.RData')
 
   tryCatch(load(load_file), error = function(e)print(load_file))
   c(sparsity = mean(data_rep[[1, 1]]==0), n=n, p=p, model = choose_model, copula_distr = copula_distr, network_option = network_option, network_condition_number = network_condition_number)
 }
 
-tmp1 = do.call(rbind, lapply(c(100, 150, 200, 289), function(n){
-  get_data_sparsity('null1.1', n, 127, 200, 'zinegbin', 'none', 0)
+tmp1 = do.call(rbind, lapply(c(100, 200,500), function(n){
+  get_data_sparsity('newref2p', 'null1.1', n, 200, 200, 'zinegbin', 'none', 0)
 }))
 
 tmp2 = do.call(rbind, lapply(c(100, 200, 500), function(n){
   rbind(
-    get_data_sparsity('null2', n, 100, 200, 'none', 'none', 0),
-    get_data_sparsity('null2', n, 200, 200, 'none', 'none', 0)
+    # get_data_sparsity('null2', n, 100, 200, 'none', 'none', 0),
+    get_data_sparsity('newref2p','null2', n, 200, 200, 'none', 'none', 0)
   )
 }))
 
