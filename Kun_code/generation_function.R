@@ -305,13 +305,13 @@ SpiecEasi_graph_Sigma = function(p,e, type, graph = NULL, network_condition_numb
   
 }
 
-SpiecEasi_generate = function(data, graph_Sigma, distr){
+SpiecEasi_generate = function(data, graph_Sigma, distr, n){
   depths <- rowSums(data) # raw counts data, rows are obs, n by p
   data.n  <- t(apply(data, 1, norm_to_total))
   data.cs <- round(data.n * min(depths))
   
   d <- ncol(data.cs)
-  n <- nrow(data.cs)
+  # n <- nrow(data.cs) # specify the sample size n we want
   e <- d
   
   
@@ -345,7 +345,8 @@ data_generation = function(n, p, option){
     if(option$model == 'copula'){
       data_list = SpiecEasi_generate(data = option$reference_data, 
                                       graph_Sigma = option$Sigma_list,
-                                     distr = option$distr)
+                                     distr = option$distr,
+                                     n=n)
       model_data = data_list$data
       n = nrow(model_data)
       p = ncol(model_data)
@@ -362,7 +363,8 @@ data_generation = function(n, p, option){
       # generate with SpiecEasi, with a chosen graph type and zero-inflated negative binomial marginal distribution
       data_list = SpiecEasi_generate(data = option$reference_data, 
                                      graph_Sigma = option$Sigma_list,
-                                     distr = option$distr)
+                                     distr = option$distr,
+                                     n=n)
       model_data = data_list$data
 
     }

@@ -105,15 +105,17 @@ head(null1.1)
 
 ## new version: with new ref
 ## problem: with n=100, p=200, gCoda is not working
-folder_name= 'data/newref2p'
-include=20
+folder_name= 'data/update1015'
+include=10
 
+copula_distr = 'pois'
 copula_distr = 'zinegbin'
+
 choose_model = 'null1.1'
 network_option='none'
 network_condition_number = 0
 
-null1.1= lapply(c(100, 200, 500), function(n)cbind(do.call(rbind, lapply(1:7,  function(part)
+null1.1= lapply(c(100, 150, 200, 250, 500), function(n)cbind(do.call(rbind, lapply(1:7,  function(part)
   get_summary_fp(folder_name, choose_model,n=n, p=200, nreps=200, part=part, part_name, copula_distr=copula_distr,
                  network_option = network_option, network_condition_number = network_condition_number))),
   dist = copula_distr, network_option = network_option, network_condition_number = network_condition_number))
@@ -133,7 +135,7 @@ head(null1.1)
 null1.1_none = null1.1[null1.1$adjust=='none', ]
 pp = ggplot(data = null1.1_none, aes(x=n, y=x, group=method, color=method, 
                                 linetype = method))+
-  coord_cartesian(ylim = c(0, min(max(null1.1_none$x), 0.2)))+
+  coord_cartesian(ylim = c(0, min(max(null1.1_none$x), 0.8)))+
   geom_line(size=1)+
   geom_point(size=2, shape=18)+
   ylab('Type I Error')+
@@ -144,7 +146,10 @@ pp = ggplot(data = null1.1_none, aes(x=n, y=x, group=method, color=method,
   scale_linetype_manual(values=1:7)+
   # ggtitle(paste0('dist: ', copula_distr, ', ', choose_model))+
   scale_x_continuous(breaks=c(100, 150, 200, 250, 300, 350, 400, 450, 500))
-ggsave(pp, filename = paste0('plot/newref_type_I_null1.1.png'),width =11.7*1.7, height= 11.7*1.7, units = 'cm')
+ggsave(pp, filename = paste0('plot/update1015_', copula_distr, '_type_I_null1.1.png'),width =11.7*1.7, height= 11.7*1.7, units = 'cm')
+
+null1.1_none[null1.1_none$method==part_name[5],]
+
 
 # summarize time information for each method under varying sample size
 
@@ -363,21 +368,29 @@ ggsave(pp_time, filename = paste0('plot/time_null2.png'),width =11.7*1.7, height
 
 #######################################################################
 # get ROC summary for alternative models, dist_data files
-include = 200
-get_summary_roc = function(choose_model, n, p, nreps, part, part_name, copula_distr, network_option, network_condition_number){
+include = 10
+get_summary_roc = function(folder_name, choose_model, n, p, nreps, part, part_name, copula_distr, network_option, network_condition_number){
   # all models we compare the inverse cov graph ROC
   # to have an 'averaged' ROC curve, we may take average of fp and tp at each grid? (since we are using the same sequence of lambda)
   res_for_20 = lapply(1:include, function(run_rep){
-    load_file = paste0('dist_data/', copula_distr,'/', network_option, '/cond_', network_condition_number,'/', choose_model, '/res_n_', n, '_p_', p, '_', choose_model, 
+    load_file = paste0(folder_name, '/', copula_distr,'/', network_option, '/cond_', network_condition_number,'/', choose_model, '/res_n_', n, '_p_', p, '_', choose_model, 
                        '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData')
     #print(load_file)
-    tryCatch(load(load_file), error=function(e)print(load_file))
+    iferror = tryCatch(load(load_file), error=function(e){
+      print(load_file)
+      e}
+      )
+    if('simpleError' %in% class(iferror)) return(NULL)
     list(n=n, p=p, model = choose_model, method = part_name[[part]],rep=run_rep,
          tp = roc$ROC_inv$tp, fp = roc$ROC_inv$fp, auc = roc$ROC_inv$AUC,
          tp_cov = roc$ROC_cov$tp, fp_cov = roc$ROC_cov$fp, auc_cov = roc$ROC_cov$AUC, time = roc$time)
 
   })
   # average time information
+  
+  res_for_20 = res_for_20[!sapply(res_for_20, is.null)]
+  if(length(res_for_20)==0) return(NULL)
+  
   ave_time = mean(do.call(c, sapply(res_for_20, `[`, 'time')))
   
   # inv ROC results
@@ -452,10 +465,10 @@ plot_roc = function(roc_res, target){
 }
 
 # if to plot all methods together:
-output_plot_all = function(choose_model, n, p, nreps, part_name, copula_distr, network_option, network_condition_number, target){
+output_plot_all = function(folder_name, choose_model, n, p, nreps, part_name, copula_distr, network_option, network_condition_number, target){
   data = do.call(rbind, lapply(c(1:5,6, 7), function(part){
-    roc_res = get_summary_roc(choose_model, n, p, nreps, part, part_name, copula_distr, network_option, network_condition_number)
-    plot_roc(roc_res, target)$data
+    roc_res = get_summary_roc(folder_name, choose_model, n, p, nreps, part, part_name, copula_distr, network_option, network_condition_number)
+    if(is.null(roc_res)){NULL}else{plot_roc(roc_res, target)$data}
   }))
   data$group = factor(data$group, levels = c(1:nreps, 'mean'))
   data$method = factor(data$method, levels=do.call(c,part_name))
@@ -475,8 +488,11 @@ output_plot_all = function(choose_model, n, p, nreps, part_name, copula_distr, n
 }
 
 
-### first get results for 50 replicates
+### first get results for a few replicates
 #alt1
+folder_name = 'data/newref2p'
+folder_name = 'data/update1015'
+copula_distr = 'pois'
 
 {
 target = 'inv' # or 'cov'
@@ -512,14 +528,14 @@ network_condition_number = 1000
 }
 
 if(T){
-  data = lapply(c(100, 150,200), function(n){
-    output_plot_all(choose_model,n=n, p=127, nreps=200, part_name, copula_distr,network_option, network_condition_number, target)$data
+  data = lapply(c(100, 150, 200, 250, 500), function(n){
+    output_plot_all(folder_name, choose_model,n=n, p=200, nreps=200, part_name, copula_distr,network_option, network_condition_number, target)$data
   })
   data = do.call(rbind, data)
   data$n = as.factor(data$n)
   
   tmpdata = data[data$group=='mean' & data$method != 'ReBoot',] # for
-  plot_all = ggplot(tmpdata[tmpdata$n %in% c(100,150,200,289),], aes(x=fp, y=tp, group=method, color = method,linetype=method))+
+  plot_all = ggplot(tmpdata, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
     geom_line(size=1.2)+
     geom_abline(slope=1, intercept=0,linetype = 3)+
     xlab('False Positive')+
@@ -527,14 +543,14 @@ if(T){
     #ggtitle(paste('dist', copula_distr, 'n',nn, data$model[1]))+
     theme(legend.position = 'right')+
     theme(legend.title = element_blank())+
-    facet_wrap(~n, labeller = label_both, nrow = 2, ncol=2)+
+    facet_wrap(~n, labeller = label_both, nrow = 2)+
     scale_color_manual(values = cbPalette[2:7])+
     scale_linetype_manual(values = c(2:7))
-  ggsave(plot_all, filename = paste0('plot/(200 reps)ROC_alt1_',target, '_',network_option, network_condition_number,'.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
+  ggsave(plot_all, filename = paste0('plot/(', include, ' reps)new_ROC_alt1_',target, '_',network_option, network_condition_number,'.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
   
   tmpdata2 = with(tmpdata, aggregate(time, by = list(n=n, p=p, method=method), FUN=mean, ))
   for(i in c(1))tmpdata2[,i] = as.numeric(levels(tmpdata2[,i]))[tmpdata2[,i]]
-  plot_time = ggplot(tmpdata2[tmpdata2$n %in% c(100,150,200,289),], aes(x=n, y=log10(x), group=method, color = method,linetype=method))+
+  plot_time = ggplot(tmpdata2, aes(x=n, y=log10(x), group=method, color = method,linetype=method))+
     geom_line(size=1)+
     geom_point(size=2, shape=18)+
     scale_shape_manual(values=2:7)+
@@ -550,7 +566,11 @@ if(T){
 } # generate the plots
 
 
-# alt2
+### alt2, with new graph (3p) and library_scale
+# missing some method 6, only use up to 10 reps for now
+folder_name = 'data/newref2p'
+
+
 {
   target = 'inv' # or 'cov'
   copula_distr = 'none'
@@ -566,7 +586,8 @@ if(T){
   choose_model = 'alt2'
   network_option='erdos_renyi'
   network_condition_number = 1000 
-} # missing some method 6, only use up to 20 reps for now
+  
+} 
 
 {
   target = 'inv' # or 'cov'
@@ -582,18 +603,18 @@ if(T){
   choose_model = 'alt2'
   network_option='chain_large'
   network_condition_number = 0 
-} # for method 6 missing, seems to be error. skip method 6 results
+} 
 
-
+include=10
 if(T){
-  data = lapply(c(100,200, 500), function(n){
-  output_plot_all(choose_model,n=n, p=200, nreps=200, part_name, copula_distr,network_option, network_condition_number, target)$data
+  data = lapply(c(100, 150,200,250, 500), function(n){
+  output_plot_all(folder_name,choose_model,n=n, p=200, nreps=200, part_name, copula_distr,network_option, network_condition_number, target)$data
 })
 data = do.call(rbind, data)
 data$n = as.factor(data$n)
 
 tmpdata = data[data$group=='mean' & data$method != 'ReBoot',]
-plot_all = ggplot(tmpdata[tmpdata$n %in% c(100,200,500),], aes(x=fp, y=tp, group=method, color = method,linetype=method))+
+plot_all = ggplot(tmpdata, aes(x=fp, y=tp, group=method, color = method,linetype=method))+
   geom_line(size=1.2)+
   geom_abline(slope=1, intercept=0,linetype = 3)+
   xlab('False Positive')+
@@ -601,10 +622,10 @@ plot_all = ggplot(tmpdata[tmpdata$n %in% c(100,200,500),], aes(x=fp, y=tp, group
   #ggtitle(paste('dist', copula_distr, 'n',nn, data$model[1]))+
   theme(legend.position = 'right')+
   theme(legend.title = element_blank())+
-  facet_wrap(~n, labeller = label_both, nrow = 2, ncol=2)+
+  facet_wrap(~n, labeller = label_both, nrow = 2)+
   scale_color_manual(values = cbPalette[c(2:5,6, 7)])+
   scale_linetype_manual(values = c(2:5,6, 7))
-ggsave(plot_all, filename = paste0('plot/(50 reps)ROC_alt2_',target, '_',network_option, network_condition_number,'.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
+ggsave(plot_all, filename = paste0('plot/(', include, ' reps)new_ROC_alt2_',target, '_',network_option, network_condition_number,'.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
 
 tmpdata2 = with(tmpdata, aggregate(time, by = list(n=n, p=p, method=method), FUN=mean, ))
 for(i in c(1))tmpdata2[,i] = as.numeric(levels(tmpdata2[,i]))[tmpdata2[,i]]
@@ -619,22 +640,22 @@ plot_time = ggplot(tmpdata2[tmpdata2$n %in% c(100,200,500),], aes(x=n, y=log10(x
   scale_color_manual(values = cbPalette[c(2:5,6, 7)])+
   scale_linetype_manual(values = c(2:5,6,7))+
   scale_x_continuous(breaks=c(100, 200,300, 400, 500))
-ggsave(plot_time, filename = paste0('plot/time_alt2_',target, '_',network_option, network_condition_number,'.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
+ggsave(plot_time, filename = paste0('plot/new_time_alt2_',target, '_',network_option, network_condition_number,'.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
 
 }
 
 ## plot for covariance based results
 {
   target = 'cov' 
-  copula_distr = 'zinegbin'
+  copula_distr = 'pois'
   choose_model = 'alt1'
   network_option='cov_erdos_renyi'
-  network_condition_number = 100 
+  network_condition_number = 1000 
 }
-include=20
+include=10
 if(T){
-  data = lapply(c(100,150, 200, 289), function(n){
-    output_plot_all(choose_model,n=n, p=127, nreps=200, part_name, copula_distr,network_option, network_condition_number, target)$data
+  data = lapply(c(100,150, 200, 250, 300), function(n){
+    output_plot_all(folder_name, choose_model,n=n, p=127, nreps=200, part_name, copula_distr,network_option, network_condition_number, target)$data
   })
   data = do.call(rbind, data)
   data$n = as.factor(data$n)

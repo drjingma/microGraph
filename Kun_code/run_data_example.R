@@ -13,18 +13,29 @@
  
 ## update on 10/10/2020:
 ## 1. change the reference dataset as from reference_data.Rdata. Can have p=200 and n=100, 200, 500 for all settings
-## 2. use #edge=2p for erdos_renyi graphs, under alt1 and alt2
-
+## 2. use #edge=3p for erdos_renyi graphs, under alt1 and alt2
 ## 3. change null2 library_scale (previously based on NB distribution) to be based on real data: sample from 1*min(seq_depth) to 10*min(seq_depth)
 ## 4. change the mean parameters under null2 with the new library_scale generation, still target 65% sparsity
-
 ## 5. change the penalize lambda sequence, with lambda.min.ratio=1e-5 (may help extend the ROC towards (1,1))
+
+## update on 10/15/2020:
+## 1. for only null1.1, set the sampled reference data set as nested; still keep random sampling for alt1
+## 2. for null1.1, try zinegbin, and try pois
+## 3. for alt1, try posi, for both inv and cov, erdos_renyi cond_1000
+
+## update on 10/19/2020
+## 1. for null1.1 and alt1, use american gut project data as previously did
+## 2. for null2 and alt2, generate total count based on the minimum sample depth we see in the data provided by Jing
+  ## notes: for alt2 and null2, run p=200 but the available reference data only have 127 available. But still just use its minimum seq depth
+## 3. use zinegbin for copular model; use 3*p number of edges for alternative models
 
 # filepath = '\\\\fs2-vip\\students\\yuek\\Desktop\\micro_net' #BOX
 # 
 # filepath = '/Users/Kun/Desktop/Dropbox/Microbial_Networks/microGraph' # MAC
 # 
 # filepath = 'E:\\Dropbox\\Microbial_Networks\\microGraph' #PC
+
+
 
 filepath = '~/Desktop/micro_net' #bayes
 
@@ -36,11 +47,15 @@ source('Kun_code/method_function.R')
 library(SpiecEasi)
 library(MASS)
 
-# data(amgut1.filt)
-# reference_data = amgut1.filt
+# use this as reference count data set
+data(amgut1.filt)
+reference_data = amgut1.filt
 
-load('Kun_code/reference_data.RData') # import reference_data (from counts table)
-reference_data = t(sub_counts)
+# use this for minimum sampling depth reference
+# load('Kun_code/reference_data.RData') 
+# reference_data = t(sub_counts)
+
+
 
 # dim(reference_data) #data format n by p
 # n = c(100, 200, 500)[1]
@@ -66,12 +81,12 @@ network_option = as.character(args[6]) # 'erdos_renyi', or 'chain_small', 'chain
 network_condition_number = as.numeric(args[7]) # specify the condition number of the inverse covariance matrix
 save_folder_name = as.character(args[8]) # subfolder name to save files
 
+
+
 set.seed(102)
-reference_data = reference_data[,sample(1:ncol(reference_data), size=p, replace = F)] # pick out p taxa
-
-min_seq_depth = min(rowSums(reference_data)) # determine the min_seq_depth
-
-reference_data = reference_data[sample(1:nrow(reference_data), size=n, replace = F),] # pick out n samples
+# do not need to subsample the samples of reference data; only subsample the taxa
+if(choose_model %in% c('null1', 'null1.1', 'alt1')) reference_data = reference_data[,sample(1:ncol(reference_data), size=p, replace = F)] # pick out p taxa
+min_seq_depth = round(min(rowSums(reference_data))) # determine the min_seq_depth
 
 
 #---------------
@@ -90,7 +105,7 @@ if(choose_model == 'null1'){
 if(choose_model == 'null1.1'){
   ## Null1 1.1
   # Use reference data set, marginal distributions are ZINB, and the network is set to empty
-
+  
   p = ncol(reference_data)
   # generate a null graph object
   option = list(hypothesis = 'null', model = 'copula', 
@@ -104,7 +119,7 @@ if(choose_model == 'null2'){
   ## generate from Dirichlet distribution, so will assume both inv and cov based graph being empty?
   
   # mu = runif(p, 0, 8) # the mu is for underlying log-normal of Dirichlet parameters
-  mu = runif(p, 0, 6)
+  mu = runif(p, 0, 4)
   alpha=100
   # library_scale = rnegbin(n,mu=3e4, theta=9e8/(3e6-3e4)) # use library_scale to directly specify the total counts per sample
   # library_scale = rep(3e4, n)
@@ -123,10 +138,9 @@ if(choose_model == 'null2'){
 if(choose_model=='alt1'){
   ## Alternative 1
   ## use Copula generative model, graph is based on inverse covariance matrix.
-
   p = ncol(reference_data)
   # Sigma_list = SpiecEasi_graph_Sigma(p,e=p, type = network_option, graph=NULL, network_condition_number = network_condition_number)
-  Sigma_list = SpiecEasi_graph_Sigma(p,e=2*p, type = network_option, graph=NULL, network_condition_number = network_condition_number)
+  Sigma_list = SpiecEasi_graph_Sigma(p,e=3*p, type = network_option, graph=NULL, network_condition_number = network_condition_number)
   
   
   option = list(hypothesis = 'alternative', model = 'copula', reference_data = reference_data, 
@@ -140,7 +154,7 @@ if(choose_model == 'alt2'){
   ## this graph corresponds to inverse covariance
   
   # Sigma_list  = SpiecEasi_graph_Sigma(p,e=p, type=network_option, graph = NULL, network_condition_number = network_condition_number)  # output=list(Sigma for covariance/Correlation, Omega for inv-cov, A for adjacency matrix)
-  Sigma_list  = SpiecEasi_graph_Sigma(p,e=2*p, type=network_option, graph = NULL, network_condition_number = network_condition_number)  # output=list(Sigma for covariance/Correlation, Omega for inv-cov, A for adjacency matrix)
+  Sigma_list  = SpiecEasi_graph_Sigma(p,e=3*p, type=network_option, graph = NULL, network_condition_number = network_condition_number)  # output=list(Sigma for covariance/Correlation, Omega for inv-cov, A for adjacency matrix)
   
   mu = runif(p, 0, 4)
   option = list(hypothesis = 'alternative', model = 'log-normal', mu = mu, Sigma_list = Sigma_list, 
@@ -153,7 +167,7 @@ if(choose_model == 'alt3'){
   ## generate graph, p nodes and e edges; 
 
   # Sigma_list  = SpiecEasi_graph_Sigma(p,e=p, type=network_option, graph = NULL, network_condition_number = network_condition_number)  # output=list(Sigma for covariance/Correlation, Omega for inv-cov, A for adjacency matrix)
-  Sigma_list  = SpiecEasi_graph_Sigma(p,e=2*p, type=network_option, graph = NULL, network_condition_number = network_condition_number)  # output=list(Sigma for covariance/Correlation, Omega for inv-cov, A for adjacency matrix)
+  Sigma_list  = SpiecEasi_graph_Sigma(p,e=3*p, type=network_option, graph = NULL, network_condition_number = network_condition_number)  # output=list(Sigma for covariance/Correlation, Omega for inv-cov, A for adjacency matrix)
   mu = runif(p, 0, 4)
   library_scale = rep(3e4,n)
   option = list(hypothesis = 'alternative', model = 'multinomial-log-normal', 

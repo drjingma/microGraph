@@ -492,7 +492,8 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
                                       thresh=0.05,# Threshold for StARS criterion.
                                       subsample.ratio=0.8, # Subsample size for StARS.
                                       rep.num = 20), # Number of subsamples for StARS.
-                                    lambda.min.ratio= min(lambda_seq)/max(lambda_seq), lambda.max = max(lambda_seq), nlambda=length(lambda_seq)
+                                    lambda.min.ratio= min(lambda_seq)/max(lambda_seq), 
+                                    lambda.max = max(lambda_seq), nlambda=length(lambda_seq)
                                     # , lambda = lambda_seq
         ) # lambda is for penalty parameter, is tuning parameter; override to set same as lambda_seq
         
@@ -501,7 +502,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       
       # Spiec_network$lambda
       # lambda_seq
-      
+      cat('done1')
       # the result should be a solution path over lambda; the path is adjacency matrix with diagonal being zero
       Spiec_ROC_res = huge::huge.roc(path = Spiec_network$est$path, 
                                      theta = target_graph_inv, verbose=FALSE)
@@ -510,14 +511,17 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # solve(Spiec_network$est$icov[[1]])[1:10, 1:10]
       # Spiec_network$est$cov[[1]][1:10, 1:10]
       ROC_inv = Spiec_ROC_res
-      
+      cat('done2')
             
       # thresholding the optimal cov matrix for ROC
       Spiec_cov = as.matrix(getOptCov(Spiec_network))
-      print(class(Spiec_cov))
-      ROC_cov = get_cov_ROC(Spiec_cov, target_graph_cov)
+      # print(class(Spiec_cov))
+      ROC_cov <- ROC_cov_pathbased <- NULL
       
+      if(F){
+              ROC_cov = get_cov_ROC(Spiec_cov, target_graph_cov)
       
+      cat('done3')
       # or use the cov path corresponding to the lambda path, and compute ROC. to eliminate very small values, make Cov into Cor and threhsold at 1e-11
       ROC_cov_pathbased = 
         huge::huge.roc(path = 
@@ -529,7 +533,9 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
                        theta = target_graph_cov)
 
       
-      
+      cat('done4')
+
+      }
       
       # also need to get fp at optimal tuning value for null model
       precision = getOptNet(Spiec_network)
@@ -537,7 +543,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       
       ROC = list(ROC_cov = ROC_cov, ROC_cov_pathbased=ROC_cov_pathbased,
                  ROC_inv = ROC_inv, fp_inv_null = fp_inv_null, time=time)
-      
+      cat('done5')
       # getOptMerge(Spiec_network) # symmetric matrix with edge-wise stability; used for getting 0/1 network
       # getOptInd(Spiec_network) # index of the selected lambda from provided lambda path
       # getOptiCov(Spiec_network) # the optimal inverse covariance matrix (glasso only)
@@ -568,21 +574,25 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # gcoda_network$opt.index  # if at the boundary may need to change lambda.min.ratio; however maximum cannot be changed... any reason how they choose the lambda.max?
       # gcoda_network$opt.icov
       
-      # based on thresholding the optimal cov (inverse of optimal icov)
-      gcoda_cov = solve(gcoda_network$opt.icov)
-      ROC_cov = get_cov_ROC(Cor = gcoda_cov, target_graph_cov)
-      
-      # based on the glasso path generated cov
-      ROC_cov_pathbased = 
-        huge::huge.roc(path = 
-                         lapply(gcoda_network$icov, function(x){
-                           x = solve(x)
-                           x = diag(1/sqrt(diag(x)))%*% x %*% diag(1/sqrt(diag(x)))# transform into correlation matrix
-                           diag(x) = 0
-                           tmp = (abs(x)>1e-11)*1
-                           tmp}), 
-                       theta = target_graph_cov)
-      
+      ROC_cov <- ROC_cov_pathbased <- NULL
+      if(F){
+        # based on thresholding the optimal cov (inverse of optimal icov)
+        gcoda_cov = solve(gcoda_network$opt.icov)
+        ROC_cov = get_cov_ROC(Cor = gcoda_cov, target_graph_cov)
+        
+        # based on the glasso path generated cov
+        ROC_cov_pathbased = 
+          huge::huge.roc(path = 
+                           lapply(gcoda_network$icov, function(x){
+                             x = solve(x)
+                             x = diag(1/sqrt(diag(x)))%*% x %*% diag(1/sqrt(diag(x)))# transform into correlation matrix
+                             diag(x) = 0
+                             tmp = (abs(x)>1e-11)*1
+                             tmp}), 
+                         theta = target_graph_cov)
+        
+        
+      }
       
       gcoda_ROC_res = huge::huge.roc(path=gcoda_network$path, theta = option$Sigma_list$A_inv, verbose=F)
       
@@ -630,21 +640,26 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       # Estimated partial correlation coefficient, same as negative precision matrix.
       precision <- -as.matrix(SpiecEasi::symBeta(fit.spring$output$est$beta[[opt.K]], mode = 'maxabs'))
       diag(precision)<-1
-      ROC_cov = get_cov_ROC(solve(precision), target_graph_cov)
+       ROC_cov <- ROC_cov_pathbased <-NULL
       
-      
-      # use the glasso path generated cov path
-      ROC_cov_pathbased = 
-      huge::huge.roc(path = lapply( fit.spring$output$est$beta,
-                                      function(x){
-                                             x = -as.matrix(SpiecEasi::symBeta(x, mode = 'maxabs'))  # this is the coefficient matrix from neighbourhood selection
-                                             diag(x) = 1
-                                             x = solve(x) # compute covariance
-                                             x = diag(1/sqrt(diag(x)))%*% x %*% diag(1/sqrt(diag(x)))# transform into correlation matrix
-                                             diag(x) = 0
-                                             tmp = (abs(x)>1e-11)*1
-                                             tmp}), 
-                     theta = target_graph_cov)
+       if(F){
+         ROC_cov = get_cov_ROC(solve(precision), target_graph_cov)
+         
+         
+         # use the glasso path generated cov path
+         ROC_cov_pathbased = 
+           huge::huge.roc(path = lapply( fit.spring$output$est$beta,
+                                         function(x){
+                                           x = -as.matrix(SpiecEasi::symBeta(x, mode = 'maxabs'))  # this is the coefficient matrix from neighbourhood selection
+                                           diag(x) = 1
+                                           x = solve(x) # compute covariance
+                                           x = diag(1/sqrt(diag(x)))%*% x %*% diag(1/sqrt(diag(x)))# transform into correlation matrix
+                                           diag(x) = 0
+                                           tmp = (abs(x)>1e-11)*1
+                                           tmp}), 
+                          theta = target_graph_cov)
+         
+       }
       
       
       

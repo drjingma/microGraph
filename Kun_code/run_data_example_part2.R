@@ -36,7 +36,7 @@ if_have_file = tryCatch(
   ,error =  function(e) e
 )
 
-if('simpleError' %in% class(if_have_file) | part==2){
+if('simpleError' %in% class(if_have_file) ){
   
 
 load(paste0('data/',save_folder_name,'/',  distr,'/', network_option, '/cond_', network_condition_number, '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
