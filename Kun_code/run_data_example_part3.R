@@ -1,3 +1,5 @@
+##### use this file to rerun replicates based on a fixed lambda sequence
+
 # filepath = '//fs2-vip/students/yuek/Desktop/micro_net' #BOX
 # 
 # filepath = '/Users/Kun/Desktop/Dropbox/Microbial_Networks/microGraph' # MAC
@@ -27,7 +29,7 @@ print(args)
 
 # check if file exist
 check_file=
-       paste0('data/',save_folder_name,'/', distr,'/', network_option, '/cond_', network_condition_number, '/', choose_model,'/vary_res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData')
+       paste0('data/',save_folder_name,'/', distr,'/', network_option, '/cond_', network_condition_number, '/', choose_model,'/fix_lambda_res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData')
 
 if_have_file = tryCatch(
   {
@@ -39,7 +41,7 @@ if_have_file = tryCatch(
 if('simpleError' %in% class(if_have_file) ){
   
 
-load(paste0('data/',save_folder_name,'/',  distr,'/', network_option, '/cond_', network_condition_number, '/vary_image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
+load(paste0('data/',save_folder_name,'/',  distr,'/', network_option, '/cond_', network_condition_number, '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
 
 
 source('lib/func_libs.R')
@@ -50,23 +52,9 @@ library(MASS)
 
 set.seed(2020)
 
-# use gcoda implemented lambda path computation, based on the first rep data
-x = data_rep[[2,1]]
-if (any(x==0)){
-  x = x+1
-}
-x = sweep(x,1,STATS = rowSums(x), FUN='/')
-
-# Log transformation for compositional data
-S <- var(log(x) - rowMeans(log(x)));
-# Generate lambda via lambda.min.ratio and nlambda
-lambda.max <- max(max(S - diag(p)), -min(S - diag(p)));
-lambda.min.ratio = 1e-5
-lambda.min <- lambda.min.ratio * lambda.max;
+# use a fixed lambda sequence
 
 
-lambda_seq = exp(c(seq(log(lambda.min*0.9),log(lambda.max*1.1),length = 40)))
-lambda_seq = sort(lambda_seq, decreasing = T)
 
 lambda_seq = c(seq(0.01,0.1,0.015),seq(0.1,6,0.25))*sqrt(log(p)/n) 
 lambda_seq = sort(lambda_seq, decreasing = T)
@@ -165,7 +153,7 @@ cat('Done \n')
 
 
 save(list = c('roc'), file=
-       paste0('data/',save_folder_name,'/', distr,'/', network_option, '/cond_', network_condition_number, '/', choose_model,'/vary_res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData'))
+       paste0('data/',save_folder_name,'/', distr,'/', network_option, '/cond_', network_condition_number, '/', choose_model,'/fix_lambda_res_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData'))
 
 
 }

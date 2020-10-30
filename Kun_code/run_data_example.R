@@ -51,6 +51,8 @@ library(MASS)
 data(amgut1.filt)
 reference_data = amgut1.filt
 
+
+
 # use this for minimum sampling depth reference
 # load('Kun_code/reference_data.RData') 
 # reference_data = t(sub_counts)
@@ -84,8 +86,17 @@ save_folder_name = as.character(args[8]) # subfolder name to save files
 
 
 set.seed(102)
+## rarify the data
+library(phyloseq)
+tmp = otu_table(reference_data, taxa_are_rows = F)
+out = rarefy_even_depth(tmp, sample.size = 1000)
+mean(as.matrix(out)==0)
+reference_data = out
+
+
 # do not need to subsample the samples of reference data; only subsample the taxa
 if(choose_model %in% c('null1', 'null1.1', 'alt1')) reference_data = reference_data[,sample(1:ncol(reference_data), size=p, replace = F)] # pick out p taxa
+
 min_seq_depth = round(min(rowSums(reference_data))) # determine the min_seq_depth
 
 
@@ -194,6 +205,9 @@ for(k in 1:nreps){
   dim(data_list$data)
   
   data = data_list$data
+  ## add this additional step of total count variation
+  for(i in 1:nrow(data))data[i,] = data[i,]*round(runif(1,min=1, max=10))
+  
   colnames(data) <- paste('taxa', 1:ncol(data))
   rownames(data) <- paste('cell', 1:nrow(data))
   
@@ -202,9 +216,9 @@ for(k in 1:nreps){
 }
 
 save(data_rep, file = 
-       paste0('data/',save_folder_name,'/', distr,'/', network_option, '/cond_', network_condition_number, '/n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
+       paste0('data/',save_folder_name,'/', distr,'/', network_option, '/cond_', network_condition_number, '/vary_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
 save(list=c('data_rep', 'option', 'n', 'p'), file = 
-       paste0('data/',save_folder_name,'/', distr,'/', network_option, '/cond_', network_condition_number,  '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
+       paste0('data/',save_folder_name,'/', distr,'/', network_option, '/cond_', network_condition_number,  '/vary_image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
 
 
 

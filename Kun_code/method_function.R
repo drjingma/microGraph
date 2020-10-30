@@ -409,7 +409,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
                                  counts = F, pseudo = 1, # for correction of count matrix; ignored if we direclty supply composition matrix
                                  k_cv = 3, # cv folds, min=2
                                  lam_int = c(1e-6, 3), #tuning parameter value range; need to vary this for ROC curve
-                                 k_max=20, n_boot =20)  # input format n by p
+                                 k_max=20, n_boot =2)  # input format n by p
         
       })[2:3])
       
@@ -425,6 +425,7 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       #--------------
       # COAT 
       #--------------
+      ## yuanpeicao/COAT
       source(paste0(filepath, "/Kun_code/COAT-master/COAT-master/simulation.R")) # this contains all different data generating models
       source(paste0(filepath, "/Kun_code/COAT-master/COAT-master/coat.R"))
       
@@ -482,23 +483,42 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       #--------------
       # for inv-covariance graph recovery
       library(pulsar)
+      if(option$hypothesis=='null'){
+        time = sum(system.time({
+          # input non-normalized, count data, without adding pesudocounts
+          Spiec_network <- spiec.easi(data_rep[[2, 1]], method='glasso', # choose from 'mb' for neighbourhood selection, or 'glasso'
+                                      # if to perform model selection
+                                      pulsar.select = T,
+                                      pulsar.params = list(
+                                        thresh=0.05,# Threshold for StARS criterion.
+                                        subsample.ratio=0.8, # Subsample size for StARS.
+                                        rep.num = 20), # Number of subsamples for StARS.
+                                      lambda.min.ratio= min(lambda_seq)/max(lambda_seq), 
+                                      lambda.max = max(lambda_seq), nlambda=length(lambda_seq)
+                                      # , lambda = lambda_seq
+          ) # lambda is for penalty parameter, is tuning parameter; override to set same as lambda_seq
+          
+          
+        })[2:3])
+      }else{
+        time = sum(system.time({
+          # input non-normalized, count data, without adding pesudocounts
+          Spiec_network <- spiec.easi(data_rep[[2, 1]], method='glasso', # choose from 'mb' for neighbourhood selection, or 'glasso'
+                                      # if to perform model selection
+                                      pulsar.select = T,
+                                      pulsar.params = list(
+                                        thresh=0.05,# Threshold for StARS criterion.
+                                        subsample.ratio=0.1, # Subsample size for StARS.
+                                        rep.num = 2), # Number of subsamples for StARS.
+                                      lambda.min.ratio= min(lambda_seq)/max(lambda_seq), 
+                                      lambda.max = max(lambda_seq), nlambda=length(lambda_seq)
+                                      # , lambda = lambda_seq
+          ) # lambda is for penalty parameter, is tuning parameter; override to set same as lambda_seq
+          
+          
+        })[2:3])
+      }
 
-      time = sum(system.time({
-        # input non-normalized, count data, without adding pesudocounts
-        Spiec_network <- spiec.easi(data_rep[[2, 1]], method='glasso', # choose from 'mb' for neighbourhood selection, or 'glasso'
-                                    # if to perform model selection
-                                    pulsar.select = T,
-                                    pulsar.params = list(
-                                      thresh=0.05,# Threshold for StARS criterion.
-                                      subsample.ratio=0.8, # Subsample size for StARS.
-                                      rep.num = 20), # Number of subsamples for StARS.
-                                    lambda.min.ratio= min(lambda_seq)/max(lambda_seq), 
-                                    lambda.max = max(lambda_seq), nlambda=length(lambda_seq)
-                                    # , lambda = lambda_seq
-        ) # lambda is for penalty parameter, is tuning parameter; override to set same as lambda_seq
-        
-        
-      })[2:3])
       
       # Spiec_network$lambda
       # lambda_seq
@@ -615,16 +635,29 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
       source(paste0(filepath, '/Kun_code/Jing_lib/func_libs.R'))
       
       # supply uncorrected compositional data with n by p data matrix. It will be mclr transformed inside their function
-      
-      time = sum(system.time({
-        fit.spring <- SPRING(data_rep[[1,1]], 
-                           quantitative = F, # F means input is compositional
-                           lambdaseq = lambda_seq, 
-                          # nlambda = 20, 
-                           ncores = 1,
-                           subsample.ratio = 0.8, rep.num = 20 # these are for tuning parameter selection
-      )
-      })[2:3])
+      if(option$hypothesis == 'null'){
+        # only do lambda selection for null hypothesis
+        time = sum(system.time({
+          fit.spring <- SPRING(data_rep[[1,1]], 
+                               quantitative = F, # F means input is compositional
+                               lambdaseq = lambda_seq, 
+                               # nlambda = 20, 
+                               ncores = 1,
+                               subsample.ratio = 0.8, rep.num = 20 # these are for tuning parameter selection
+          )
+        })[2:3])
+      }else{
+        time = sum(system.time({
+          fit.spring <- SPRING(data_rep[[1,1]], 
+                               quantitative = F, # F means input is compositional
+                               lambdaseq = lambda_seq, 
+                               # nlambda = 20, 
+                               ncores = 1,
+                               subsample.ratio = 0.1, rep.num = 2 # these are for tuning parameter selection
+          )
+        })[2:3])
+      }
+
       
       
       spring_ROC_res = huge::huge.roc(fit.spring$fit$est$path, theta = option$Sigma_list$A_inv, verbose = F)

@@ -1,9 +1,9 @@
 
-get_summary_fp = function(folder_name, choose_model, n, p, nreps, part, part_name, copula_distr, network_option, network_condition_number){
+get_summary_fp = function(add_prex,folder_name, choose_model, n, p, nreps, part, part_name, copula_distr, network_option, network_condition_number){
   # conet and Sparcc have p values, others only fp_null
   res_for_200 = do.call(rbind, lapply(1:include, function(run_rep){
     load_file = paste0(filepath,
-                       '/', folder_name, '/', copula_distr,'/', network_option, '/cond_', network_condition_number,'/', choose_model, '/res_n_', n, '_p_', p, '_', choose_model, 
+                       '/', folder_name, '/', copula_distr,'/', network_option, '/cond_', network_condition_number,'/', choose_model, '/',add_prex ,'res_n_', n, '_p_', p, '_', choose_model, 
                        '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData')
     # print(load_file)
     iferror = tryCatch(load(load_file), error = function(e){
@@ -44,11 +44,11 @@ get_summary_fp = function(folder_name, choose_model, n, p, nreps, part, part_nam
 }
 
 
-get_summary_roc = function(folder_name, choose_model, n, p, nreps, part, part_name, copula_distr, network_option, network_condition_number){
+get_summary_roc = function(add_prex, folder_name, choose_model, n, p, nreps, part, part_name, copula_distr, network_option, network_condition_number){
   # all models we compare the inverse cov graph ROC
   # to have an 'averaged' ROC curve, we may take average of fp and tp at each grid? (since we are using the same sequence of lambda)
   res_for_20 = lapply(1:include, function(run_rep){
-    load_file = paste0(folder_name, '/', copula_distr,'/', network_option, '/cond_', network_condition_number,'/', choose_model, '/res_n_', n, '_p_', p, '_', choose_model, 
+    load_file = paste0(folder_name, '/', copula_distr,'/', network_option, '/cond_', network_condition_number,'/', choose_model, '/',add_prex,'res_n_', n, '_p_', p, '_', choose_model, 
                        '_nreps_', nreps, '_run_rep', run_rep,'_part_', part, '.RData')
     #print(load_file)
     iferror = tryCatch(load(load_file), error=function(e){
@@ -144,9 +144,9 @@ plot_roc = function(roc_res, target){
 }
 
 # if to plot all methods together:
-output_plot_all = function(folder_name, choose_model, n, p, nreps, part_name, copula_distr, network_option, network_condition_number, target){
-  data = do.call(rbind, lapply(c(1:5,6, 7), function(part){
-    roc_res = get_summary_roc(folder_name, choose_model, n, p, nreps, part, part_name, copula_distr, network_option, network_condition_number)
+output_plot_all = function(add_prex,folder_name, choose_model, n, p, nreps, part_name, copula_distr, network_option, network_condition_number, target){
+  data = do.call(rbind, lapply(c(2:5,6, 7), function(part){
+    roc_res = get_summary_roc(add_prex,folder_name, choose_model, n, p, nreps, part, part_name, copula_distr, network_option, network_condition_number)
     if(is.null(roc_res)){NULL}else{plot_roc(roc_res, target)$data}
   }))
   data$group = factor(data$group, levels = c(1:nreps, 'mean'))
