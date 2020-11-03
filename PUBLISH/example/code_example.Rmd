@@ -1,0 +1,319 @@
+---
+title: "Review Chapter"
+author: "Kun Yue"
+date: "10/29/2020"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval=F)
+```
+
+## Code Example
+
+This document illustrates using ReBoot, SparCC, CCLasso, COAT, Spiec-Easi, gCoda and SPRING methods to infer microbial interaction networks. We use a publicly available data set from the American Gut Project as an example. This data set is a collection of counts/absolute abundance containing 289 samples for a total of 127 OTUs. For the rest of the document, we specify the source of the estimation algorithm, and illustrate the usage of relevant functions for each method.
+
+```{r}
+## import the data set from package SpiecEasi
+library(SpiecEasi)
+data("amgut1.filt")
+dataset = amgut1.filt
+# print(dim(dataset))
+```
+
+# ReBoot
+ReBoot is implemeted in package `ccrepe`. Relative abundance inputs are required. We normalize the data set before using the algorithm. By default, Spearman correlation is used for similarity measure among OTUs, and 1000 iterations are used to compute the p-values. The output contains p-values and FDR corrected p-values for each entry of the network. We can also obtain the strength of network edges based on similarity scores. However, notice that the estimated network values may not be directly comparable to other methods since similarity measure other than correlation can be used.  
+
+```{r, eval=F}
+library(ccrepe)
+
+dataset_relative =  sweep(dataset,1,STATS = rowSums(dataset), FUN='/')
+reboot_res = ccrepe(x = dataset_relative) 
+
+# p values for each network entry
+p_values = reboot_res$p.values
+
+# FDR corrected p values for each network entry
+FDR_p_values = reboot_res$q.values
+
+# network matrix based on defined similarity measure
+network = reboot_res$sim.score
+```
+
+# SparCC
+
+We use the version of SparCC implemented in the package `SpiecEasi`. We pass the absolute abundance data set to the function. For estimation of the network, we can use function `sparcc`. For testing the network edges, we can use the function `sparccboot` to obtain the p-values for each network entry. Choice of tuning parameters can refer to `?sparcc`.
+
+```{r, eval=F}
+# devtools::install_github("zdk123/SpiecEasi")
+library(SpiecEasi)
+
+## for estimation of the network
+sparcc_res =  sparcc(data = dataset, iter = 20, inner_iter = 10, th = 0.1)
+network = sparcc_res$Cor
+
+## for testing purpose
+sparcc_testing_res = sparccboot(data = dataset,
+                                # number of bootstraps to compute the p-values,
+                                R=1000,   
+                                # parameters passed to run SparCC method
+                                sparcc.params = list(iter = 20, inner_iter = 10, th = 0.1)) 
+p_values =  pval.sparccboot(sparcc_testing_res)$pvals
+```
+
+# CCLasso
+
+Code for CCLasso can be obtained from [Github](https://github.com/huayingfang/CCLasso). If we set `count = T`, the input abundance data matrix will be treated as count data, and a pseudocount with value specified for `pseudo` will be added to all data entries. If we set `count = F`, then the input abundance data matrix must not contain zero values. We can specify a wide interval for `lam_int` for tuning parameter selection. `n_boot` can be specified to compute bootstrap based p-values for each network entry.
+
+```{r}
+source('cclasso.R')
+## either directly pass the abundance data and specify pseudocount value
+cclasso_res <- cclasso(x = dataset, counts = T, pseudo = 1, 
+                       k_cv = 3, 
+                       lam_int = c(1e-4, 3), 
+                       k_max = 20, 
+                       n_boot = 1000)  
+
+## or perform user specified zero entry correction before passing the data set to the function
+if(any(dataset==0)){
+  dataset = dataset+1
+}
+
+cclasso_res <- cclasso(x = dataset, counts = F, 
+                       k_cv = 3, lam_int = c(1e-4, 3), k_max=20, n_boot = 1000)  
+
+## extract network and p-values
+network = cclasso_res$cor_w
+p_values = cclasso_res$p_vals
+```
+
+# COAT
+Code for COAT can be obtained from [Github](https://github.com/yuanpeicao/COAT). Input to `coat` must not have zero entries. Estimation of correlation network can be obtained. 
+
+```{r}
+source('coat.R')
+
+## perform zero correction first
+if(any(dataset==0)){
+  dataset = dataset+1
+}
+
+coat_res = coat(dataset, nFolder=5, soft=1) 
+network = coat_res$corr
+```
+
+# Spiec-Easi
+Spiec-Easi method is implemented in the package `SpiecEasi`. Package `pulsar` should also be loaded to run the algorithm. The input abundance matrix should be non-normalized (i.e. total abundance if each sample is not the same). We can use the default tuning parameter sequence, or we can specify a lambda sequence by providing specific values for `lambda.min.ratio`, `lambda.max`, and `nlambda`. If model selection is desired, the StARS method is implemented, and user can specify StARS related parameter values. There are a few convenient functions to extract optimal estimated network and related information. The functions are illustrated in the code chunk. 
+
+```{r}
+library(pulsar)
+library(SpiecEasi)
+## input non-normalized abundance data matrix
+spieceasi_res <- spiec.easi(dataset, 
+                            method='glasso', 
+                            pulsar.select = T,
+                            pulsar.params = list(
+                              thresh=0.05,# Threshold for StARS criterion.
+                              subsample.ratio=0.8, # Subsample size for StARS.
+                              rep.num = 20), # Number of subsamples for StARS.
+                            lambda.min.ratio= min(lambda_seq)/max(lambda_seq), 
+                            lambda.max = max(lambda_seq), 
+                            nlambda=length(lambda_seq)
+)
+
+## the estimated weighted network 
+network = getOptiCov(spieceasi_res)
+
+## the glasso solution path
+solution_path = spieceasi_res$est$path
+
+## symmetric matrix with edge-wise stability; used for getting 0/1 network
+getOptMerge(spieceasi_res) 
+
+## index of the selected lambda for optimal network in the provided lambda path
+getOptInd(spieceasi_res) 
+
+## the optimal inverse covariance matrix, the optimal estimated network (glasso only)
+getOptiCov(spieceasi_res) 
+
+## the optimal covariance matrix associated with the selected network (glasso only)
+getOptCov(spieceasi_res) 
+
+## the optimal estimated  coefficient matrix (mb only) 
+getOptBeta(spieceasi_res) 
+
+## the optimal (StARS-refit) network, 0/1 adjacency matrix
+getOptNet(spieceasi_res) 
+```
+
+
+# gCoda
+Code for gCoda method can be obtained from [Github](https://github.com/huayingfang/gCoda). Similar to CCLasso method implementation, we need to specify `count = T` and `pseudo` to correct possible zero entries in the abundance matrix, or we need to perform zero correction beforehand. We can specify the `lambda.min.ratio` and `nlambda` to change the tuning parameter sequence. If desired, a simple modification in the source code can accomodate a fully user-specified lambda sequence. Notice that the algorithm will continue searching among additional lambda values if it determines the supplied lambda values are not sufficient.
+
+```{r}
+source('gcoda.R')
+
+## either directly pass the abundance data and specify pseudocount value
+gcoda_network <- gcoda(dataset, 
+                       counts = T, pseudo = 1, 
+                       lambda.min.ratio=1e-3, 
+                       nlambda= 30); 
+
+## or perform user specified zero entry correction before passing the data set to the function
+if(any(dataset==0)){
+  dataset = dataset+1
+}
+gcoda_network <- gcoda(dataset, counts = F,  
+                       lambda.min.ratio=1e-3, 
+                       nlambda= 30)
+
+## the solution path
+solution_path = gcoda_network$path
+
+## the optimal estimated network
+network = gcoda_network$opt.icov
+```
+
+# SPRING
+SPRING method is implemented in the package `SPRING`, which is available from Github. If we set `quantitative =  F` (default), the input abundance matrix will be viewed as compositional data, and mclr transformation will be applied. Otherwise the input data matrix will be directly used in the computation without normalization. We can modify the tuning parameter sequence by changing `lambda.min.ratio`, `nlambda`, or specify `lambdaseq` for a user-defined lambda sequence. We can also modify `subsample.ratio` and `rep.num` for model selection based on the StARS method.
+
+
+```{r}
+# devtools::install_github("GraceYoon/SPRING")
+library(SPRING)
+
+## if input is compositional
+dataset_relative = sweep(dataset,1,STATS = rowSums(dataset), FUN='/')
+spring_res <- SPRING(dataset_relative, quantitative = F, 
+                     subsample.ratio = 0.8, rep.num = 20 # parameters for model selection
+                     )
+
+## if input with absolute abundance (not recommended if the total abundance is not meaningful)
+spring_res <- SPRING(dataset, quantitative = T, 
+                     subsample.ratio = 0.8, rep.num = 20)
+
+## the solution path
+spring_res$fit$est$path
+
+## obtain the optimal estimated network
+opt.K <- spring_res$output$stars$opt.index
+network_binary = as.matrix(spring_res$fit$est$path[[opt.K]]) # a binary network indicating presence/absence of edges
+network_weighted <- as.matrix(SpiecEasi::symBeta(spring_res$output$est$beta[[opt.K]], mode = 'maxabs')) # a weighted network matrix
+```
+
+
+The following provides an illustration of the inferred networks under each method (covariance or inverse covariance based). We present the heatmap of the weighted network matrix, and associated p-values if available. For sparse network estimates, we also present the network graph.
+
+```{r}
+# load('example.RData')
+library(GGally)
+library(SpiecEasi)
+library(igraph)
+
+## Reboot similarity score matrix and p value matrix
+p1.1 = ggcorr(cor_matrix = reboot_res$sim.score, data=NULL, size=0)+ggtitle('ReBoot Similarity Score Matrix')
+
+p1.1.p = ggcorr(cor_matrix = reboot_res$p.values, data=NULL, size=0, limits = c(0,1), high = '#EEEEEE', mid = '#F21A00')+ggtitle('ReBoot p-values Matrix')
+
+tmp = reboot_res$sim.score
+tmp[reboot_res$p.values>0.05]<-0
+p1.1.2 = ggcorr(cor_matrix = tmp, data=NULL, size=0)+ggtitle('ReBoot Similarity Score Matrix with p<0.05')
+
+
+## SparCC correlation matrix and p-value matrix
+p2.1=ggcorr(cor_matrix = sparcc_res$Cor, data=NULL, size=0)+ggtitle('SparCC Correlation Matrix')
+
+tmp = diag(NA, 127)
+pvals = pval.sparccboot(sparcc_testing_res)$pvals
+tmp[upper.tri(tmp, diag=F)] <- pvals
+tmp = tmp+t(tmp)
+p2.1.p = ggcorr(cor_matrix = tmp , data=NULL, size=0, limits = c(0,1), high = '#EEEEEE', mid = '#F21A00')+ggtitle('SparCC p-values Matrix')
+
+tmp2 = sparcc_res$Cor
+tmp2[tmp > 0.05] <-0
+p2.1.2 = ggcorr(cor_matrix = tmp2, data=NULL, size=0)+ggtitle('SparCC Correlation Matrix with p<0.05')
+
+
+## CCLasso
+p3.1 = ggcorr(cor_matrix = cclasso_res$cor_w, data=NULL, size=0)+ggtitle('CCLasso Correlation Matrix')
+
+p3.1.p = ggcorr(cor_matrix =  cclasso_res$p_vals , data=NULL, size=0, limits = c(0,1), high = '#EEEEEE', mid = '#F21A00')+ggtitle('CCLasso p-values Matrix')
+
+tmp2 = cclasso_res$cor_w
+tmp2[cclasso_res$p_vals > 0.05] <-0
+p3.1.2 = ggcorr(cor_matrix = tmp2, data=NULL, size=0)+ggtitle('CCLasso Correlation Matrix with p<0.05')
+
+
+## COAT
+p4.1 = ggcorr(cor_matrix = coat_res$corr, data=NULL, size=0)+ggtitle('COAT Correlation Matrix')
+
+
+## Spiec-Easi
+p5.1 = ggcorr(cor_matrix = as.matrix(getOptiCov(spieceasi_res)), data=NULL, size=0)+ggtitle('Spiec-Easi Inverse Correlation Matrix')
+
+graph = adj2igraph(getOptNet(spieceasi_res))
+struc <- layout.fruchterman.reingold(graph)
+plot(graph, layout=struc, vertex.label=NA, vertex.size=4, main="Spiec-Easi network")
+p5.2 = recordPlot()
+
+
+## gCoda
+p6.1 = ggcorr(cor_matrix = as.matrix(gcoda_network$opt.icov), data=NULL, size=0)+ggtitle('gCoda Inverse Correlation Matrix')
+
+graph = adj2igraph(as.matrix(gcoda_network$opt.icov)>1e-11)
+plot(graph, layout=struc, vertex.label=NA, vertex.size=4, main="gCoda network")
+p6.2 = recordPlot()
+
+## SPRING
+opt.K <- spring_res$output$stars$opt.index
+network_weighted <- as.matrix(SpiecEasi::symBeta(spring_res$output$est$beta[[opt.K]], mode = 'maxabs'))
+p7.1 = ggcorr(cor_matrix = network_weighted, data=NULL, size=0)+ggtitle('gCoda Inverse Correlation Matrix')
+
+graph = adj2igraph(as.matrix(spring_res$fit$est$path[[opt.K]]))
+plot(graph, layout=struc, vertex.label=NA, vertex.size=4, main="SPRING network")
+p7.2 = recordPlot()
+
+## show plots for networks
+draw = function(name, plt){
+  ggsave(get(plt), filename = paste0(name, plt, '.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm')
+}
+
+draw2=function(name, plt){
+
+}
+
+draw('ReBoot', 'p1.1')
+draw('ReBoot', 'p1.1.p')
+draw('ReBoot', 'p1.1.2')
+
+draw('SparCC', 'p2.1')
+draw('SparCC', 'p2.1.p')
+draw('SparCC', 'p2.1.2')
+
+draw('CCLasso', 'p3.1')
+draw('CCLasso', 'p3.1.p')
+draw('CCLasso', 'p3.1.2')
+
+draw('COAT', 'p4.1')
+
+draw('Spiec-Easi', 'p5.1')
+png(filename = paste0('Spiec-Easi', 'p5.2', '.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm', res=300)
+p5.2
+dev.off()
+
+draw('gCoda', 'p6.1')
+png(filename = paste0('gCoda', 'p6.2', '.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm', res=300)
+p6.2
+dev.off()
+
+draw('SPRING', 'p7.1')
+png(filename = paste0('SPRING', 'p7.2', '.png'), width = 11.7*1.7, height = 8*1.7, units = 'cm', res=300)
+p7.2
+dev.off()
+
+```
