@@ -108,7 +108,9 @@ network = coat_res$corr
 ```
 
 # Spiec-Easi
-Spiec-Easi method is implemented in the package `SpiecEasi`. Package `pulsar` should also be loaded to run the algorithm. The input abundance matrix should be non-normalized (i.e. total abundance if each sample is not the same). We can use the default tuning parameter sequence, or we can specify a lambda sequence by providing specific values for `lambda.min.ratio`, `lambda.max`, and `nlambda`. If model selection is desired, the StARS method is implemented, and user can specify StARS related parameter values. There are a few convenient functions to extract optimal estimated network and related information. The functions are illustrated in the code chunk. 
+Spiec-Easi method is implemented in the package `SpiecEasi`. Package `pulsar` should also be loaded to run the algorithm. The input abundance matrix should be non-normalized (i.e. total abundance if each sample is not the same); the internal function will add 1 to all entries of the data metrix. We can use the default tuning parameter sequence, or we can specify a lambda sequence by providing specific values for `lambda.min.ratio`, `lambda.max`, and `nlambda`. If model selection is desired, the StARS method is implemented, and user can specify StARS related parameter values. There are a few convenient functions to extract optimal estimated network and related information. The functions are illustrated in the code chunk. 
+
+If we do not perform model selection, we can equivalently obtain the solution path based on clr transformation and glasso. The procedures are also illustrated below.
 
 ```{r}
 library(pulsar)
@@ -149,6 +151,9 @@ getOptBeta(spieceasi_res)
 
 ## the optimal (StARS-refit) network, 0/1 adjacency matrix
 getOptNet(spieceasi_res) 
+
+## using clr transformation and glasso to obtain equivalent results
+spieceasi_res_equivalent = huge(t(clr(dataset+1, mar=1)), method='glasso', lambda = lambda_seq)
 ```
 
 

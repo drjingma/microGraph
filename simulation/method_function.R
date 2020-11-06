@@ -246,36 +246,54 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
           ) 
         })[2:3])
         
+        # the result should be a solution path over lambda; the path is adjacency matrix with diagonal being zero
+        Spiec_ROC_res = huge::huge.roc(path = Spiec_network$est$path, 
+                                       theta = target_graph_inv, verbose=FALSE)
+        
+        # also need to get fp at optimal tuning value for null model
+        precision = getOptNet(Spiec_network)
+        fp_inv_null = calTprFpr(sigmaHat = precision, sigmaTrue = matrix(0, p, p))$fp
+        
+        
       }else{
         # if for ROC computation, we can skip model selection and this is faster
+        
+        # here to force the lambda sequence we supplied, and to remove the adding 1 effect under unnecessary cases (alt2), we run clr+glasso
+        
+        for( k in 1:ncol(data_rep)){
+          if (any(data_rep[[2,k]]==0)){
+            data_rep[[2,k]] = data_rep[[2,k]]+1
+            data_rep[[1,k]] = sweep(data_rep[[2,k]],1,STATS = rowSums(data_rep[[2,k]]), FUN='/')
+          }
+        }
+        
+        input = data_rep[[1,1]]
+        tmp = clr(input, mar=1)
         time = sum(system.time({
-          # input non-normalized, count data, without adding pesudocounts
-          Spiec_network <- spiec.easi(data_rep[[2, 1]], method='glasso', 
-                                      pulsar.select = F,
-                                      pulsar.params = list(
-                                        thresh=0.05, 
-                                        subsample.ratio=0.1,  
-                                        rep.num = 2),  
-                                      lambda.min.ratio= min(lambda_seq)/max(lambda_seq), 
-                                      lambda.max = max(lambda_seq), nlambda=length(lambda_seq)
-          ) 
-        })[2:3])
+          use_clr = huge(t(tmp), method='glasso', lambda = lambda_seq)
+        })[2:3]
+        )
+        
+        Spiec_ROC_res = huge.roc(use_clr$path, theta = target_graph_inv) 
+        
+        fp_inv_null= NULL
+        
       }
 
-      # the result should be a solution path over lambda; the path is adjacency matrix with diagonal being zero
-      Spiec_ROC_res = huge::huge.roc(path = Spiec_network$est$path, 
-                                     theta = target_graph_inv, verbose=FALSE)
+
       ROC_inv = Spiec_ROC_res
 
-      # thresholding the optimal cov matrix for ROC
-      Spiec_cov = as.matrix(getOptCov(Spiec_network))
+
 
       ROC_cov <- ROC_cov_pathbased <- NULL
       
       
       # covariance graph recovery depreciated (encounter error with some simulation settings)
       if(F){
-              ROC_cov = get_cov_ROC(Spiec_cov, target_graph_cov)
+                    
+        # thresholding the optimal cov matrix for ROC
+      
+        # Spiec_cov = as.matrix(getOptCov(Spiec_network))ROC_cov = get_cov_ROC(Spiec_cov, target_graph_cov)
       
               # or use the cov path corresponding to the lambda path, and compute ROC. to eliminate very small values, make Cov into Cor and threhsold at 1e-11
               ROC_cov_pathbased = 
@@ -288,10 +306,8 @@ compare_methods = function(data_rep, # the collection of data matrixs, data[[1,k
                                theta = target_graph_cov)
       }
       
-      # also need to get fp at optimal tuning value for null model
-      precision = getOptNet(Spiec_network)
-      fp_inv_null = calTprFpr(sigmaHat = precision, sigmaTrue = matrix(0, p, p))$fp
-      
+
+
       ROC = list(ROC_cov = ROC_cov, ROC_cov_pathbased=ROC_cov_pathbased,
                  ROC_inv = ROC_inv, fp_inv_null = fp_inv_null, time=time)
 
