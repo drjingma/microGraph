@@ -35,7 +35,7 @@ get_plt_null1.1 =
               )
 
 
-ggsave(get_plt_null1.1$res, filename = 'type_I_null1.1.png',width =11.7*1.7, height= 11.7*1.7, units = 'cm')
+ggsave(get_plt_null1.1$res+ylab('false positive rate'), filename = 'type_I_null1.1.png',width =11.7*1.7, height= 11.7*1.7, units = 'cm')
 
 ggsave(get_plt_null1.1$time, filename = 'time_null1.1.png',width =11.7*1.7, height= 11.7*1.7, units = 'cm')
 
@@ -55,7 +55,7 @@ get_plt_null2 =
     network_condition_number = 0,
     fix = 'fix_lambda_')
 
-ggsave(get_plt_null2$res, filename = 'type_I_null2.png', width = 11.7*1.7, height = 11.7*1.7, units = 'cm')
+ggsave(get_plt_null2$res+ylab('false positive rate'), filename = 'type_I_null2.png', width = 11.7*1.7, height = 11.7*1.7, units = 'cm')
 ggsave(get_plt_null2$time, filename = 'time_null2.png',width =11.7*1.7, height= 11.7*1.7, units = 'cm')
 
 
@@ -84,7 +84,7 @@ get_plt_alt1_cond100 =
     fix = 'vary_',
     target='inv')
 
-ggsave(get_plt_alt1_cond100$res, filename = 'ROC_alt1_cond100.png', width = 11.7*1.7, height = 8*1.7, units = 'cm')
+ggsave(get_plt_alt1_cond100$res+ylab('true positive rate')+xlab('false positive rate'), filename = 'ROC_alt1_cond100.png', width = 11.7*1.7, height = 8*1.7, units = 'cm')
 ggsave(get_plt_alt1_cond100$time, filename = 'time_alt1_cond100.png', width = 11.7*1.7, height = 8*1.7, units = 'cm')
 
 get_plt_alt1_cond1000 = 
@@ -101,7 +101,7 @@ get_plt_alt1_cond1000 =
     fix = 'vary_',
     target='inv')
 
-ggsave(get_plt_alt1_cond1000$res, filename = 'ROC_alt1_cond1000.png', width = 11.7*1.7, height = 8*1.7, units = 'cm')
+ggsave(get_plt_alt1_cond1000$res+ylab('true positive rate')+xlab('false positive rate'), filename = 'ROC_alt1_cond1000.png', width = 11.7*1.7, height = 8*1.7, units = 'cm')
 ggsave(get_plt_alt1_cond1000$time, filename = 'time_alt1_cond1000.png', width = 11.7*1.7, height = 8*1.7, units = 'cm')
 
 
@@ -122,7 +122,7 @@ get_plt_alt2_cond100 =
     fix = 'fix_lambda_',
     target='inv')
 
-ggsave(get_plt_alt2_cond100$res, filename = 'ROC_alt2_cond100.png', width = 11.7*1.7, height = 8*1.7, units = 'cm')
+ggsave(get_plt_alt2_cond100$res+ylab('true positive rate')+xlab('false positive rate'), filename = 'ROC_alt2_cond100.png', width = 11.7*1.7, height = 8*1.7, units = 'cm')
 ggsave(get_plt_alt2_cond100$time, filename = 'time_alt2_cond100.png', width = 11.7*1.7, height = 8*1.7, units = 'cm')
 
 get_plt_alt2_cond1000 = 
@@ -139,7 +139,7 @@ get_plt_alt2_cond1000 =
     fix = 'fix_lambda_',
     target='inv')
 
-ggsave(get_plt_alt2_cond1000$res, filename = 'ROC_alt2_cond1000.png', width = 11.7*1.7, height = 8*1.7, units = 'cm')
+ggsave(get_plt_alt2_cond1000$res+ylab('true positive rate')+xlab('false positive rate'), filename = 'ROC_alt2_cond1000.png', width = 11.7*1.7, height = 8*1.7, units = 'cm')
 ggsave(get_plt_alt2_cond1000$time, filename = 'time_alt2_cond1000.png', width = 11.7*1.7, height = 8*1.7, units = 'cm')
 
 
