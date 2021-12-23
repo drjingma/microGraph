@@ -6,7 +6,7 @@ This repository provides simulation and real data analysis examples for the foll
 
 # Directory
 
-- Data/  data used in evaluation
-- example/  example code
-- plot/   figures included in the chapter
-- simulation/  functions needed for simulation and data analsis
+- Data:  data used in evaluation
+- example:  example code
+- plot:   figures included in the chapter
+- simulation:  functions needed for simulation and data analsis
