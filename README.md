@@ -1,4 +1,4 @@
-# micrograph
+# About
 
 This repository provides simulation and real data analysis examples for the following book chapter 
 
