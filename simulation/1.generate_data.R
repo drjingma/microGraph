@@ -19,8 +19,7 @@
 # Rscript 1.generate_data.R 100 127 alt1 200 zinegbin erdos_renyi 100 simulation1
 # Rscript 1.generate_data.R 100 127 null1.1 200 zinegbin none 0 simulation1
 # Rscript 1.generate_data.R 100 200 null2 200 none none 0 simulation1
-
-
+# Rscript ../microGraph/simulation/1.generate_data.R 100 127 alt1 10 zinegbin erdos_renyi 1000 simulation1
 
 
 ######
@@ -32,11 +31,12 @@
 ## 2. change null2 library_scale to be based on real data: sample from 1*min(total_count) to 10*min(total_count)
 
 
-filepath = '......' 
-setwd(filepath)
+# filepath = '......' 
+# setwd(filepath)
 
-source('../generation_function.R')
-source('../method_function.R')
+source('~/Dropbox/Projects/Microbiome/microGraph/simulation/generation_function.R')
+source('~/Dropbox/Projects/Microbiome/microGraph/simulation/method_function.R')
+
 library(SpiecEasi)
 library(MASS)
 
@@ -46,24 +46,30 @@ reference_data = amgut1.filt
 
 
 
-args = commandArgs(trailingOnly = T)  
+args = commandArgs(trailingOnly = T)
 print(args)
 
 n = as.integer(args[1])
 p = as.integer(args[2]) # n and p override by reference data set, e.g.
-choose_model = as.character(args[3]) # choose among 'null1' (shuffle reference data), 
-                                    # 'null1.1' (use copula model with NB marginal distr, based on reference data), 
-                                    # 'null2' (generate from Dirichelt distribution with varying total count), 
-                                    # 'alt1' (generate with copula model and reference data), 
+choose_model = as.character(args[3]) # choose among 'null1' (shuffle reference data),
+                                    # 'null1.1' (use copula model with NB marginal distr, based on reference data),
+                                    # 'null2' (generate from Dirichelt distribution with varying total count),
+                                    # 'alt1' (generate with copula model and reference data),
                                     # 'alt2' (generate from log-normal distribution directly)
                                     # 'alt3' (generate from logisitic normal multinomial with fixed total count)
 nreps = as.integer(args[4]) # run 200 for all methods
-distr = as.character(args[5]) # specify the distribution for copula model, if used 
+distr = as.character(args[5]) # specify the distribution for copula model, if used
 network_option = as.character(args[6]) # 'erdos_renyi', or 'chain_small', 'chain_large' for AR(1) (small: rho=0.5, large:rho=0.8), 'cov_erdos_renyi' for correlation based graph
 network_condition_number = as.numeric(args[7]) # specify the condition number of the inverse covariance matrix
 save_folder_name = as.character(args[8]) # subfolder name to save files
-
-
+# n <- 100
+# p <- 127
+# choose_model <- "alt1"
+# nreps <- 10
+# distr <- 'zinegbin'
+# network_option <- 'erdos_renyi'
+# network_condition_number <- 100
+# save_folder_name <- 'simulation1'
 
 set.seed(102)
 ## rarify the data (saved to a separate file)
@@ -177,10 +183,14 @@ for(k in 1:nreps){
 }
 
 output_folder = paste0('data/',save_folder_name,'/', distr,'/', network_option, '/cond_', network_condition_number)
-dir.create(output_folder, showWarnings = F)
+if (!dir.exists(output_folder)){
+  dir.create(output_folder, showWarnings = T, recursive = TRUE)
+  print(output_folder)
+}
 
-save(list=c('data_rep', 'option', 'n', 'p'), file = 
-       paste0(output_folder, '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
+saveRDS(c('data_rep', 'option', 'n', 'p'),
+        file =
+       paste0(output_folder, '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.rds'))
 
 
 
