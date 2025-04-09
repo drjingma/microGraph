@@ -19,7 +19,8 @@
 # Rscript 1.generate_data.R 100 127 alt1 200 zinegbin erdos_renyi 100 simulation1
 # Rscript 1.generate_data.R 100 127 null1.1 200 zinegbin none 0 simulation1
 # Rscript 1.generate_data.R 100 200 null2 200 none none 0 simulation1
-# Rscript ../microGraph/simulation/1.generate_data.R 100 127 alt1 10 zinegbin erdos_renyi 1000 simulation1
+
+
 
 
 ######
@@ -31,12 +32,11 @@
 ## 2. change null2 library_scale to be based on real data: sample from 1*min(total_count) to 10*min(total_count)
 
 
-# filepath = '......' 
-# setwd(filepath)
+filepath = '......' 
+setwd(filepath)
 
-source('~/Dropbox/Projects/Microbiome/microGraph/simulation/generation_function.R')
-source('~/Dropbox/Projects/Microbiome/microGraph/simulation/method_function.R')
-
+source('generation_function.R')
+source('method_function.R')
 library(SpiecEasi)
 library(MASS)
 
@@ -46,36 +46,30 @@ reference_data = amgut1.filt
 
 
 
-args = commandArgs(trailingOnly = T)
+args = commandArgs(trailingOnly = T)  
 print(args)
 
-n = as.integer(args[1])
-p = as.integer(args[2]) # n and p override by reference data set, e.g.
-choose_model = as.character(args[3]) # choose among 'null1' (shuffle reference data),
-                                    # 'null1.1' (use copula model with NB marginal distr, based on reference data),
-                                    # 'null2' (generate from Dirichelt distribution with varying total count),
-                                    # 'alt1' (generate with copula model and reference data),
+n = 200
+p = 20 # n and p override by reference data set, e.g.
+choose_model = 'alt1' # choose among 'null1' (shuffle reference data), 
+                                    # 'null1.1' (use copula model with NB marginal distr, based on reference data), 
+                                    # 'null2' (generate from Dirichelt distribution with varying total count), 
+                                    # 'alt1' (generate with copula model and reference data), 
                                     # 'alt2' (generate from log-normal distribution directly)
                                     # 'alt3' (generate from logisitic normal multinomial with fixed total count)
-nreps = as.integer(args[4]) # run 200 for all methods
-distr = as.character(args[5]) # specify the distribution for copula model, if used
-network_option = as.character(args[6]) # 'erdos_renyi', or 'chain_small', 'chain_large' for AR(1) (small: rho=0.5, large:rho=0.8), 'cov_erdos_renyi' for correlation based graph
-network_condition_number = as.numeric(args[7]) # specify the condition number of the inverse covariance matrix
+nreps = 1 # run 200 for all methods
+distr = 'log-normal' # specify the distribution for copula model, if used 
+network_option = 'erdos_renyi' # 'erdos_renyi', or 'chain_small', 'chain_large' for AR(1) (small: rho=0.5, large:rho=0.8), 'cov_erdos_renyi' for correlation based graph
+network_condition_number = 1000 # specify the condition number of the inverse covariance matrix
 save_folder_name = as.character(args[8]) # subfolder name to save files
-# n <- 100
-# p <- 127
-# choose_model <- "alt1"
-# nreps <- 10
-# distr <- 'zinegbin'
-# network_option <- 'erdos_renyi'
-# network_condition_number <- 100
-# save_folder_name <- 'simulation1'
+
+
 
 set.seed(102)
 ## rarify the data (saved to a separate file)
 library(phyloseq)
 tmp = otu_table(reference_data, taxa_are_rows = F)
-out = rarefy_even_depth(tmp, sample.size = 1000)
+out = rarefy_even_depth(tmp, sample.size = 1000, rngseed = TRUE)
 mean(as.matrix(out)==0)
 reference_data = out
 
@@ -131,11 +125,24 @@ if(choose_model=='alt1'){
   ## Alternative 1
   ## use Copula generative model, graph is based on inverse covariance matrix.
   p = ncol(reference_data)
-  Sigma_list = SpiecEasi_graph_Sigma(p,e=3*p, type = network_option, graph=NULL, network_condition_number = network_condition_number)
+  Sigma_list = SpiecEasi_graph_Sigma(p, e=p, type = network_option, graph=NULL, network_condition_number = network_condition_number)
   option = list(hypothesis = 'alternative', model = 'copula', reference_data = reference_data, 
                 Sigma_list = Sigma_list, distr = distr, network_option = network_option, network_condition_number = network_condition_number)
 }
 
+X <- synth_comm_from_counts(reference_data, mar=2, 
+                            distr='pois', # choose from zipois, zinegbin, pois, lognorm, negbin
+                            Sigma=Sigma_list$Omega, n=n) # output data n by p
+
+clrX <- t(apply(X+1,1,function(a) log(a) - mean(log(a))))
+emp.prec <- cor(clrX)
+diag(emp.prec)<-0
+plt.emp.prec <- pheatmap(emp.prec,cluster_rows = F,cluster_cols = F,silent=T)[[4]]
+plt.truth <- pheatmap(Sigma_list$A_inv,cluster_rows = F,cluster_cols = F,silent=T)[[4]]
+# pheatmap(Sigma_list$Omega,cluster_rows = F,cluster_cols = F)
+library(cowplot)
+library(ggplot2)
+plot_grid(plt.emp.prec,plt.truth)
 
 if(choose_model == 'alt2'){
   ## Alternative 2: log normal
@@ -163,7 +170,6 @@ if(choose_model == 'alt3'){
 ## (the data matrix is not zero-corrected)
 ##-------------------------------------------------------------
 
-
 data_rep = matrix(list(), 2, nreps)
 for(k in 1:nreps){
   set.seed(k*100)
@@ -183,14 +189,10 @@ for(k in 1:nreps){
 }
 
 output_folder = paste0('data/',save_folder_name,'/', distr,'/', network_option, '/cond_', network_condition_number)
-if (!dir.exists(output_folder)){
-  dir.create(output_folder, showWarnings = T, recursive = TRUE)
-  print(output_folder)
-}
+dir.create(output_folder, showWarnings = F)
 
-saveRDS(c('data_rep', 'option', 'n', 'p'),
-        file =
-       paste0(output_folder, '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.rds'))
+save(list=c('data_rep', 'option', 'n', 'p'), file = 
+       paste0(output_folder, '/image_n_', n, '_p_', p, '_', choose_model, '_nreps_', nreps, '_data_rep.RData'))
 
 
 

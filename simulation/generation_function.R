@@ -124,9 +124,9 @@ para_data_generate_3 = function(n, p, mu, Sigma, library_scale){
 # relationship among OTUs based on specified graph matrix
 #----------------
 
-setwd('..../SpiecEasi-master/SpiecEasi-master/R')
-import_files = list.files()
-sapply(import_files, source)
+path <- "~/Dropbox/Projects/Microbiome/microGraph/simulation/SpiecEasi-master/SpiecEasi-master/R/"
+import_files = list.files(path)
+sapply(paste0(path,import_files), source)
 
 
 SpiecEasi_graph_Sigma = function(p,            # number of OTUs
@@ -394,7 +394,7 @@ CClasso_Sigma = function(n, p, option){
 #-----------------------
 # COAT generative model (parametric, log-normal / log-gamma)
 #-----------------------
-source('../COAT-master/COAT-master/simulation.R') # this contains all different data generating models
+# source('../COAT-master/COAT-master/simulation.R') # this contains all different data generating models
 
 # data_list = generateDataCell(n, modelCov, p1 = 50, p2 = 100, p3 = 200, nRep = 100) #modelCov = 1: hub cov; modelCov = 2: block cov; modelCov = 3: sparse cov
 
